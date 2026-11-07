@@ -1,71 +1,90 @@
-# 3D Book Portfolio – Bishal Saha
+# 3D Book Portfolio – Bishal Saha (Next.js & Node.js)
 
-An interactive 3D book portfolio website where visitors open the leather cover, flip pages that bend with authentic paper physics, and explore your projects, skills, and journey chapter by chapter.
+An interactive, physics-based 3D book portfolio built with **Next.js (App Router)**, **React 19**, **Three.js**, and a **Node.js** backend API.
 
-Built as a single self-contained HTML page powered by Three.js and the HTML5 Canvas API—no complex build pipelines required.
+Visitors can open the embossed leather cover, flip through realistic bending pages with authentic paper physics, and read your work chapter by chapter.
 
 ---
 
-## 🚀 Quick Start
+## 🏗️ Project Architecture & File Structure
 
-Run a local server from this directory:
+```
+d:\Projects\Portfolio\
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx             # Root layout with font optimization & Person JSON-LD
+│   │   ├── page.tsx               # Main page hosting 3D book & semantic SSR layer
+│   │   ├── globals.css            # Styles, theme variables (light/dark), animations
+│   │   └── api/                   # Node.js backend routes
+│   │       ├── contact/route.ts   # POST /api/contact - handles inquiries with validation
+│   │       └── portfolio/route.ts # GET /api/portfolio - dynamic portfolio data endpoint
+│   ├── components/
+│   │   ├── Book3D.tsx             # Canvas controller, lifecycle, pointer events
+│   │   ├── BookHeader.tsx         # Branded top bar with chapter navigation
+│   │   ├── BookHUD.tsx            # Previous / Next buttons & page counter indicator
+│   │   ├── Ribbon.tsx             # Red bookmark ribbon jumping to Contact
+│   │   ├── LoadingOverlay.tsx     # Smooth loading screen fadeout
+│   │   └── NoWebGLFallback.tsx    # Semantic SEO and screen reader fallback
+│   └── lib/
+│       ├── constants/
+│       │   └── portfolioData.ts   # Centralized data: ME, INTRO, PROJ, SK, TOOLS, TL
+│       ├── three/
+│       │   ├── bookEngine.ts      # Three.js scene, bending page physics, raycasting
+│       │   └── pageDrawers.ts     # HTML5 Canvas drawers for all 16 page faces
+│       └── types/
+│           └── portfolio.ts       # TypeScript definitions
+├── public/                        # Static assets, images, icons
+├── next.config.mjs                # Next.js configuration
+├── tsconfig.json                  # TypeScript compiler settings
+├── package.json                   # Project scripts and dependencies
+└── index.html                     # Original standalone single-file version
+```
 
+---
+
+## 🚀 Running the Project
+
+### Development Server
 ```bash
-# Using npm:
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Production Build & Run
+```bash
+npm run build
 npm start
-
-# Or using npx directly:
-npx serve .
-
-# Or using Python 3:
-python -m http.server 8000
 ```
 
-Then open `http://localhost:3000` (or `http://localhost:8000`) in your web browser.
+---
+
+## ⚡ Key Features
+
+- **Realistic Bending Page Physics**: A 26-segment plane geometry hinged on the spine bends with progressive trailing tips as pages turn.
+- **Node.js API Routes**:
+  - `GET /api/portfolio`: Serves Bishal Saha's portfolio structure, projects, and skills as JSON.
+  - `POST /api/contact`: Validates and processes user messages and inquiries.
+- **Full Interactivity**:
+  - Click on either side of the open book to flip forward or backward.
+  - Click any chapter line on the **Contents** page or contact link on the **Contact** page (mapped via canvas raycaster coordinates).
+  - Drag / swipe horizontally on touchscreens or trackpads.
+  - Keyboard arrow keys (`Left`, `Right`, `PageUp`, `PageDown`, `Home`, `End`).
+  - Mouse wheel gestures.
+- **SEO & Accessibility**:
+  - Semantic HTML rendered via SSR for crawlers and screen readers.
+  - Schema.org `Person` JSON-LD structured data.
+  - Automatic `nogl` fallback if WebGL is unavailable.
+- **Mobile Responsive**:
+  - Automatically switches to a single-page view on narrow screens.
 
 ---
 
-## 📖 Book Structure
+## 🛠️ Personalizing Your Content
 
-| Spread | Pages | Content |
-|---|---|---|
-| **Cover** | 0 | Leather embossed book cover with your name and role |
-| **Intro** | 1–2 | Foreword and interactive table of contents |
-| **Aurora** | 3–4 | Project 1: Generated figure & case study |
-| **Lumen** | 5–6 | Project 2: Configurators / 3D web |
-| **Fable** | 7–8 | Project 3: Mobile / Gesture apps |
-| **Skills** | 9–10 | Visual skill bars and tool tags |
-| **Journey** | 11–12 | Career timeline |
-| **Contact** | 13–14 | Epilogue and clickable contact links (Email, GitHub, LinkedIn) |
-| **End** | 15 | Back cover ("Fin.") |
-
----
-
-## 🎨 How to Personalize
-
-All personal content is organized at the top of the `<script>` tag in [`index.html`](./index.html) under the comment `/* CONTENT: edit everything here */`:
-
-```javascript
-const ME = {
-  name: 'Bishal Saha',
-  role: 'Creative Developer',
-  email: 'hello@bishalsaha.com',
-  links: [
-    ['GitHub', 'https://github.com/bishalsaha', 'github.com/bishalsaha'],
-    ['LinkedIn', 'https://linkedin.com/in/bishalsaha', 'linkedin.com/in/bishalsaha'],
-    ['Résumé', 'https://example.com/resume.pdf', 'example.com/resume.pdf']
-  ]
-};
-```
-
-### Adding Your Real Project Screenshots
-1. Save your project screenshots (around 1100×1300 px, <300 KB) in the root folder (e.g., `project1.jpg`).
-2. Add an `img: 'project1.jpg'` field to the corresponding project object in `PROJ`.
-3. Preload the images and render them inside `vis()` on the canvas as described in Section 5 of the guide.
-
----
-
-## 🚢 Free Deployment Options
-
-- **GitHub Pages**: Push this repository to GitHub, go to **Settings → Pages**, and select the `main` branch root `/`.
-- **Vercel / Netlify**: Connect your repository or drag-and-drop the folder directly onto Netlify Drop.
+All data is managed in [`src/lib/constants/portfolioData.ts`](./src/lib/constants/portfolioData.ts):
+- `ME`: Name, role, email, and social links.
+- `INTRO`: Foreword text.
+- `PROJ`: Projects (titles, metrics, colors, case studies, technologies).
+- `SK`: Skills and proficiency percentages.
+- `TOOLS`: Toolbox tags.
+- `TL`: Career timeline entries.
