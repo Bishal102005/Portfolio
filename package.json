@@ -1,0 +1,17 @@
+{
+  "name": "bishal-saha-portfolio",
+  "version": "1.0.0",
+  "description": "3D Book Portfolio of Bishal Saha built with Three.js",
+  "scripts": {
+    "start": "npx serve -l 3000 .",
+    "dev": "npx serve -l 3000 ."
+  },
+  "keywords": [
+    "threejs",
+    "portfolio",
+    "3d-book",
+    "webgl"
+  ],
+  "author": "Bishal Saha",
+  "license": "MIT"
+}
