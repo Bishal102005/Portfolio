@@ -387,41 +387,14 @@ export function createLibraryScene(): THREE.Group {
   fillShelf(-2.15, 1.55, 4.5, 0.94, 0.08);
 
   // 7. Warm Atmospheric Library Lighting
-  // Left Brass Desk Lamp
-  const lampGroup = new THREE.Group();
-  lampGroup.position.set(-1.85, -0.65, -1.35);
+  // Warm ambient fill lights (soft architectural bounce, no obstructing props)
+  const leftFillLight = new THREE.PointLight(0xffb74d, 1.8, 8.5);
+  leftFillLight.position.set(-2.4, 0.8, -1.2);
+  library.add(leftFillLight);
 
-  const brassMat = new THREE.MeshStandardMaterial({
-    color: 0xd4a054,
-    metalness: 0.88,
-    roughness: 0.28
-  });
-  const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.06, 20), brassMat);
-  const lampStem = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.44, 16), brassMat);
-  lampStem.position.y = 0.22;
-
-  const shadeMat = new THREE.MeshStandardMaterial({
-    color: 0xffedd5,
-    roughness: 0.45,
-    emissive: 0xf59e0b,
-    emissiveIntensity: 0.65
-  });
-  const lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.22, 20, 1, true), shadeMat);
-  lampShade.position.y = 0.44;
-  lampShade.rotation.x = Math.PI;
-
-  lampGroup.add(lampBase, lampStem, lampShade);
-  library.add(lampGroup);
-
-  // Warm point light radiating from reading lamp
-  const lampLight = new THREE.PointLight(0xffb74d, 2.2, 7.5);
-  lampLight.position.set(-1.85, -0.2, -1.3);
-  library.add(lampLight);
-
-  // Ambient warm golden chandelier fill
-  const chandelierFill = new THREE.PointLight(0xf59e0b, 1.4, 8.5);
-  chandelierFill.position.set(2.2, 0.9, -1.1);
-  library.add(chandelierFill);
+  const rightFillLight = new THREE.PointLight(0xf59e0b, 1.5, 8.5);
+  rightFillLight.position.set(2.4, 0.9, -1.2);
+  library.add(rightFillLight);
 
   // Dedicated Warm Accent Spotlight focused right on Bishal's centerpiece book
   const featureSpot = new THREE.SpotLight(0xfffaed, 2.0, 7.0, Math.PI / 3.8, 0.4);
