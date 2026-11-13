@@ -15,3 +15,4 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading }) => 
     </div>
   );
 };
+

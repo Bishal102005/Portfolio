@@ -31,3 +31,4 @@ export const BookHeader: React.FC<BookHeaderProps> = ({ currentSpread, onNavigat
     </header>
   );
 };
+

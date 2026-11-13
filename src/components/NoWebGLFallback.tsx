@@ -58,3 +58,4 @@ export const NoWebGLFallback: React.FC = () => {
     </main>
   );
 };
+

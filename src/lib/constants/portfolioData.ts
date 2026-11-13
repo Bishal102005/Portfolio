@@ -3,10 +3,14 @@ import { PersonalInfo, Project, Skill, TimelineItem } from '../types/portfolio';
 export const ME: PersonalInfo = {
   name: 'Bishal Saha',
   role: 'Creative Developer',
-  email: 'hello@bishalsaha.com',
+  email: '12bishalsaha@email.com',
   links: [
-    ['GitHub', 'https://github.com/bishalsaha', 'github.com/bishalsaha'],
-    ['LinkedIn', 'https://linkedin.com/in/bishalsaha', 'linkedin.com/in/bishalsaha'],
+    ['GitHub', 'https://github.com/Bishal102005', 'github.com/Bishal102005'],
+    [
+      'LinkedIn',
+      'https://www.linkedin.com/in/bishal-saha-b37626255?utm_source=share_via&utm_content=profile&utm_medium=member_android',
+      'linkedin.com/in/bishal-saha'
+    ],
     ['Résumé', 'https://example.com/resume.pdf', 'example.com/resume.pdf']
   ]
 };
@@ -111,3 +115,4 @@ export const NAV: [label: string, spreadIndex: number][] = [
   ['Journey', 6],
   ['Contact', 7]
 ];
+

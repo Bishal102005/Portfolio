@@ -1,8 +1,10 @@
+export type PortfolioLink = [label: string, url: string, display?: string];
+
 export interface PersonalInfo {
   name: string;
   role: string;
   email: string;
-  links: [label: string, url: string, display: string][];
+  links: PortfolioLink[];
 }
 
 export interface Project {
@@ -33,3 +35,4 @@ export interface NavItem {
   label: string;
   spreadIndex: number;
 }
+

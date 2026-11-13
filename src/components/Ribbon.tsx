@@ -18,3 +18,4 @@ export const Ribbon: React.FC<RibbonProps> = ({ onJumpContact }) => {
     </button>
   );
 };
+

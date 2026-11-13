@@ -459,7 +459,11 @@ export function conR(g: CanvasRenderingContext2D, f: number) {
   g.fillRect(m, 175, 70, 3);
   const R: [string, string, string][] = [
     ['Email', ME.email, 'mailto:' + ME.email],
-    ...ME.links.map((l) => [l[0], l[2], l[1]] as [string, string, string])
+    ...ME.links.map((l) => [
+      l[0],
+      l[2] || l[1].replace(/^https?:\/\/(www\.)?/, '').split('?')[0],
+      l[1]
+    ] as [string, string, string])
   ];
   HIT[f] = [];
   R.forEach((r, i) => {
@@ -491,3 +495,4 @@ export const FACES = [
   conR,
   back
 ];
+
