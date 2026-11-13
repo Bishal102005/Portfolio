@@ -699,11 +699,13 @@ export class BookEngine {
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
       this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
 
-      // Close-up intimate bookshelf framing matching reference video
-      const targetCamDist = 3.35;
+      // Atmospheric grand library framing matching the user reference
+      const targetCamDist = 3.65;
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
-      this.camera.position.set(0, 0.04, this.dist);
-      this.camera.lookAt(0, 0.04, -2.0);
+      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.35;
+      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.18;
+      this.camera.position.set(camParallaxX, 0.12 + camParallaxY, this.dist);
+      this.camera.lookAt(0, 0.02, -2.0);
     } else {
       // 2. Floating in reading position facing user
       this.group.position.x += (-fx - this.group.position.x) * kPos;
