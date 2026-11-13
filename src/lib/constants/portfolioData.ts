@@ -11,7 +11,7 @@ export const ME: PersonalInfo = {
       'https://www.linkedin.com/in/bishal-saha-b37626255?utm_source=share_via&utm_content=profile&utm_medium=member_android',
       'linkedin.com/in/bishal-saha'
     ],
-    ['Résumé', 'https://example.com/resume.pdf', 'example.com/resume.pdf']
+    ['Resume', 'https://example.com/resume.pdf', 'example.com/resume.pdf']
   ]
 };
 
@@ -26,7 +26,7 @@ export const PROJ: Project[] = [
     sub: 'Real-time analytics dashboard',
     yr: 2025,
     role: 'Lead front-end engineer',
-    c: ['#0b3a42', '#35d0ba'],
+    c: ['#042f2e', '#00f5d4'],
     ch: 'Teams drowned in forty disconnected reports and waited seconds for every chart.',
     ap: 'I rebuilt the data layer around streaming aggregates and drew every chart on one shared canvas scene.',
     out: 'Dashboards now render in under a second, and teams answer their own questions.',
@@ -39,7 +39,7 @@ export const PROJ: Project[] = [
     sub: 'Immersive 3D product configurator',
     yr: 2024,
     role: 'Creative developer',
-    c: ['#3b1d6e', '#ff7ac6'],
+    c: ['#2e0854', '#f72585'],
     ch: 'Shoppers could not picture a custom lamp from flat photos, so returns stayed high.',
     ap: 'A WebGL configurator with baked lighting, compressed models and a UI that never hides the product.',
     out: 'Conversion rose, returns fell, and the scene loads in under three seconds on mid-range phones.',
@@ -52,7 +52,7 @@ export const PROJ: Project[] = [
     sub: 'Bedtime story app for children',
     yr: 2023,
     role: 'Product engineer and motion designer',
-    c: ['#7a3b10', '#ffc857'],
+    c: ['#3b1103', '#ff9f1c'],
     ch: 'Parents wanted calm screens that children could use without reading.',
     ap: 'A gesture-first interface with soft motion, offline narration and a separate parent mode.',
     out: 'Rated 4.8 stars, with children reaching story time in two taps.',

@@ -1,9 +1,14 @@
 :root {
-  --bg1: #efe5d0;
-  --bg2: #b7a584;
-  --fg: #2b211b;
-  --ac: #a8742a;
-  --pn: rgba(255, 250, 240, 0.72);
+  /* Bright Luminous Royal Studio (Light Mode) */
+  --bg1: #ffffff;
+  --bg2: #e0e7ff; /* vibrant periwinkle sky aura */
+  --fg: #0f172a;  /* deep rich slate */
+  --ac: #d97706;  /* radiant amber gold */
+  --ac-hover: #b45309;
+  --pn: rgba(255, 255, 255, 0.85); /* high clarity frosted glass */
+  --pn-border: rgba(148, 163, 184, 0.28);
+  --ribbon-bg: linear-gradient(135deg, #f43f5e, #e11d48);
+  --shadow-hud: 0 12px 32px rgba(15, 23, 42, 0.08);
   color-scheme: light dark;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
@@ -12,20 +17,41 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg1: #2c231f;
-    --bg2: #0d0a09;
-    --fg: #f3ead8;
-    --ac: #d6a756;
-    --pn: rgba(30, 22, 18, 0.7);
+    /* Cosmic Royal Aurora (Dark Mode) */
+    --bg1: #1e1b4b; /* deep royal indigo */
+    --bg2: #090d16; /* midnight obsidian */
+    --fg: #f8fafc;  /* brilliant white */
+    --ac: #fbbf24;  /* glowing starlight gold */
+    --ac-hover: #f59e0b;
+    --pn: rgba(30, 27, 75, 0.72); /* frosted midnight glass */
+    --pn-border: rgba(255, 255, 255, 0.15);
+    --ribbon-bg: linear-gradient(135deg, #fb7185, #f43f5e);
+    --shadow-hud: 0 12px 32px rgba(0, 0, 0, 0.45);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg1: #2c231f;
-  --bg2: #0d0a09;
-  --fg: #f3ead8;
-  --ac: #d6a756;
-  --pn: rgba(30, 22, 18, 0.7);
+  --bg1: #1e1b4b;
+  --bg2: #090d16;
+  --fg: #f8fafc;
+  --ac: #fbbf24;
+  --ac-hover: #f59e0b;
+  --pn: rgba(30, 27, 75, 0.72);
+  --pn-border: rgba(255, 255, 255, 0.15);
+  --ribbon-bg: linear-gradient(135deg, #fb7185, #f43f5e);
+  --shadow-hud: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+:root[data-theme="light"] {
+  --bg1: #ffffff;
+  --bg2: #e0e7ff;
+  --fg: #0f172a;
+  --ac: #d97706;
+  --ac-hover: #b45309;
+  --pn: rgba(255, 255, 255, 0.85);
+  --pn-border: rgba(148, 163, 184, 0.28);
+  --ribbon-bg: linear-gradient(135deg, #f43f5e, #e11d48);
+  --shadow-hud: 0 12px 32px rgba(15, 23, 42, 0.08);
 }
 
 *, *::before, *::after {
@@ -39,12 +65,13 @@ html, body {
 }
 
 body {
-  background: radial-gradient(ellipse at 50% 35%, var(--bg1), var(--bg2));
+  background: radial-gradient(ellipse at 50% 30%, var(--bg1) 0%, var(--bg2) 100%);
   color: var(--fg);
   font: 15px 'Inter', system-ui, -apple-system, sans-serif;
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+  transition: background 0.5s ease, color 0.5s ease;
 }
 
 #c {
@@ -58,13 +85,13 @@ body {
 
 .top {
   position: fixed;
-  top: calc(12px + env(safe-area-inset-top, 0px));
-  left: 20px;
-  right: 20px;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: 24px;
+  right: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   pointer-events: none;
   z-index: 2;
 }
@@ -74,29 +101,41 @@ body {
 }
 
 .logo {
-  font: 700 20px "Playfair Display", Georgia, serif;
-  letter-spacing: -0.01em;
+  font: 700 22px "Playfair Display", Georgia, serif;
+  letter-spacing: -0.015em;
+  background: linear-gradient(135deg, var(--fg) 40%, var(--ac) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.05));
 }
 
 nav {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
-  margin-right: 56px;
+  margin-right: 64px;
 }
 
 button {
   font: inherit;
   color: var(--fg);
   background: var(--pn);
-  border: 1px solid rgba(128, 128, 128, 0.35);
+  border: 1px solid var(--pn-border);
   border-radius: 99px;
-  padding: 8px 14px;
+  padding: 8px 16px;
   cursor: pointer;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-color: var(--ac);
 }
 
 button:focus-visible {
@@ -106,16 +145,42 @@ button:focus-visible {
 
 nav button[aria-current="true"] {
   background: var(--ac);
-  color: #1b130e;
+  color: #0f172a;
   border-color: var(--ac);
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.35);
+  transform: translateY(-1px);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 16px;
+  border: 1px solid var(--pn-border);
+  background: var(--pn);
+  color: var(--fg);
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1.5px) rotate(15deg);
+  border-color: var(--ac);
 }
 
 .hud {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   display: flex;
   gap: 12px;
   justify-content: center;
@@ -124,47 +189,76 @@ nav button[aria-current="true"] {
 }
 
 .hud span {
-  min-width: 190px;
+  min-width: 210px;
   text-align: center;
   font-feature-settings: 'tnum';
   font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--fg);
+  background: var(--pn);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 9px 20px;
+  border-radius: 99px;
+  border: 1px solid var(--pn-border);
+  box-shadow: var(--shadow-hud);
+}
+
+.hud button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .hud button:disabled {
-  opacity: 0.35;
+  opacity: 0.3;
   cursor: default;
+  transform: none;
+  box-shadow: none;
 }
 
 .rib {
   position: fixed;
-  right: 22px;
+  right: 24px;
   top: calc(8px + env(safe-area-inset-top, 0px));
-  background: #a3281f;
+  background: var(--ribbon-bg);
   color: #fff;
   border: 0;
   border-radius: 0;
-  padding: 14px 12px 26px;
+  padding: 14px 13px 28px;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
-  font-weight: 600;
-  font-size: 12px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   z-index: 3;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.4);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
 
 .rib:hover {
-  background: #bd3126;
-  transform: translateY(2px);
+  transform: translateY(3px);
+  box-shadow: 0 12px 28px rgba(244, 63, 94, 0.55);
 }
 
 .hint {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   text-align: center;
-  opacity: 0.75;
-  transition: opacity 0.6s;
+  opacity: 0.8;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--fg);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.6s ease;
   pointer-events: none;
   z-index: 2;
 }
@@ -174,11 +268,11 @@ nav button[aria-current="true"] {
   inset: 0;
   display: grid;
   place-items: center;
-  font: italic 22px "Playfair Display", Georgia, serif;
+  font: italic 24px "Playfair Display", Georgia, serif;
   background: var(--bg1);
   color: var(--fg);
   z-index: 5;
-  transition: opacity 0.8s;
+  transition: opacity 0.8s ease;
 }
 
 .sr {
@@ -196,7 +290,7 @@ nav button[aria-current="true"] {
   -webkit-user-select: auto;
 }
 
-.nogl #c, .nogl .hud, .nogl .rib, .nogl nav, .nogl #load, .nogl .hint {
+.nogl #c, .nogl .hud, .nogl .rib, .nogl nav, .nogl #load, .nogl .hint, .nogl .theme-toggle {
   display: none !important;
 }
 
@@ -218,8 +312,7 @@ nav button[aria-current="true"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #load, .hint {
-    transition: none;
+  #load, .hint, body, button, .rib {
+    transition: none !important;
   }
 }
-

@@ -94,11 +94,11 @@ export class BookEngine {
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
-    // Lights
-    const hemiLight = new THREE.HemisphereLight(0xfff4e0, 0x6a5038, 0.78);
+    // Luminous studio & ambient lights
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x94a3b8, 0.95);
     this.scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const dirLight = new THREE.DirectionalLight(0xfffbeb, 0.85);
     dirLight.position.set(-2, 3, 4);
     this.scene.add(dirLight);
 
@@ -140,8 +140,12 @@ export class BookEngine {
       this.sheets.push({ geo, fm, bm, p: -1, tp: 0 });
     }
 
-    // Leather cover boards and spine
-    const leatherMat = new THREE.MeshStandardMaterial({ color: 0x4a261d, roughness: 0.7 });
+    // Royal sapphire cover boards and spine
+    const leatherMat = new THREE.MeshStandardMaterial({
+      color: 0x141b2b,
+      roughness: 0.55,
+      metalness: 0.1
+    });
     this.backRight = new THREE.Mesh(new THREE.BoxGeometry(this.W + 0.07, this.H + 0.07, 0.03), leatherMat);
     this.backLeft = this.backRight.clone();
     this.backRight.position.set(this.W / 2, 0, -0.02);
@@ -151,7 +155,7 @@ export class BookEngine {
     this.spine.position.z = -0.02;
     this.group.add(this.backRight, this.backLeft, this.spine);
 
-    // Warm ambient floating dust particles
+    // Luminous floating stardust particles
     this.particlesGeo = new THREE.BufferGeometry();
     const posArr = new Float32Array(360);
     for (let i = 0; i < 120; i++) {
@@ -164,9 +168,9 @@ export class BookEngine {
       this.particlesGeo,
       new THREE.PointsMaterial({
         size: 0.025,
-        color: 0xfff1cf,
+        color: 0xfef08a,
         transparent: true,
-        opacity: 0.45,
+        opacity: 0.6,
         depthWrite: false
       })
     );
