@@ -5,9 +5,9 @@ import { TW, TH, SERIF, SANS } from '@/lib/three/drawUtils';
 
 export const footerData = {
   title: 'Fin.',
-  quote: ['THERE IS NOTHING TO BECOME.', 'ONLY WHAT YOU ARE.'],
-  subtitle: 'Thank you for reading',
-  note: 'Turn back, or write to me'
+  quote: ['WHERE CODE BECOMES TACTILE & WEIGHTY.', 'AN ARCHIVE OF INTERACTIVE CRAFT.'],
+  subtitle: 'Thank you for exploring',
+  note: 'Turn back, or write to me at 12bishalsaha@email.com'
 };
 
 function drawDiamondDivider(

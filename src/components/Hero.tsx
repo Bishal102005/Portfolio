@@ -4,23 +4,26 @@ import React from 'react';
 import { TW, TH, SERIF, SANS } from '@/lib/three/drawUtils';
 
 export const heroData = {
-  // Top epigraph
-  topQuote: ['THERE IS NOTHING TO BECOME.', 'ONLY WHAT YOU ARE.'],
+  // Top epigraph quote related to creative developer portfolio
+  topQuote: [
+    'WHERE CODE BECOMES TACTILE & WEIGHTY.',
+    'AN ARCHIVE OF INTERACTIVE CRAFT.'
+  ],
 
   // Main stacked title lines with exact styling
   titleLines: [
-    { text: 'THE', color: '#ffffff', size: 54, weight: '600' },
-    { text: 'END', color: '#e5a958', size: 74, weight: '700' }, // Glowing Warm Gold
-    { text: 'OF', color: '#ffffff', size: 48, weight: '600' },
-    { text: 'THE', color: '#ffffff', size: 48, weight: '600' },
-    { text: 'SELF', color: '#ffffff', size: 66, weight: '700' }
+    { text: 'THE', color: '#ffffff', size: 52, weight: '600' },
+    { text: 'PORTFOLIO', color: '#e5a958', size: 60, weight: '700' }, // Glowing Warm Gold
+    { text: 'OF', color: '#ffffff', size: 46, weight: '600' },
+    { text: 'SELECTED', color: '#ffffff', size: 52, weight: '600' },
+    { text: 'WORKS', color: '#ffffff', size: 62, weight: '700' }
   ],
 
   // Subtitle boxed between delicate gold rules
-  subtitleLines: ['FREEDOM', 'BEYOND', 'IDENTITY'],
+  subtitleLines: ['CREATIVE', 'DEVELOPER', 'VOLUME I'],
 
   // Author name at the bottom
-  authorName: 'A R L E N   F R O S T',
+  authorName: 'B I S H A L   S A H A',
 
   // Profile data for semantic & fallback
   name: 'Bishal Saha',
@@ -202,7 +205,7 @@ export function drawCover(g: CanvasRenderingContext2D) {
 
   // 6. Subtitle Box
   const subY = curY + 68;
-  const ruleW = 126;
+  const ruleW = 138;
   g.save();
   g.strokeStyle = 'rgba(220, 167, 93, 0.55)';
   g.lineWidth = 1;
