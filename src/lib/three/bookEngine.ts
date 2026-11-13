@@ -508,14 +508,9 @@ export class BookEngine {
     this.isFloating = true;
     this.isBookHovered = false;
     if (this.canvas) this.canvas.style.cursor = 'default';
+    this.go(0, 1);
     this.onFloatingChange?.(true);
     this.onHintHide?.();
-
-    setTimeout(() => {
-      if (this.target === 0) {
-        this.go(1, 0);
-      }
-    }, 720);
   }
 
   public returnToShelf() {
