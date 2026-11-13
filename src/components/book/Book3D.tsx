@@ -159,24 +159,18 @@ export const Book3D: React.FC = () => {
       {/* Atmospheric depth-of-field overlay when reading */}
       <div className={`library-backdrop ${isFloating ? 'active' : ''}`} />
 
-      {/* Library Welcome Banner when book is resting on desk/shelf */}
+      {/* Virtual library subtle hint */}
       {!isFloating && (
-        <div className="library-welcome">
-          <div className="library-badge">
-            <span className="dot" /> The Library &bull; Volume I
-          </div>
-          <h1 className="library-title">Bishal Saha</h1>
-          <p className="library-subtitle">Creative Developer &bull; 3D Portfolio</p>
-          <button
-            type="button"
-            className="library-open-btn"
-            onClick={handlePullFromShelf}
-            aria-label="Take book from library"
-          >
-            <span>📖 Take Book from Library</span>
-          </button>
-          <p className="library-hint">Click the book or button to pull it from the library</p>
-        </div>
+        <p
+          className="hint"
+          id="hint"
+          style={{
+            opacity: showHint ? 0.85 : 0,
+            transition: 'opacity 0.6s ease'
+          }}
+        >
+          Click the book to pick it up
+        </p>
       )}
 
       {/* Reading Navigation & HUD (Fades in when book floats into view) */}

@@ -45,6 +45,7 @@ export class BookEngine {
   public side = 1;
   public portrait = false;
   public isFloating = false;
+  private isBookHovered = false;
 
   private acc = 0;
   private hov = 0;
@@ -273,6 +274,8 @@ export class BookEngine {
   public pullFromShelf() {
     if (this.isFloating) return;
     this.isFloating = true;
+    this.isBookHovered = false;
+    if (this.canvas) this.canvas.style.cursor = 'default';
     this.onFloatingChange?.(true);
     this.onHintHide?.();
     setTimeout(() => {
@@ -285,6 +288,8 @@ export class BookEngine {
   public returnToShelf() {
     this.go(0, 0);
     this.isFloating = false;
+    this.isBookHovered = false;
+    if (this.canvas) this.canvas.style.cursor = 'default';
     this.onFloatingChange?.(false);
   }
 
@@ -307,6 +312,24 @@ export class BookEngine {
   private handlePointerMove = (e: PointerEvent) => {
     this.px = e.clientX / window.innerWidth - 0.5;
     this.py = e.clientY / window.innerHeight - 0.5;
+
+    if (!this.isFloating) {
+      if (this.sheets.length > 0 && this.camera && this.canvas) {
+        this.raycaster.setFromCamera(
+          new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1),
+          this.camera
+        );
+        const targets: THREE.Object3D[] = [this.sheets[0].fm, this.backRight, this.backLeft].filter(Boolean);
+        const hits = this.raycaster.intersectObjects(targets);
+        const hovered = hits.length > 0;
+        if (hovered !== this.isBookHovered) {
+          this.isBookHovered = hovered;
+          this.canvas.style.cursor = hovered ? 'pointer' : 'default';
+        }
+      }
+      return;
+    }
+
     this.hov = this.portrait ? 0 : this.px > 0.32 ? 1 : this.px < -0.32 ? -1 : 0;
   };
 
@@ -472,12 +495,14 @@ export class BookEngine {
     const shelfLerp = Math.min(1, dt * 3.5);
 
     if (!this.isFloating) {
-      // Resting on the wooden library desk
+      // Resting on the wooden library desk in perspective
+      const hoverLift = this.isBookHovered ? 0.09 : 0;
+      const hoverTilt = this.isBookHovered ? -0.08 : 0;
       const targetDeskX = 0;
-      const targetDeskY = -0.42 + (this.isReducedMotion ? 0 : Math.sin(t * 1.3) * 0.02);
-      const targetDeskZ = -0.75;
-      const targetRotX = 0.42;
-      const targetRotY = 0.16 + (this.isReducedMotion ? 0 : Math.sin(t * 0.7) * 0.03);
+      const targetDeskY = -0.42 + hoverLift + (this.isReducedMotion ? 0 : Math.sin(t * 1.3) * 0.015);
+      const targetDeskZ = -0.75 + (this.isBookHovered ? 0.16 : 0);
+      const targetRotX = 0.44 + hoverTilt;
+      const targetRotY = 0.14 + (this.isReducedMotion ? 0 : this.px * 0.15);
 
       this.group.position.x += (targetDeskX - this.group.position.x) * shelfLerp;
       this.group.position.y += (targetDeskY - this.group.position.y) * shelfLerp;
