@@ -310,22 +310,8 @@ nav button[aria-current="true"] {
 }
 
 /* ==========================================================================
-   Library Atmosphere & Book Pull-out Overlay Styles
+   Library Atmosphere & Book Navigation Styles
    ========================================================================== */
-
-.library-backdrop {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  transition: backdrop-filter 0.9s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.9s ease;
-  z-index: 1;
-}
-
-.library-backdrop.active {
-  background: rgba(10, 6, 4, 0.52);
-  backdrop-filter: blur(8px) brightness(0.72);
-  -webkit-backdrop-filter: blur(8px) brightness(0.72);
-}
 
 .return-library-btn {
   display: inline-flex;

@@ -156,9 +156,6 @@ export const Book3D: React.FC = () => {
     <>
       <canvas id="c" ref={canvasRef} aria-hidden="true" />
 
-      {/* Atmospheric depth-of-field overlay when reading */}
-      <div className={`library-backdrop ${isFloating ? 'active' : ''}`} />
-
       {/* Virtual library subtle hint */}
       {!isFloating && (
         <div

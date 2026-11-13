@@ -137,6 +137,8 @@ export class BookEngine {
   private ribbonBookmark!: THREE.Mesh;
   private pickHitBox!: THREE.Mesh;
   private spineTexture!: THREE.CanvasTexture;
+  private readingLight!: THREE.DirectionalLight;
+  private readingFillLight!: THREE.PointLight;
   private particlesGeo!: THREE.BufferGeometry;
   private textures: THREE.CanvasTexture[] = [];
   private raycaster = new THREE.Raycaster();
@@ -213,17 +215,27 @@ export class BookEngine {
     const library = createLibraryScene();
     this.scene.add(library);
 
-    // Warm ambient and key lighting
-    const hemiLight = new THREE.HemisphereLight(0xfff6ec, 0x3d2716, 1.1);
+    // Crisp, radiant ambient and directional lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x44301e, 1.45);
     this.scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.25);
+    const dirLight = new THREE.DirectionalLight(0xfff3e3, 1.4);
     dirLight.position.set(-2, 3.5, 4);
     this.scene.add(dirLight);
 
-    const lampLight = new THREE.PointLight(0xf59e0b, 1.3, 10);
+    const lampLight = new THREE.PointLight(0xf59e0b, 1.4, 10);
     lampLight.position.set(-2.5, 1.2, 1.8);
     this.scene.add(lampLight);
+
+    // Dedicated brilliant Reading Key Light directly illuminating the floating book
+    this.readingLight = new THREE.DirectionalLight(0xfffdf7, this.isFloating ? 2.4 : 0.6);
+    this.readingLight.position.set(0.1, 2.8, 4.2);
+    this.scene.add(this.readingLight);
+
+    // Soft warm front fill light directly for book pages
+    this.readingFillLight = new THREE.PointLight(0xfffaec, this.isFloating ? 1.8 : 0.4, 12);
+    this.readingFillLight.position.set(0, 0.4, 3.6);
+    this.scene.add(this.readingFillLight);
 
     // Canvas textures for book pages
     const maxAniso = this.renderer.capabilities.getMaxAnisotropy();
@@ -245,7 +257,12 @@ export class BookEngine {
     });
 
     const createMat = (m: THREE.CanvasTexture, side: THREE.Side) =>
-      new THREE.MeshStandardMaterial({ map: m, side, roughness: 0.88 });
+      new THREE.MeshStandardMaterial({
+        map: m,
+        side,
+        roughness: 0.52,
+        metalness: 0.02
+      });
 
     // Build sheets
     this.sheets = [];
@@ -704,6 +721,14 @@ export class BookEngine {
       this.dist += (dd - this.dist) * (1 - Math.exp(-dt * 3.5));
       this.camera.position.set(0, 0.35, this.dist);
       this.camera.lookAt(0, 0, 0);
+    }
+
+    // Dynamic light brightness easing: bright & clear when floating
+    if (this.readingLight && this.readingFillLight) {
+      const targetReadLight = this.isFloating ? 2.5 : 0.6;
+      const targetFillLight = this.isFloating ? 1.8 : 0.4;
+      this.readingLight.intensity += (targetReadLight - this.readingLight.intensity) * (1 - Math.exp(-dt * 4.0));
+      this.readingFillLight.intensity += (targetFillLight - this.readingFillLight.intensity) * (1 - Math.exp(-dt * 4.0));
     }
 
     // Dust motes floating through ambient lighting
