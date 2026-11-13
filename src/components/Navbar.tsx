@@ -62,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   return (
     <header className="top">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="top-brand">
         <div className="logo">{heroData.name}</div>
         {onReturnToShelf && (
           <button
@@ -71,7 +71,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onReturnToShelf}
             title="Put book back onto the bookshelf"
           >
-            <span>↩ Put back on shelf</span>
+            <span className="shelf-btn-text-full">↩ Put back on shelf</span>
+            <span className="shelf-btn-text-mobile">↩ Shelf</span>
           </button>
         )}
       </div>

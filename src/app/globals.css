@@ -101,6 +101,36 @@ body {
   pointer-events: auto;
 }
 
+.top-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shelf-btn-text-full {
+  display: inline;
+}
+
+.shelf-btn-text-mobile {
+  display: none;
+}
+
+.shelf-hint-desktop {
+  display: inline;
+}
+
+.shelf-hint-mobile {
+  display: none;
+}
+
+.hint-desktop {
+  display: inline;
+}
+
+.hint-mobile {
+  display: none;
+}
+
 .logo {
   font: 700 22px "Playfair Display", Georgia, serif;
   letter-spacing: -0.015em;
@@ -300,6 +330,101 @@ nav button[aria-current="true"] {
 @media (max-width: 700px) {
   nav {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .top {
+    left: 12px;
+    right: 74px;
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    gap: 8px;
+  }
+
+  .top-brand {
+    gap: 8px;
+  }
+
+  .logo {
+    font-size: 16px;
+    letter-spacing: -0.01em;
+  }
+
+  .shelf-btn-text-full {
+    display: none;
+  }
+
+  .shelf-btn-text-mobile {
+    display: inline;
+  }
+
+  .return-library-btn {
+    padding: 5px 10px;
+    font-size: 11.5px;
+    gap: 4px;
+    border-radius: 99px;
+  }
+
+  .rib {
+    right: 12px;
+    top: calc(6px + env(safe-area-inset-top, 0px));
+    padding: 10px 10px 22px;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .hud {
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .hud span {
+    min-width: unset;
+    max-width: calc(100vw - 116px);
+    font-size: 12.5px;
+    padding: 7px 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hud button {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .hint {
+    bottom: calc(62px + env(safe-area-inset-bottom, 0px));
+    font-size: 12px;
+    padding: 0 16px;
+  }
+
+  .hint-desktop {
+    display: none;
+  }
+
+  .hint-mobile {
+    display: inline;
+  }
+
+  .shelf-hint-desktop {
+    display: none;
+  }
+
+  .shelf-hint-mobile {
+    display: inline;
+  }
+
+  .shelf-pill-hint {
+    padding: 8px 16px;
+    font-size: 12px;
+    gap: 8px;
+    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+    max-width: calc(100vw - 28px);
+    white-space: nowrap;
   }
 }
 

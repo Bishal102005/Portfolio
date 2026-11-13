@@ -13,7 +13,7 @@ export interface Sheet {
 
 export interface BookEngineOptions {
   canvas: HTMLCanvasElement;
-  onSpreadChange: (target: number) => void;
+  onSpreadChange: (target: number, side?: number, portrait?: boolean) => void;
   onPortraitChange?: (portrait: boolean) => void;
   onHintHide?: () => void;
   onFloatingChange?: (floating: boolean) => void;
@@ -182,7 +182,7 @@ export class BookEngine {
   private isDisposed = false;
   private pointerDownCoord: [number, number] | null = null;
 
-  private onSpreadChange: (target: number) => void;
+  private onSpreadChange: (target: number, side?: number, portrait?: boolean) => void;
   private onPortraitChange?: (portrait: boolean) => void;
   private onHintHide?: () => void;
   private onFloatingChange?: (floating: boolean) => void;
@@ -431,6 +431,8 @@ export class BookEngine {
 
     this.attachEventListeners();
     this.handleResize();
+    this.onSpreadChange(this.target, this.side, this.portrait);
+    this.onPortraitChange?.(this.portrait);
 
     this.last = performance.now();
     this.animate(this.last);
@@ -472,7 +474,7 @@ export class BookEngine {
     if (typeof window !== 'undefined' && location.hash.slice(1) !== NAMES[safeN]) {
       location.hash = NAMES[safeN];
     }
-    this.onSpreadChange(safeN);
+    this.onSpreadChange(safeN, this.side, this.portrait);
     this.onHintHide?.();
   }
 
@@ -483,17 +485,25 @@ export class BookEngine {
     if (this.portrait) {
       if (d > 0) {
         if (n === this.S) return;
-        if (s === 0 && n > 0) s = 1;
-        else {
+        if (n === 0) {
+          n = 1;
+          s = 0;
+        } else if (s === 0) {
+          s = 1;
+        } else {
           n++;
           s = 0;
         }
       } else {
         if (n === 0) return;
-        if (s === 1 && n > 0) s = 0;
-        else {
-          n--;
+        if (n === this.S) {
+          n = this.S - 1;
           s = 1;
+        } else if (s === 1) {
+          s = 0;
+        } else {
+          n--;
+          s = n === 0 ? 1 : 1;
         }
       }
     } else {
@@ -532,9 +542,12 @@ export class BookEngine {
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    const prevPortrait = this.portrait;
     this.portrait = w / h < 0.95;
-    this.onPortraitChange?.(this.portrait);
-    this.onSpreadChange(this.target);
+    if (prevPortrait !== this.portrait) {
+      this.onPortraitChange?.(this.portrait);
+    }
+    this.onSpreadChange(this.target, this.side, this.portrait);
   };
 
   private handlePointerDown = (e: PointerEvent) => {
@@ -578,6 +591,7 @@ export class BookEngine {
     const dx = e.clientX - this.pointerDownCoord[0];
     const dy = e.clientY - this.pointerDownCoord[1];
     this.pointerDownCoord = null;
+    this.hov = 0;
 
     if (!this.isFloating) {
       this.raycaster.setFromCamera(
@@ -586,7 +600,7 @@ export class BookEngine {
       );
       const targets: THREE.Object3D[] = [this.pickHitBox, this.spine, this.sheets[0]?.fm, this.backRight].filter(Boolean);
       const hits = this.raycaster.intersectObjects(targets);
-      if (hits.length > 0 || Math.abs(this.px) < 0.22) {
+      if (hits.length > 0 || Math.abs(this.px) < 0.35) {
         this.pullFromShelf();
       }
       return;
@@ -709,7 +723,11 @@ export class BookEngine {
     this.backRight.visible = this.cur < this.S;
 
     const fx = this.portrait
-      ? this.side
+      ? this.target === 0
+        ? this.W / 2
+        : this.target === this.S
+        ? -this.W / 2
+        : this.side === 1
         ? this.W / 2
         : -this.W / 2
       : this.target === 0
@@ -718,14 +736,20 @@ export class BookEngine {
       ? -this.W / 2
       : 0;
 
+    const vFovRad = (this.camera.fov * Math.PI) / 180;
+    const tn = Math.tan(0.5 * vFovRad);
+
     const hw = this.portrait
-      ? this.W * 0.62
+      ? this.W * 0.53
       : this.target === 0 || this.target === this.S
       ? this.W * 0.65
       : this.W * 1.12;
 
-    const tn = Math.tan(0.5 * 38 * (Math.PI / 180));
-    const dd = Math.max(hw / (tn * this.camera.aspect), (this.H * 0.68) / tn);
+    const hh = this.portrait
+      ? this.H * 0.58
+      : this.H * 0.62;
+
+    const dd = Math.max(hw / (tn * this.camera.aspect), hh / tn);
 
     const t = now / 1000;
     const kPos = 1 - Math.exp(-dt * 4.5);
@@ -749,9 +773,9 @@ export class BookEngine {
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
       this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
 
-      // Grand Atmospheric Library framing: study tables, glowing banker's lamps, mezzanine gallery, lanterns, and floor
-      const targetCamDist = 4.4;
-      const targetCamY = 0.35;
+      // Grand Atmospheric Library framing: responsive distance for mobile & desktop
+      const targetCamDist = this.portrait ? 6.2 : 4.4;
+      const targetCamY = this.portrait ? 0.28 : 0.35;
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
       const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.45;
       const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.25;
@@ -771,8 +795,10 @@ export class BookEngine {
       this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
 
       this.dist += (dd - this.dist) * (1 - Math.exp(-dt * 3.5));
-      this.camera.position.set(0, 0.35, this.dist);
-      this.camera.lookAt(0, 0, 0);
+      const targetCamY = this.portrait ? 0.08 : 0.35;
+      const targetLookY = this.portrait ? 0.02 : 0.0;
+      this.camera.position.set(0, targetCamY, this.dist);
+      this.camera.lookAt(0, targetLookY, 0);
     }
 
     // Dynamic light brightness easing: gentle, glare-free reading light

@@ -14,13 +14,17 @@ export const Book3D: React.FC = () => {
   const engineRef = useRef<BookEngine | null>(null);
 
   const [currentSpread, setCurrentSpread] = useState<number>(0);
+  const [currentSide, setCurrentSide] = useState<number>(1);
+  const [isPortrait, setIsPortrait] = useState<boolean>(false);
   const [showHint, setShowHint] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSupported, setIsSupported] = useState<boolean>(true);
   const [isFloating, setIsFloating] = useState<boolean>(false);
 
-  const handleSpreadChange = useCallback((spread: number) => {
+  const handleSpreadChange = useCallback((spread: number, side: number = 0, portrait: boolean = false) => {
     setCurrentSpread(spread);
+    setCurrentSide(side);
+    setIsPortrait(portrait);
   }, []);
 
   const handleHintHide = useCallback(() => {
@@ -70,8 +74,11 @@ export const Book3D: React.FC = () => {
       const engine = new BookEngine({
         canvas,
         initialFloating,
-        onSpreadChange: (target) => {
-          if (mounted) handleSpreadChange(target);
+        onSpreadChange: (target, side, portrait) => {
+          if (mounted) handleSpreadChange(target, side ?? 0, portrait ?? false);
+        },
+        onPortraitChange: (portrait) => {
+          if (mounted) setIsPortrait(portrait);
         },
         onHintHide: () => {
           if (mounted) handleHintHide();
@@ -170,7 +177,8 @@ export const Book3D: React.FC = () => {
           title="Click to take out the glowing book"
         >
           <span style={{ color: '#e5a958' }}>✦</span>
-          <span>Click the glowing book to open portfolio</span>
+          <span className="shelf-hint-desktop">Click the glowing book to open portfolio</span>
+          <span className="shelf-hint-mobile">Tap book to open</span>
           <span style={{ color: '#e5a958' }}>✦</span>
         </div>
       )}
@@ -194,6 +202,8 @@ export const Book3D: React.FC = () => {
 
         <BookHUD
           currentSpread={currentSpread}
+          currentSide={currentSide}
+          isPortrait={isPortrait}
           onPrev={handlePrev}
           onNext={handleNext}
           showHint={showHint && isFloating}
