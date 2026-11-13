@@ -161,16 +161,17 @@ export const Book3D: React.FC = () => {
 
       {/* Virtual library subtle hint */}
       {!isFloating && (
-        <p
-          className="hint"
-          id="hint"
+        <div
+          className="shelf-pill-hint"
           style={{
-            opacity: showHint ? 0.85 : 0,
+            opacity: showHint ? 0.95 : 0,
             transition: 'opacity 0.6s ease'
           }}
         >
-          Click the book on the shelf to pick it up
-        </p>
+          <span style={{ color: '#e5a958' }}>✦</span>
+          <span>Click the book on the shelf to pick it up</span>
+          <span style={{ color: '#e5a958' }}>✦</span>
+        </div>
       )}
 
       {/* Reading Navigation & HUD (Fades in when book floats into view) */}

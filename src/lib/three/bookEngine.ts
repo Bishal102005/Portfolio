@@ -20,6 +20,110 @@ export interface BookEngineOptions {
   initialFloating?: boolean;
 }
 
+// Procedural generator for Bishal's luxury leather book spine with 24k gold filigree
+function createSpineTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 1024;
+  const ctx = canvas.getContext('2d')!;
+
+  // 1. Rich dark leather background (deep obsidian plum/navy)
+  const bgGrad = ctx.createLinearGradient(0, 0, 256, 0);
+  bgGrad.addColorStop(0, '#0a0b10');
+  bgGrad.addColorStop(0.18, '#161922');
+  bgGrad.addColorStop(0.5, '#202430');
+  bgGrad.addColorStop(0.82, '#161922');
+  bgGrad.addColorStop(1, '#0a0b10');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, 256, 1024);
+
+  // Subtle leather texture noise
+  for (let i = 0; i < 1800; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 1024;
+    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255, 255, 255, 0.035)' : 'rgba(0, 0, 0, 0.12)';
+    ctx.fillRect(x, y, 2, 2);
+  }
+
+  // 2. Ornate 24k Gold leaf border around spine
+  ctx.strokeStyle = '#d4a359';
+  ctx.lineWidth = 3.5;
+  ctx.strokeRect(14, 18, 228, 988);
+  ctx.strokeStyle = 'rgba(245, 212, 133, 0.65)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(18, 22, 220, 980);
+
+  // 3. Five raised gold embossed ribs (bands)
+  const ribYs = [125, 305, 515, 715, 885];
+  ribYs.forEach((ry) => {
+    // Rib drop shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(8, ry + 8, 240, 6);
+    // Rib base gold
+    ctx.fillStyle = '#b88636';
+    ctx.fillRect(8, ry, 240, 8);
+    // Rib highlight
+    ctx.fillStyle = '#fbe39d';
+    ctx.fillRect(8, ry, 240, 3);
+    // Stamped dots on rib
+    for (let dx = 22; dx < 236; dx += 14) {
+      ctx.fillStyle = '#5c3909';
+      ctx.fillRect(dx, ry + 2, 3, 3);
+    }
+  });
+
+  // 4. Stamped Gold Emblems & Titles
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Top compartment: Golden Star / Emblem
+  ctx.font = '24px serif';
+  ctx.fillStyle = '#fbe39d';
+  ctx.fillText('✦ ✦ ✦', 128, 70);
+
+  // Main Compartment 1: Author Name
+  ctx.font = '700 24px "Playfair Display", Georgia, serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('B I S H A L', 128, 195);
+  ctx.fillText('S A H A', 128, 228);
+
+  // Delicate divider
+  ctx.font = '14px sans-serif';
+  ctx.fillStyle = '#d4a359';
+  ctx.fillText('━━━━ ✦ ━━━━', 128, 258);
+
+  // Main Compartment 2: Title & Volume
+  ctx.font = '700 25px "Playfair Display", Georgia, serif';
+  ctx.fillStyle = '#fbe39d';
+  ctx.fillText('THE', 128, 390);
+  ctx.font = '700 28px "Playfair Display", Georgia, serif';
+  ctx.fillText('PORTFOLIO', 128, 426);
+
+  ctx.font = '600 15px Inter, sans-serif';
+  ctx.fillStyle = '#dcd3c3';
+  ctx.fillText('SELECTED WORKS', 128, 462);
+
+  // Compartment 3: Role / Focus
+  ctx.font = '600 17px Inter, sans-serif';
+  ctx.fillStyle = '#d4a359';
+  ctx.fillText('CREATIVE DEV', 128, 595);
+  ctx.font = '500 15px "Playfair Display", Georgia, serif';
+  ctx.fillText('VOLUME I', 128, 625);
+
+  // Compartment 4: Edition / Year
+  ctx.font = '500 17px "Playfair Display", Georgia, serif';
+  ctx.fillStyle = '#fbe39d';
+  ctx.fillText('• 2026 •', 128, 798);
+
+  // Bottom compartment: Golden Emblem
+  ctx.font = '24px serif';
+  ctx.fillText('❖', 128, 940);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 export class BookEngine {
   private canvas: HTMLCanvasElement;
   private renderer!: THREE.WebGLRenderer;
@@ -30,6 +134,9 @@ export class BookEngine {
   private backLeft!: THREE.Mesh;
   private backRight!: THREE.Mesh;
   private spine!: THREE.Mesh;
+  private ribbonBookmark!: THREE.Mesh;
+  private pickHitBox!: THREE.Mesh;
+  private spineTexture!: THREE.CanvasTexture;
   private particlesGeo!: THREE.BufferGeometry;
   private textures: THREE.CanvasTexture[] = [];
   private raycaster = new THREE.Raycaster();
@@ -50,7 +157,7 @@ export class BookEngine {
 
   private acc = 0;
   private hov = 0;
-  private dist = 5;
+  private dist = 3.35;
   private px = 0;
   private py = 0;
   private wheelT = 0;
@@ -88,7 +195,7 @@ export class BookEngine {
       this.isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
-    // Three.js modern color space setup
+    // Modern color space
     if ('outputColorSpace' in this.renderer) {
       this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     } else if ('outputEncoding' in this.renderer) {
@@ -102,23 +209,23 @@ export class BookEngine {
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
-    // Build & add procedural 3D virtual library bookcase environment
+    // Build procedural 3D virtual library bookcase environment
     const library = createLibraryScene();
     this.scene.add(library);
 
-    // Warm incandescent & lamp keylights for cozy library atmosphere
-    const hemiLight = new THREE.HemisphereLight(0xfff5ea, 0x3d2716, 1.05);
+    // Warm ambient and key lighting
+    const hemiLight = new THREE.HemisphereLight(0xfff6ec, 0x3d2716, 1.1);
     this.scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.15);
-    dirLight.position.set(-2, 3, 4);
+    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.25);
+    dirLight.position.set(-2, 3.5, 4);
     this.scene.add(dirLight);
 
-    const lampLight = new THREE.PointLight(0xf59e0b, 1.2, 10);
+    const lampLight = new THREE.PointLight(0xf59e0b, 1.3, 10);
     lampLight.position.set(-2.5, 1.2, 1.8);
     this.scene.add(lampLight);
 
-    // Textures from FACES
+    // Canvas textures for book pages
     const maxAniso = this.renderer.capabilities.getMaxAnisotropy();
     this.textures = FACES.map((drawerFn, i) => {
       const c = document.createElement('canvas');
@@ -127,11 +234,7 @@ export class BookEngine {
       const ctx = c.getContext('2d');
       if (ctx) drawerFn(ctx, i);
       const t = new THREE.CanvasTexture(c);
-      if ('colorSpace' in t) {
-        t.colorSpace = THREE.SRGBColorSpace;
-      } else if ('encoding' in t) {
-        (t as any).encoding = (THREE as any).sRGBEncoding;
-      }
+      t.colorSpace = THREE.SRGBColorSpace;
       t.anisotropy = maxAniso;
       if (i % 2) {
         t.wrapS = THREE.RepeatWrapping;
@@ -156,22 +259,59 @@ export class BookEngine {
       this.sheets.push({ geo, fm, bm, p: -1, tp: 0 });
     }
 
-    // Deep blackberry wine cover boards and spine
+    // Deep luxury leather cover boards
     const leatherMat = new THREE.MeshStandardMaterial({
-      color: 0x220732,
-      roughness: 0.55,
+      color: 0x181a24,
+      roughness: 0.58,
       metalness: 0.1
     });
+
     this.backRight = new THREE.Mesh(new THREE.BoxGeometry(this.W + 0.07, this.H + 0.07, 0.03), leatherMat);
     this.backLeft = this.backRight.clone();
     this.backRight.position.set(this.W / 2, 0, -0.02);
     this.backLeft.position.set(-this.W / 2, 0, -0.02);
 
-    this.spine = new THREE.Mesh(new THREE.BoxGeometry(0.05, this.H + 0.07, 0.03), leatherMat);
-    this.spine.position.z = -0.02;
+    // Bishal's dedicated luxury spine
+    this.spineTexture = createSpineTexture();
+    const spineMat = new THREE.MeshStandardMaterial({
+      map: this.spineTexture,
+      roughness: 0.55,
+      metalness: 0.14
+    });
+
+    // Box geometry with spine texture mapped to face 1 (-X face, pointing directly towards room when shelved)
+    const spineGeo = new THREE.BoxGeometry(0.06, this.H + 0.08, 0.14);
+    const spineMaterials = [
+      leatherMat, // +X
+      spineMat,   // -X: THE GOLD-STAMPED SPINE FACE
+      leatherMat, // +Y
+      leatherMat, // -Y
+      leatherMat, // +Z
+      leatherMat  // -Z
+    ];
+    this.spine = new THREE.Mesh(spineGeo, spineMaterials);
+    this.spine.position.set(-0.03, 0, -0.02);
     this.group.add(this.backRight, this.backLeft, this.spine);
 
-    // Glowing 24k gold stardust motes
+    // Golden Bookmark Ribbon draping down from spine
+    const ribbonGeo = new THREE.PlaneGeometry(0.035, 0.32);
+    const ribbonMat = new THREE.MeshStandardMaterial({
+      color: 0xd4a054,
+      roughness: 0.35,
+      metalness: 0.75,
+      side: THREE.DoubleSide
+    });
+    this.ribbonBookmark = new THREE.Mesh(ribbonGeo, ribbonMat);
+    this.ribbonBookmark.position.set(-0.031, -(this.H + 0.08) / 2 - 0.12, -0.02);
+    this.group.add(this.ribbonBookmark);
+
+    // Invisible pick hit box for responsive hover and clicking
+    const hitGeo = new THREE.BoxGeometry(0.38, this.H + 0.25, 0.38);
+    const hitMat = new THREE.MeshBasicMaterial({ visible: false });
+    this.pickHitBox = new THREE.Mesh(hitGeo, hitMat);
+    this.group.add(this.pickHitBox);
+
+    // Glowing 24k gold stardust motes floating in library air
     this.particlesGeo = new THREE.BufferGeometry();
     const posArr = new Float32Array(360);
     for (let i = 0; i < 120; i++) {
@@ -183,10 +323,10 @@ export class BookEngine {
     const particles = new THREE.Points(
       this.particlesGeo,
       new THREE.PointsMaterial({
-        size: 0.025,
+        size: 0.028,
         color: 0xf59e0b,
         transparent: true,
-        opacity: 0.75,
+        opacity: 0.8,
         depthWrite: false
       })
     );
@@ -201,6 +341,17 @@ export class BookEngine {
       s.p = s.tp = i < this.cur ? 1 : 0;
       this.bend(s, i);
     });
+
+    if (!this.isFloating) {
+      // Resting on shelf board: spine facing viewer (Y = PI/2)
+      this.group.position.set(0, -0.04, -2.0);
+      this.group.rotation.set(0, Math.PI / 2, 0);
+      this.dist = 3.35;
+    } else {
+      this.group.position.set(0, 0, 0);
+      this.group.rotation.set(-0.08, 0, 0);
+      this.dist = 4.4;
+    }
 
     this.attachEventListeners();
     this.handleResize();
@@ -283,19 +434,27 @@ export class BookEngine {
     if (this.canvas) this.canvas.style.cursor = 'default';
     this.onFloatingChange?.(true);
     this.onHintHide?.();
+
+    // After book smoothly pulls forward out of shelf and turns to face user, open cover!
     setTimeout(() => {
       if (this.target === 0) {
         this.go(1, 0);
       }
-    }, 650);
+    }, 720);
   }
 
   public returnToShelf() {
+    if (!this.isFloating) return;
+    // Step 1: Close cover
     this.go(0, 0);
-    this.isFloating = false;
-    this.isBookHovered = false;
-    if (this.canvas) this.canvas.style.cursor = 'default';
-    this.onFloatingChange?.(false);
+
+    // Step 2: After cover is closed, glide back into bookshelf slot
+    setTimeout(() => {
+      this.isFloating = false;
+      this.isBookHovered = false;
+      if (this.canvas) this.canvas.style.cursor = 'default';
+      this.onFloatingChange?.(false);
+    }, 380);
   }
 
   private handleResize = () => {
@@ -319,12 +478,12 @@ export class BookEngine {
     this.py = e.clientY / window.innerHeight - 0.5;
 
     if (!this.isFloating) {
-      if (this.sheets.length > 0 && this.camera && this.canvas) {
+      if (this.camera && this.canvas) {
         this.raycaster.setFromCamera(
           new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1),
           this.camera
         );
-        const targets: THREE.Object3D[] = [this.sheets[0].fm, this.backRight, this.backLeft].filter(Boolean);
+        const targets: THREE.Object3D[] = [this.pickHitBox, this.spine, this.sheets[0]?.fm, this.backRight].filter(Boolean);
         const hits = this.raycaster.intersectObjects(targets);
         const hovered = hits.length > 0;
         if (hovered !== this.isBookHovered) {
@@ -340,6 +499,10 @@ export class BookEngine {
 
   private handlePointerLeave = () => {
     this.hov = 0;
+    if (!this.isFloating) {
+      this.isBookHovered = false;
+      if (this.canvas) this.canvas.style.cursor = 'default';
+    }
   };
 
   private handlePointerUp = (e: PointerEvent) => {
@@ -349,7 +512,16 @@ export class BookEngine {
     this.pointerDownCoord = null;
 
     if (!this.isFloating) {
-      this.pullFromShelf();
+      this.raycaster.setFromCamera(
+        new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1),
+        this.camera
+      );
+      const targets: THREE.Object3D[] = [this.pickHitBox, this.spine, this.sheets[0]?.fm, this.backRight].filter(Boolean);
+      const hits = this.raycaster.intersectObjects(targets);
+      // Click on book or near center bay takes book out of shelf!
+      if (hits.length > 0 || Math.abs(this.px) < 0.22) {
+        this.pullFromShelf();
+      }
       return;
     }
 
@@ -394,6 +566,7 @@ export class BookEngine {
   };
 
   private handleWheel = (e: WheelEvent) => {
+    if (!this.isFloating) return;
     const t = performance.now();
     if (Math.abs(e.deltaY) > 25 && t - this.wheelT > 800) {
       this.wheelT = t;
@@ -455,7 +628,7 @@ export class BookEngine {
 
     this.sheets.forEach((s, i) => {
       s.tp = i < this.cur ? 1 : 0;
-      if (this.cur === this.target && !this.isReducedMotion) {
+      if (this.cur === this.target && !this.isReducedMotion && this.isFloating) {
         if (this.hov > 0 && i === this.cur) s.tp = 0.07;
         if (this.hov < 0 && i === this.cur - 1) s.tp = 0.93;
       }
@@ -485,47 +658,55 @@ export class BookEngine {
       : this.W * 1.12;
 
     const tn = Math.tan(0.5 * 38 * (Math.PI / 180));
-    let dd = Math.max(hw / (tn * this.camera.aspect), (this.H * 0.68) / tn);
-    if (!this.isFloating) {
-      // Camera distance in library view to clearly showcase the bookshelf
-      dd = Math.max(dd * 1.15, 3.8);
-    }
-    this.dist += (dd - this.dist) * Math.min(1, dt * 3.5);
-
-    const targetCamY = 0.35;
-    this.camera.position.set(0, targetCamY, this.dist);
-    this.camera.lookAt(0, this.isFloating ? 0 : 0.12, 0);
+    const dd = Math.max(hw / (tn * this.camera.aspect), (this.H * 0.68) / tn);
 
     const t = now / 1000;
-    const shelfLerp = Math.min(1, dt * 3.8);
+    const kPos = 1 - Math.exp(-dt * 4.5);
+    const kRot = 1 - Math.exp(-dt * 4.5);
 
     if (!this.isFloating) {
-      // Firmly placed inside the bookshelf slot (completely still, NO floating/bobbing)
-      const hoverSlide = this.isBookHovered ? 0.35 : 0;
-      const hoverAngle = this.isBookHovered ? 0.09 : 0;
+      // 1. Resting inside the bookshelf: spine facing the viewer
+      const hoverSlide = this.isBookHovered ? 0.32 : 0;
+      const hoverAngle = this.isBookHovered ? -0.06 : 0;
       const targetShelfX = 0;
-      const targetShelfY = 0.065; // Exactly resting on the middle shelf board
+      const targetShelfY = -0.04;
       const targetShelfZ = -2.0 + hoverSlide;
-      const targetRotX = 0.02; // Standing upright on the shelf
-      const targetRotY = 0.05 + hoverAngle;
+      const targetRotX = 0;
+      const targetRotY = Math.PI / 2 + hoverAngle;
 
-      this.group.position.x += (targetShelfX - this.group.position.x) * shelfLerp;
-      this.group.position.y += (targetShelfY - this.group.position.y) * shelfLerp;
-      this.group.position.z += (targetShelfZ - this.group.position.z) * shelfLerp;
-      this.group.rotation.x += (targetRotX - this.group.rotation.x) * shelfLerp;
-      this.group.rotation.y += (targetRotY - this.group.rotation.y) * shelfLerp;
+      this.group.position.x += (targetShelfX - this.group.position.x) * kPos;
+      this.group.position.y += (targetShelfY - this.group.position.y) * kPos;
+      this.group.position.z += (targetShelfZ - this.group.position.z) * kPos;
+
+      this.group.rotation.x += (targetRotX - this.group.rotation.x) * kRot;
+      this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
+      this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
+
+      // Close-up intimate bookshelf framing matching reference video
+      const targetCamDist = 3.35;
+      this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
+      this.camera.position.set(0, 0.04, this.dist);
+      this.camera.lookAt(0, 0.04, -2.0);
     } else {
-      // Floating over the screen in reading mode
-      this.group.position.x += (-fx - this.group.position.x) * Math.min(1, dt * 5);
+      // 2. Floating in reading position facing user
+      this.group.position.x += (-fx - this.group.position.x) * kPos;
       const targetFloatY = this.isReducedMotion ? 0 : Math.sin(t * 0.8) * 0.025;
-      this.group.position.y += (targetFloatY - this.group.position.y) * shelfLerp;
-      this.group.position.z += (0 - this.group.position.z) * shelfLerp;
+      this.group.position.y += (targetFloatY - this.group.position.y) * kPos;
+      this.group.position.z += (0 - this.group.position.z) * kPos;
 
-      this.group.rotation.y += ((this.isReducedMotion ? 0 : this.px * 0.18) - this.group.rotation.y) * 0.05;
-      this.group.rotation.x += ((this.isReducedMotion ? -0.1 : -0.1 + this.py * 0.1) - this.group.rotation.x) * 0.05;
+      const targetRotX = this.isReducedMotion ? -0.08 : -0.08 + this.py * 0.1;
+      const targetRotY = this.isReducedMotion ? 0 : this.px * 0.18;
+      this.group.rotation.x += (targetRotX - this.group.rotation.x) * kRot;
+      this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
+      this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
+
+      // Camera transitions to reading distance
+      this.dist += (dd - this.dist) * (1 - Math.exp(-dt * 3.5));
+      this.camera.position.set(0, 0.35, this.dist);
+      this.camera.lookAt(0, 0, 0);
     }
 
-    // Dust particles float
+    // Dust motes floating through ambient lighting
     const pos = this.particlesGeo.attributes.position.array as Float32Array;
     for (let i = 0; i < 120; i++) {
       pos[i * 3 + 1] += dt * 0.04;
@@ -552,6 +733,7 @@ export class BookEngine {
     this.canvas.removeEventListener('pointerup', this.handlePointerUp);
 
     this.textures.forEach((t) => t.dispose());
+    this.spineTexture?.dispose();
     this.sheets.forEach((s) => {
       s.geo.dispose();
       (s.fm.material as THREE.Material).dispose();
@@ -561,4 +743,3 @@ export class BookEngine {
     this.renderer.dispose();
   }
 }
-
