@@ -155,7 +155,7 @@ export class BookEngine {
     this.spine.position.z = -0.02;
     this.group.add(this.backRight, this.backLeft, this.spine);
 
-    // Warm apricot & peach starlight dust motes
+    // Glowing 24k gold stardust motes
     this.particlesGeo = new THREE.BufferGeometry();
     const posArr = new Float32Array(360);
     for (let i = 0; i < 120; i++) {
@@ -168,9 +168,9 @@ export class BookEngine {
       this.particlesGeo,
       new THREE.PointsMaterial({
         size: 0.025,
-        color: 0xffa07a,
+        color: 0xf59e0b,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.75,
         depthWrite: false
       })
     );
