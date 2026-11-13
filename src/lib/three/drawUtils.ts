@@ -49,8 +49,8 @@ export function wrap(
 }
 
 export function paper(g: CanvasRenderingContext2D, f: number) {
-  // Luminous Warm Archival Off-White Paper
-  g.fillStyle = '#fcfbf8';
+  // Warm Ivory Vellum Paper
+  g.fillStyle = '#fff9f5';
   g.fillRect(0, 0, TW, TH);
 
   // Delicate soft spine gutter shadow

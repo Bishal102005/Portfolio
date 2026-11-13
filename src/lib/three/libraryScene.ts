@@ -211,7 +211,7 @@ function createPaperEdgeTexture(): THREE.CanvasTexture {
   canvas.height = 128;
   const ctx = canvas.getContext('2d')!;
 
-  ctx.fillStyle = '#ecdcb8';
+  ctx.fillStyle = '#fff9f5';
   ctx.fillRect(0, 0, 128, 128);
 
   for (let y = 0; y < 128; y += 3) {
