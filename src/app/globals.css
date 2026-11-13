@@ -1,14 +1,14 @@
 :root {
-  /* Sunset Horizon (Light Mode) */
-  --bg1: #fff5eb; /* soft sunrise morning aura */
-  --bg2: #fed7aa; /* warm radiant apricot & lavender sky */
-  --fg: #26152e;  /* deep plum charcoal */
+  /* Bright Crisp White Studio (Light Mode) */
+  --bg1: #ffffff; /* pure brilliant white */
+  --bg2: #f1f5f9; /* ultra-clean light daylight studio */
+  --fg: #1e1126;  /* deep charcoal plum */
   --ac: #ff7a59;  /* radiant solar coral & tangerine */
   --ac-hover: #ea580c;
-  --pn: rgba(255, 255, 255, 0.88); /* warm high-clarity frosted glass */
-  --pn-border: rgba(255, 122, 89, 0.28);
+  --pn: rgba(255, 255, 255, 0.94); /* pure white frosted glass */
+  --pn-border: rgba(0, 0, 0, 0.08);
   --ribbon-bg: linear-gradient(135deg, #ff7a59, #ea580c); /* radiant sunset tangerine */
-  --shadow-hud: 0 12px 32px rgba(38, 21, 46, 0.08);
+  --shadow-hud: 0 12px 32px rgba(0, 0, 0, 0.06);
   color-scheme: light dark;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
@@ -43,15 +43,15 @@
 }
 
 :root[data-theme="light"] {
-  --bg1: #fff5eb;
-  --bg2: #fed7aa;
-  --fg: #26152e;
+  --bg1: #ffffff;
+  --bg2: #f1f5f9;
+  --fg: #1e1126;
   --ac: #ff7a59;
   --ac-hover: #ea580c;
-  --pn: rgba(255, 255, 255, 0.88);
-  --pn-border: rgba(255, 122, 89, 0.28);
+  --pn: rgba(255, 255, 255, 0.94);
+  --pn-border: rgba(0, 0, 0, 0.08);
   --ribbon-bg: linear-gradient(135deg, #ff7a59, #ea580c);
-  --shadow-hud: 0 12px 32px rgba(38, 21, 46, 0.08);
+  --shadow-hud: 0 12px 32px rgba(0, 0, 0, 0.06);
 }
 
 *, *::before, *::after {

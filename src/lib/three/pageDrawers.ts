@@ -50,26 +50,20 @@ export function wrap(
 }
 
 export function paper(g: CanvasRenderingContext2D, f: number) {
-  // Warm Ivory Vellum
-  g.fillStyle = '#fff9f5';
+  // Pure Brilliant Crisp White Paper
+  g.fillStyle = '#ffffff';
   g.fillRect(0, 0, TW, TH);
 
-  // Subtle clean paper texture
-  for (let i = 0; i < 400; i++) {
-    g.fillStyle = `rgba(255, 122, 89, ${Math.random() * 0.025})`;
-    g.fillRect(Math.random() * TW, Math.random() * TH, 2, 2);
-  }
-
-  // Soft ambient spine shadow
+  // Delicate soft spine gutter shadow
   const r = f % 2 === 0;
   const gr = r ? g.createLinearGradient(0, 0, 90, 0) : g.createLinearGradient(TW, 0, TW - 90, 0);
-  gr.addColorStop(0, 'rgba(38, 21, 46, 0.09)');
-  gr.addColorStop(1, 'rgba(38, 21, 46, 0)');
+  gr.addColorStop(0, 'rgba(0, 0, 0, 0.06)');
+  gr.addColorStop(1, 'rgba(0, 0, 0, 0)');
   g.fillStyle = gr;
   g.fillRect(r ? 0 : TW - 90, 0, 90, TH);
 
   // Crisp modern page number
-  T(g, String(f), r ? TW - 60 : 60, TH - 50, '15px ' + SANS, '#84688f', r ? 'right' : 'left');
+  T(g, String(f), r ? TW - 60 : 60, TH - 50, '15px ' + SANS, '#94a3b8', r ? 'right' : 'left');
 }
 
 export const mx = (f: number) => (f % 2 === 0 ? 90 : 60);

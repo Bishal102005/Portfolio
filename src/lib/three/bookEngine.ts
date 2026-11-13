@@ -94,11 +94,11 @@ export class BookEngine {
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
-    // Warm sunset ambient & solar keylights
-    const hemiLight = new THREE.HemisphereLight(0xfff7ed, 0x5a3969, 0.95);
+    // Pure white daylight & keylights for brilliant white pages
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe2e8f0, 1.0);
     this.scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffedd5, 0.85);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
     dirLight.position.set(-2, 3, 4);
     this.scene.add(dirLight);
 
