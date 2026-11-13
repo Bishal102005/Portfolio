@@ -482,31 +482,31 @@ export class BookEngine {
     const tn = Math.tan(0.5 * 38 * (Math.PI / 180));
     let dd = Math.max(hw / (tn * this.camera.aspect), (this.H * 0.68) / tn);
     if (!this.isFloating) {
-      // Pull camera back slightly in library view to reveal the cozy desk and surroundings
-      dd = Math.max(dd * 1.25, 4.0);
+      // Camera distance in library view to clearly showcase the bookshelf
+      dd = Math.max(dd * 1.15, 3.8);
     }
     this.dist += (dd - this.dist) * Math.min(1, dt * 3.5);
 
-    const targetCamY = this.isFloating ? 0.35 : 0.45;
+    const targetCamY = 0.35;
     this.camera.position.set(0, targetCamY, this.dist);
-    this.camera.lookAt(0, this.isFloating ? 0 : -0.15, 0);
+    this.camera.lookAt(0, this.isFloating ? 0 : 0.12, 0);
 
     const t = now / 1000;
-    const shelfLerp = Math.min(1, dt * 3.5);
+    const shelfLerp = Math.min(1, dt * 3.8);
 
     if (!this.isFloating) {
-      // Resting on the wooden library desk in perspective
-      const hoverLift = this.isBookHovered ? 0.09 : 0;
-      const hoverTilt = this.isBookHovered ? -0.08 : 0;
-      const targetDeskX = 0;
-      const targetDeskY = -0.42 + hoverLift + (this.isReducedMotion ? 0 : Math.sin(t * 1.3) * 0.015);
-      const targetDeskZ = -0.75 + (this.isBookHovered ? 0.16 : 0);
-      const targetRotX = 0.44 + hoverTilt;
-      const targetRotY = 0.14 + (this.isReducedMotion ? 0 : this.px * 0.15);
+      // Firmly placed inside the bookshelf (completely still, NO floating/bobbing)
+      const hoverSlide = this.isBookHovered ? 0.28 : 0;
+      const hoverAngle = this.isBookHovered ? 0.08 : 0;
+      const targetShelfX = 0;
+      const targetShelfY = 0.22; // Aligned with the bookshelf shelf
+      const targetShelfZ = -1.9 + hoverSlide;
+      const targetRotX = 0.04; // Standing upright on the shelf
+      const targetRotY = 0.05 + hoverAngle;
 
-      this.group.position.x += (targetDeskX - this.group.position.x) * shelfLerp;
-      this.group.position.y += (targetDeskY - this.group.position.y) * shelfLerp;
-      this.group.position.z += (targetDeskZ - this.group.position.z) * shelfLerp;
+      this.group.position.x += (targetShelfX - this.group.position.x) * shelfLerp;
+      this.group.position.y += (targetShelfY - this.group.position.y) * shelfLerp;
+      this.group.position.z += (targetShelfZ - this.group.position.z) * shelfLerp;
       this.group.rotation.x += (targetRotX - this.group.rotation.x) * shelfLerp;
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * shelfLerp;
     } else {

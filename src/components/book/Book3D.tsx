@@ -169,7 +169,7 @@ export const Book3D: React.FC = () => {
             transition: 'opacity 0.6s ease'
           }}
         >
-          Click the book to pick it up
+          Click the book on the shelf to pick it up
         </p>
       )}
 

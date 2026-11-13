@@ -68,9 +68,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             className="return-library-btn"
             onClick={onReturnToShelf}
-            title="Put book back on the library desk"
+            title="Put book back onto the bookshelf"
           >
-            <span>↩ Put back</span>
+            <span>↩ Put back on shelf</span>
           </button>
         )}
       </div>
