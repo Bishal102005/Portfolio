@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { BookEngine } from '@/lib/three/bookEngine';
 import { NAMES } from '@/lib/constants/portfolioData';
 import { Navbar } from '../Navbar';
+import { preloadCoverImage } from '../Hero';
 import { Ribbon } from './Ribbon';
 import { BookHUD } from './BookHUD';
 import { LoadingOverlay } from './LoadingOverlay';
@@ -31,22 +32,25 @@ export const Book3D: React.FC = () => {
     if (!canvas) return;
 
     const setup = async () => {
-      // Preload fonts before canvas textures render
-      if (typeof document !== 'undefined' && 'fonts' in document) {
-        try {
-          await Promise.race([
-            Promise.all([
+      // Preload fonts & cover background image before canvas textures render
+      const fontPromises =
+        typeof document !== 'undefined' && 'fonts' in document
+          ? [
               '700 40px "Playfair Display"',
               '500 20px "Playfair Display"',
               'italic 500 20px "Playfair Display"',
               '400 16px Inter',
               '600 16px Inter'
-            ].map((f) => document.fonts.load(f))),
-            new Promise((r) => setTimeout(r, 2500))
-          ]);
-        } catch {
-          // Continue if font load fails or times out
-        }
+            ].map((f) => document.fonts.load(f))
+          : [];
+
+      try {
+        await Promise.race([
+          Promise.all([...fontPromises, preloadCoverImage()]),
+          new Promise((r) => setTimeout(r, 2500))
+        ]);
+      } catch {
+        // Continue if font load fails or times out
       }
 
       if (!mounted) return;
