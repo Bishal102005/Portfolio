@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { BookEngine } from '@/lib/three/bookEngine';
 import { NAMES } from '@/lib/constants/portfolioData';
-import { BookHeader } from './BookHeader';
+import { Navbar } from '../Navbar';
 import { Ribbon } from './Ribbon';
 import { BookHUD } from './BookHUD';
 import { LoadingOverlay } from './LoadingOverlay';
@@ -128,7 +128,7 @@ export const Book3D: React.FC = () => {
     <>
       <canvas id="c" ref={canvasRef} aria-hidden="true" />
 
-      <BookHeader currentSpread={currentSpread} onNavigate={handleNavigate} />
+      <Navbar currentSpread={currentSpread} onNavigate={handleNavigate} />
 
       <Ribbon onJumpContact={handleJumpContact} />
 
