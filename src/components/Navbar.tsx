@@ -9,8 +9,7 @@ export const navItems: [label: string, spreadIndex: number][] = [
   ['Intro', 1],
   ['Work', 2],
   ['Skills', 5],
-  ['Journey', 6],
-  ['Contact', 7]
+  ['Journey', 6]
 ];
 
 export const tocEntries: [title: string, pageNum: number, spreadTarget: number][] = [
