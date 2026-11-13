@@ -12,28 +12,28 @@ function createWoodTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext('2d')!;
 
   const grad = ctx.createLinearGradient(0, 0, 512, 0);
-  grad.addColorStop(0, '#221008');
-  grad.addColorStop(0.25, '#30180d');
-  grad.addColorStop(0.5, '#28130a');
-  grad.addColorStop(0.75, '#351b0f');
-  grad.addColorStop(1, '#1e0e07');
+  grad.addColorStop(0, '#241209');
+  grad.addColorStop(0.25, '#32190e');
+  grad.addColorStop(0.5, '#2a140a');
+  grad.addColorStop(0.75, '#361c10');
+  grad.addColorStop(1, '#200f07');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 512, 512);
 
-  // Organic wood fibers
+  // Natural linear wood fibers
   for (let y = 0; y < 512; y += 2) {
     const wave = Math.sin(y * 0.03) * 6 + Math.sin(y * 0.015) * 12;
     const alpha = 0.05 + Math.sin(y * 0.12 + wave * 0.06) * 0.03;
-    ctx.fillStyle = `rgba(80, 42, 22, ${Math.max(0, alpha)})`;
+    ctx.fillStyle = `rgba(82, 44, 24, ${Math.max(0, alpha)})`;
     ctx.fillRect(0, y, 512, 1.5);
   }
 
-  // Soft edge depth
+  // Soft edge bevel shadow
   const vGrad = ctx.createLinearGradient(0, 0, 0, 512);
-  vGrad.addColorStop(0, 'rgba(0, 0, 0, 0.2)');
+  vGrad.addColorStop(0, 'rgba(0, 0, 0, 0.22)');
   vGrad.addColorStop(0.08, 'rgba(0, 0, 0, 0)');
   vGrad.addColorStop(0.92, 'rgba(0, 0, 0, 0)');
-  vGrad.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+  vGrad.addColorStop(1, 'rgba(0, 0, 0, 0.32)');
   ctx.fillStyle = vGrad;
   ctx.fillRect(0, 0, 512, 512);
 
@@ -87,21 +87,17 @@ function createCarpetTexture(): THREE.CanvasTexture {
   canvas.height = 512;
   const ctx = canvas.getContext('2d')!;
 
-  // Deep burgundy velvet
   ctx.fillStyle = '#2d080e';
   ctx.fillRect(0, 0, 256, 512);
 
-  // Outer gold borders
   ctx.fillStyle = '#c89544';
   ctx.fillRect(12, 0, 5, 512);
   ctx.fillRect(239, 0, 5, 512);
 
-  // Inner filigree gold track
   ctx.strokeStyle = 'rgba(235, 195, 115, 0.65)';
   ctx.lineWidth = 2;
   ctx.strokeRect(26, 0, 204, 512);
 
-  // Classical ornamental diamond medallion repeats
   for (let y = 32; y < 512; y += 64) {
     ctx.strokeStyle = 'rgba(212, 163, 89, 0.4)';
     ctx.lineWidth = 1.5;
@@ -134,7 +130,6 @@ function createWindowTexture(): THREE.CanvasTexture {
   canvas.height = 512;
   const ctx = canvas.getContext('2d')!;
 
-  // Deep night sky gradient with glowing moon haze
   const sky = ctx.createLinearGradient(0, 0, 0, 512);
   sky.addColorStop(0, '#0a1020');
   sky.addColorStop(0.35, '#121e3a');
@@ -143,7 +138,6 @@ function createWindowTexture(): THREE.CanvasTexture {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, 512, 512);
 
-  // Soft atmospheric moon glow
   const moonGrad = ctx.createRadialGradient(256, 160, 10, 256, 160, 220);
   moonGrad.addColorStop(0, 'rgba(215, 235, 255, 0.85)');
   moonGrad.addColorStop(0.25, 'rgba(170, 205, 250, 0.45)');
@@ -152,16 +146,12 @@ function createWindowTexture(): THREE.CanvasTexture {
   ctx.fillStyle = moonGrad;
   ctx.fillRect(0, 0, 512, 512);
 
-  // Gothic stone tracery mullions
   ctx.strokeStyle = '#120c08';
   ctx.lineWidth = 10;
-
-  // Window outer arch
   ctx.beginPath();
   ctx.arc(256, 256, 230, Math.PI, 0, false);
   ctx.stroke();
 
-  // Vertical stone mullions
   const mullions = [128, 192, 256, 320, 384];
   mullions.forEach((x) => {
     ctx.beginPath();
@@ -170,22 +160,12 @@ function createWindowTexture(): THREE.CanvasTexture {
     ctx.stroke();
   });
 
-  // Diamond leaded glass grid
-  ctx.strokeStyle = 'rgba(15, 20, 30, 0.7)';
-  ctx.lineWidth = 2;
-  for (let y = 140; y < 512; y += 28) {
-    ctx.beginPath();
-    ctx.moveTo(30, y);
-    ctx.lineTo(482, y);
-    ctx.stroke();
-  }
-
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
 
-// 5. Ornate wrought-iron / brass filigree balustrade railing for upper gallery
+// 5. Ornate wrought-iron / brass filigree balustrade railing
 function createBalustradeTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
@@ -194,23 +174,18 @@ function createBalustradeTexture(): THREE.CanvasTexture {
 
   ctx.clearRect(0, 0, 512, 128);
 
-  // Top brass handrail
   ctx.fillStyle = '#caa15b';
   ctx.fillRect(0, 4, 512, 10);
   ctx.fillStyle = '#fbe39d';
   ctx.fillRect(0, 4, 512, 3);
 
-  // Bottom base rail
   ctx.fillStyle = '#22150b';
   ctx.fillRect(0, 114, 512, 10);
 
-  // Baluster uprights and decorative scrollwork
   for (let x = 16; x < 512; x += 32) {
-    // Upright post
     ctx.fillStyle = '#8a6833';
     ctx.fillRect(x + 2, 14, 4, 100);
 
-    // Decorative brass ring in center
     ctx.fillStyle = '#e8c47b';
     ctx.beginPath();
     ctx.arc(x + 4, 64, 7, 0, Math.PI * 2);
@@ -262,9 +237,7 @@ const VINTAGE_TITLES = [
   'ELEMENTA CODICIS',
   'ARCHITECTVRA SACRA',
   'GEOMETRIA SPECVLO',
-  'BIBLIOTHECA NOCTIS',
-  'PRINCIPIA RATIONIS',
-  'ATLAS COELESTIS'
+  'BIBLIOTHECA NOCTIS'
 ];
 
 // Rich antique leather color palettes
@@ -289,7 +262,6 @@ function createVintageSpineTexture(paletteIndex: number, titleIndex: number): TH
   const pal = LEATHER_PALETTES[paletteIndex % LEATHER_PALETTES.length];
   const title = VINTAGE_TITLES[titleIndex % VINTAGE_TITLES.length];
 
-  // Cylindrical leather gradient
   const bgGrad = ctx.createLinearGradient(0, 0, 128, 0);
   bgGrad.addColorStop(0, pal.dark);
   bgGrad.addColorStop(0.2, pal.base);
@@ -299,7 +271,6 @@ function createVintageSpineTexture(paletteIndex: number, titleIndex: number): TH
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, 128, 512);
 
-  // Five raised horizontal ribs
   const ribYs = [65, 155, 260, 365, 450];
   ribYs.forEach((ry) => {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
@@ -310,12 +281,10 @@ function createVintageSpineTexture(paletteIndex: number, titleIndex: number): TH
     ctx.fillRect(6, ry, 116, 2);
   });
 
-  // Gilded border
   ctx.strokeStyle = pal.gold;
   ctx.lineWidth = 1.5;
   ctx.strokeRect(10, 12, 108, 488);
 
-  // Stamped gold lettering and emblems
   ctx.fillStyle = pal.gold;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -339,9 +308,6 @@ function createVintageSpineTexture(paletteIndex: number, titleIndex: number): TH
   ctx.fillStyle = pal.gold;
   ctx.fillText('• VOL. ' + ((titleIndex % 6) + 1) + ' •', 64, 312);
   ctx.fillText('✦ ❖ ✦', 64, 410);
-
-  ctx.font = '14px serif';
-  ctx.fillText('❦', 64, 480);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -408,8 +374,16 @@ export function createLibraryScene(): THREE.Group {
 
   const brassMat = new THREE.MeshStandardMaterial({
     color: 0xd4a559,
-    roughness: 0.35,
-    metalness: 0.85
+    roughness: 0.32,
+    metalness: 0.88
+  });
+
+  const emeraldMat = new THREE.MeshStandardMaterial({
+    color: 0x0c6837,
+    emissive: 0x084223,
+    emissiveIntensity: 0.5,
+    roughness: 0.22,
+    metalness: 0.15
   });
 
   const paperEdgeMat = new THREE.MeshStandardMaterial({
@@ -434,7 +408,7 @@ export function createLibraryScene(): THREE.Group {
   // 2. Room Architecture (Floor, Ceiling, Walls)
   // Polished parquet floor
   const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(22, 16),
+    new THREE.PlaneGeometry(24, 18),
     floorMat
   );
   floor.rotation.x = -Math.PI / 2;
@@ -452,7 +426,7 @@ export function createLibraryScene(): THREE.Group {
 
   // Coffered Vaulted Ceiling overhead
   const ceiling = new THREE.Mesh(
-    new THREE.PlaneGeometry(22, 16),
+    new THREE.PlaneGeometry(24, 18),
     woodMat
   );
   ceiling.rotation.x = Math.PI / 2;
@@ -462,7 +436,7 @@ export function createLibraryScene(): THREE.Group {
   // Ceiling transverse oak beams
   for (let z = -6; z <= 3; z += 2.2) {
     const beam = new THREE.Mesh(
-      new THREE.BoxGeometry(20, 0.32, 0.36),
+      new THREE.BoxGeometry(22, 0.32, 0.36),
       woodMat
     );
     beam.position.set(0, 4.84, z);
@@ -471,7 +445,7 @@ export function createLibraryScene(): THREE.Group {
 
   // Rear Architectural Wall with Palladian Arched Window
   const rearWall = new THREE.Mesh(
-    new THREE.PlaneGeometry(22, 8.5),
+    new THREE.PlaneGeometry(24, 8.5),
     backboardMat
   );
   rearWall.position.set(0, 1.4, -4.5);
@@ -486,7 +460,6 @@ export function createLibraryScene(): THREE.Group {
   library.add(grandWindow);
 
   // 3. Central Grand Multi-Tier Library Bookcase
-  // Center bookcase dimensions
   const caseWidth = 14.8;
   const caseBackZ = -2.85;
 
@@ -498,18 +471,13 @@ export function createLibraryScene(): THREE.Group {
   caseBack.position.set(0, 0.9, caseBackZ);
   library.add(caseBack);
 
-  // 4 Horizontal Tiers of Stately Walnut Shelves:
-  // Tier 0 (Base plinth): Y = -2.35
-  // Tier 1 (Lower shelf): Y = -1.13  <-- Bishal's book sits on this base tier!
-  // Tier 2 (Mezzanine gallery shelf): Y = 1.15
-  // Tier 3 (Upper gallery shelf): Y = 2.45
-  // Tier 4 (Top crown cornice): Y = 3.85
+  // Horizontal Tiers of Stately Walnut Shelves:
   const shelfYPositions = [
-    { y: -2.35, d: 1.4, h: 0.16 },
-    { y: -1.13, d: 1.35, h: 0.12 },
-    { y: 1.15, d: 1.7, h: 0.16 }, // Extra deep for upper gallery walkway
-    { y: 2.45, d: 1.35, h: 0.12 },
-    { y: 3.85, d: 1.5, h: 0.22 }  // Heavy carved crown molding
+    { y: -2.35, d: 1.4, h: 0.16 }, // Ground tier base
+    { y: -1.13, d: 1.4, h: 0.14 }, // Hero shelf base
+    { y: 1.15, d: 1.7, h: 0.16 },  // Mezzanine gallery walkway
+    { y: 2.45, d: 1.35, h: 0.12 }, // Upper gallery shelf
+    { y: 3.85, d: 1.5, h: 0.22 }   // Top carved crown molding
   ];
 
   shelfYPositions.forEach((s) => {
@@ -521,6 +489,22 @@ export function createLibraryScene(): THREE.Group {
     library.add(shelfMesh);
   });
 
+  // Elevated Mahogany Pedestal / Lectern Plinth exclusively for Bishal's Glowing Book
+  const pedestal = new THREE.Mesh(
+    new THREE.BoxGeometry(1.6, 0.14, 1.35),
+    woodMat
+  );
+  pedestal.position.set(0, -1.06, -2.05);
+  library.add(pedestal);
+
+  // Gilded brass trim around the pedestal top
+  const pedTrim = new THREE.Mesh(
+    new THREE.BoxGeometry(1.64, 0.02, 1.39),
+    brassMat
+  );
+  pedTrim.position.set(0, -0.99, -2.05);
+  library.add(pedTrim);
+
   // Upper Gallery Balustrade Railing running across the mezzanine level
   const balustrade = new THREE.Mesh(
     new THREE.PlaneGeometry(caseWidth, 0.72),
@@ -529,11 +513,9 @@ export function createLibraryScene(): THREE.Group {
   balustrade.position.set(0, 1.62, -1.22);
   library.add(balustrade);
 
-  // Vertical Architectural Columns / Fluted Pilasters dividing the bays
-  // 4 Pillars divide into: Left Bay (-7.0 to -2.6), Center Bay (-2.6 to +2.6), Right Bay (+2.6 to +7.0)
+  // Vertical Architectural Columns / Fluted Pilasters
   const pillarXPositions = [-7.1, -2.6, 2.6, 7.1];
   pillarXPositions.forEach((px) => {
-    // Main column shaft
     const column = new THREE.Mesh(
       new THREE.BoxGeometry(0.32, 6.4, 1.4),
       woodMat
@@ -541,7 +523,6 @@ export function createLibraryScene(): THREE.Group {
     column.position.set(px, 0.8, -2.05);
     library.add(column);
 
-    // Carved capital / plinth brackets
     const capBottom = new THREE.Mesh(
       new THREE.BoxGeometry(0.42, 0.22, 1.46),
       woodMat
@@ -557,7 +538,7 @@ export function createLibraryScene(): THREE.Group {
     library.add(capTop);
   });
 
-  // Classical carved wooden arches crowning the 3 bays at the top
+  // Arches crowning the 3 bays at the top
   const archBays = [-4.85, 0, 4.85];
   archBays.forEach((ax) => {
     const archBeam = new THREE.Mesh(
@@ -568,8 +549,7 @@ export function createLibraryScene(): THREE.Group {
     library.add(archBeam);
   });
 
-  // 4. Side Wing Bookcases (Flanking Left & Right receding in perspective)
-  // Left Wing Bookcase
+  // Side Wing Bookcases (Flanking Left & Right receding in perspective)
   const leftWing = new THREE.Mesh(
     new THREE.BoxGeometry(1.2, 6.4, 6.0),
     woodMat
@@ -577,7 +557,6 @@ export function createLibraryScene(): THREE.Group {
   leftWing.position.set(-8.0, 0.8, 0.6);
   library.add(leftWing);
 
-  // Right Wing Bookcase
   const rightWing = new THREE.Mesh(
     new THREE.BoxGeometry(1.2, 6.4, 6.0),
     woodMat
@@ -585,7 +564,119 @@ export function createLibraryScene(): THREE.Group {
   rightWing.position.set(8.0, 0.8, 0.6);
   library.add(rightWing);
 
-  // 5. Populate Multi-Tier Shelves with Dignified Vintage Leather Books
+  // 4. Foreground Classical Library Study Tables with Glowing Banker's Lamps
+  function createStudyTable(tx: number, tz: number) {
+    const tableGroup = new THREE.Group();
+    tableGroup.position.set(tx, 0, tz);
+
+    // Polished dark mahogany tabletop
+    const tabletop = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 0.08, 1.3),
+      woodMat
+    );
+    tabletop.position.set(0, -1.48, 0);
+    tableGroup.add(tabletop);
+
+    // 4 Carved table legs down to the parquet floor (-2.4)
+    const legGeo = new THREE.CylinderGeometry(0.045, 0.035, 0.88, 12);
+    const legOffsets = [
+      [-1.05, -0.5],
+      [1.05, -0.5],
+      [-1.05, 0.5],
+      [1.05, 0.5]
+    ];
+    legOffsets.forEach(([lx, lz]) => {
+      const leg = new THREE.Mesh(legGeo, woodMat);
+      leg.position.set(lx, -1.96, lz);
+      tableGroup.add(leg);
+
+      // Brass foot ferrule
+      const ferrule = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.04, 0.045, 0.06, 12),
+        brassMat
+      );
+      ferrule.position.set(lx, -2.37, lz);
+      tableGroup.add(ferrule);
+    });
+
+    // Dark leather desk blotter pad with gold border
+    const blotter = new THREE.Mesh(
+      new THREE.BoxGeometry(1.4, 0.015, 0.8),
+      new THREE.MeshStandardMaterial({
+        color: 0x1f140e,
+        roughness: 0.75,
+        metalness: 0.05
+      })
+    );
+    blotter.position.set(0, -1.435, 0.05);
+    tableGroup.add(blotter);
+
+    // Stack of 2 antique books resting flat on table
+    const flatBook1 = new THREE.Mesh(
+      new THREE.BoxGeometry(0.45, 0.06, 0.6),
+      spineMaterials[1]
+    );
+    flatBook1.position.set(0.65, -1.41, -0.15);
+    flatBook1.rotation.y = 0.12;
+    tableGroup.add(flatBook1);
+
+    const flatBook2 = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.055, 0.55),
+      spineMaterials[3]
+    );
+    flatBook2.position.set(0.63, -1.35, -0.14);
+    flatBook2.rotation.y = -0.08;
+    tableGroup.add(flatBook2);
+
+    // Iconic Emerald Green Banker's Lamp
+    const lampGroup = new THREE.Group();
+    lampGroup.position.set(-0.55, -1.44, -0.18);
+
+    // Brass tiered base
+    const lampBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.11, 0.13, 0.03, 16),
+      brassMat
+    );
+    lampGroup.add(lampBase);
+
+    // Curved brass arm
+    const lampStem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.018, 0.32, 12),
+      brassMat
+    );
+    lampStem.position.set(0, 0.16, 0);
+    lampGroup.add(lampStem);
+
+    const lampArm = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.014, 0.014, 0.22, 12),
+      brassMat
+    );
+    lampArm.rotation.z = Math.PI / 2;
+    lampArm.position.set(0, 0.32, 0);
+    lampGroup.add(lampArm);
+
+    // Emerald glass curved hood / lampshade
+    const shade = new THREE.Mesh(
+      new THREE.BoxGeometry(0.3, 0.11, 0.15),
+      emeraldMat
+    );
+    shade.position.set(0, 0.3, 0);
+    lampGroup.add(shade);
+
+    // Dedicated warm amber pool of light from the banker's lamp
+    const lampLight = new THREE.PointLight(0xffdf88, 1.8, 5.0);
+    lampLight.position.set(0, 0.24, 0.05);
+    lampGroup.add(lampLight);
+
+    tableGroup.add(lampGroup);
+    library.add(tableGroup);
+  }
+
+  // Left & Right Library Study Tables flanking the central carpet aisle
+  createStudyTable(-3.6, 0.6);
+  createStudyTable(3.6, 0.6);
+
+  // 5. Curated Antique Books with Generous Blank Spaces (Clean & Spacious)
   function createShelfBook(
     w: number,
     h: number,
@@ -614,81 +705,70 @@ export function createLibraryScene(): THREE.Group {
     return new THREE.Mesh(geo, materials);
   }
 
-  // Helper to fill a shelf section with orderly, dignified vintage books
-  function fillShelfSection(
+  // Helper to add a small, orderly cluster of books (4 to 7 books) with breathing room
+  function addCuratedBookCluster(
     baseY: number,
-    xStart: number,
-    xEnd: number,
+    startX: number,
+    count: number,
     bIdxStart: number,
-    skipCenter = false,
-    scaleH = 1.0
+    targetHeight = 1.25
   ) {
-    let curX = xStart;
-    let bIdx = bIdxStart;
+    let curX = startX;
+    for (let i = 0; i < count; i++) {
+      const bookW = 0.075 + (i % 3) * 0.015;
+      const bookH = targetHeight + (Math.sin(i * 1.8) * 0.08);
+      const bookD = 0.95;
 
-    while (curX < xEnd) {
-      // Leave center hero slot open for Bishal's glowing 3D portfolio book!
-      if (skipCenter && curX > -0.16 && curX < 0.16) {
-        curX = 0.16;
-        continue;
-      }
-
-      const bookW = 0.082 + Math.random() * 0.028;
-      const baseH = (scaleH > 1.0 ? 1.05 : 0.88) * scaleH;
-      const bookH = baseH + (Math.random() - 0.5) * 0.08;
-      const bookD = 1.05;
-
-      const book = createShelfBook(bookW, bookH, bookD, bIdx, bIdx);
-      const bY = baseY + 0.06 + bookH / 2;
+      const book = createShelfBook(bookW, bookH, bookD, bIdxStart + i, bIdxStart + i);
+      const bY = baseY + 0.07 + bookH / 2;
       const bZ = -2.05;
 
       book.position.set(curX + bookW / 2, bY, bZ);
       library.add(book);
 
-      curX += bookW + 0.005;
-      bIdx++;
+      curX += bookW + 0.008;
     }
   }
 
-  // --- Tier 1: Main Center Hero Shelf (Where Bishal's glowing book stands!) ---
-  // Left side of hero shelf (-6.8 to -0.14)
-  fillShelfSection(-1.13, -6.8, -0.14, 0, false, 1.98 / 0.88);
-  // Right side of hero shelf (+0.14 to +6.8)
-  fillShelfSection(-1.13, 0.14, 6.8, 5, false, 1.98 / 0.88);
+  // --- Tier 1: Main Center Showcase Tier (-1.13) ---
+  // Bishal's grand book sits at X = 0 (Height = 1.98, Elevated on pedestal to Y = 0.0)
+  // Generous blank open space around Bishal's book from X = -1.5 to +1.5!
+  
+  // Left side curated clusters with blank gaps
+  addCuratedBookCluster(-1.13, -2.5, 6, 0, 1.28); // Cluster near center gap
+  addCuratedBookCluster(-1.13, -4.6, 7, 6, 1.34); // Cluster in left bay
+  addCuratedBookCluster(-1.13, -6.6, 5, 2, 1.22); // Cluster near outer pillar
+
+  // Right side curated clusters with blank gaps
+  addCuratedBookCluster(-1.13, 1.6, 6, 4, 1.28);  // Cluster near center gap
+  addCuratedBookCluster(-1.13, 3.4, 7, 1, 1.34);  // Cluster in right bay
+  addCuratedBookCluster(-1.13, 5.5, 5, 5, 1.22);  // Cluster near outer pillar
 
   // --- Tier 0: Ground Level Tier (-2.35) ---
-  // Left Bay
-  fillShelfSection(-2.35, -6.8, -2.8, 10, false, 1.15);
-  // Center Bay
-  fillShelfSection(-2.35, -2.4, 2.4, 18, false, 1.15);
-  // Right Bay
-  fillShelfSection(-2.35, 2.8, 6.8, 26, false, 1.15);
+  addCuratedBookCluster(-2.35, -5.8, 6, 3, 1.1);
+  addCuratedBookCluster(-2.35, -1.8, 7, 7, 1.15);
+  addCuratedBookCluster(-2.35, 1.2, 7, 0, 1.15);
+  addCuratedBookCluster(-2.35, 4.8, 6, 4, 1.1);
 
-  // --- Tier 2: Upper Gallery Mezzanine Tier (+1.15) ---
-  // Left Bay
-  fillShelfSection(1.15, -6.8, -2.8, 34, false, 1.05);
-  // Center Bay (behind gallery railing)
-  fillShelfSection(1.15, -2.4, 2.4, 42, false, 1.05);
-  // Right Bay
-  fillShelfSection(1.15, 2.8, 6.8, 50, false, 1.05);
+  // --- Tier 2: Upper Gallery Mezzanine (+1.15) ---
+  addCuratedBookCluster(1.15, -5.6, 6, 5, 1.05);
+  addCuratedBookCluster(1.15, -1.8, 6, 1, 1.08);
+  addCuratedBookCluster(1.15, 1.2, 6, 6, 1.08);
+  addCuratedBookCluster(1.15, 4.8, 6, 2, 1.05);
 
   // --- Tier 3: High Arch Attic Tier (+2.45) ---
-  // Left Bay
-  fillShelfSection(2.45, -6.8, -2.8, 58, false, 0.95);
-  // Center Bay
-  fillShelfSection(2.45, -2.4, 2.4, 66, false, 0.95);
-  // Right Bay
-  fillShelfSection(2.45, 2.8, 6.8, 74, false, 0.95);
+  addCuratedBookCluster(2.45, -4.5, 5, 4, 0.95);
+  addCuratedBookCluster(2.45, -0.8, 6, 0, 0.98);
+  addCuratedBookCluster(2.45, 3.6, 5, 3, 0.95);
 
   // 6. Atmospheric Grand Library Lighting
-  // Hanging Brass Pendant Lanterns casting warm ambient light
+  // Hanging Brass Pendant Lanterns casting warm light from ceiling
   const lanternPositions = [
-    [-3.5, 3.4, -0.6],
-    [3.5, 3.4, -0.6]
+    [-3.6, 3.4, -0.5],
+    [3.6, 3.4, -0.5]
   ];
 
   lanternPositions.forEach(([lx, ly, lz]) => {
-    // Brass chain drop
     const chain = new THREE.Mesh(
       new THREE.CylinderGeometry(0.012, 0.012, 1.6, 8),
       brassMat
@@ -696,7 +776,6 @@ export function createLibraryScene(): THREE.Group {
     chain.position.set(lx, ly + 0.8, lz);
     library.add(chain);
 
-    // Brass hexagonal lantern cage
     const lanternCage = new THREE.Mesh(
       new THREE.CylinderGeometry(0.24, 0.18, 0.45, 6),
       brassMat
@@ -704,26 +783,25 @@ export function createLibraryScene(): THREE.Group {
     lanternCage.position.set(lx, ly, lz);
     library.add(lanternCage);
 
-    // Warm golden lantern light
     const lanternLight = new THREE.PointLight(0xffdf99, 1.6, 12.0);
     lanternLight.position.set(lx, ly - 0.1, lz);
     library.add(lanternLight);
   });
 
-  // Warm ambient fill for lower floor and upper gallery
-  const ambientWarm = new THREE.PointLight(0xffe2b8, 1.3, 14.0);
+  // Warm library ambient fill
+  const ambientWarm = new THREE.PointLight(0xffe2b8, 1.4, 14.0);
   ambientWarm.position.set(0, 2.2, 0.2);
   library.add(ambientWarm);
 
-  // Cool moonlight glow filtering through the grand Palladian window
+  // Cool moonlit blue twilight from Palladian window
   const moonLight = new THREE.PointLight(0x7da4d9, 1.2, 12.0);
   moonLight.position.set(0, 2.8, -3.8);
   library.add(moonLight);
 
   // Dedicated Warm Accent Spotlight focused right on Bishal's centerpiece book
-  const featureSpot = new THREE.SpotLight(0xfffaed, 2.5, 9.0, Math.PI / 3.6, 0.4);
-  featureSpot.position.set(0, 2.4, -0.2);
-  featureSpot.target.position.set(0, -0.08, -2.05);
+  const featureSpot = new THREE.SpotLight(0xfffaed, 2.8, 9.5, Math.PI / 3.4, 0.4);
+  featureSpot.position.set(0, 2.5, -0.2);
+  featureSpot.target.position.set(0, 0.0, -2.05);
   library.add(featureSpot);
   library.add(featureSpot.target);
 
