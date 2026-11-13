@@ -173,7 +173,7 @@ export class BookEngine {
 
   private acc = 0;
   private hov = 0;
-  private dist = 3.65;
+  private dist = 1.75;
   private px = 0;
   private py = 0;
   private wheelT = 0;
@@ -220,7 +220,7 @@ export class BookEngine {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(44, 1, 0.1, 60);
+    this.camera = new THREE.PerspectiveCamera(38, 1, 0.1, 60);
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
@@ -420,9 +420,9 @@ export class BookEngine {
     });
 
     if (!this.isFloating) {
-      this.group.position.set(0, -0.04, -2.0);
+      this.group.position.set(0, -0.08, -2.05);
       this.group.rotation.set(0, Math.PI / 2, 0);
-      this.dist = 6.6;
+      this.dist = 1.75;
     } else {
       this.group.position.set(0, 0, 0);
       this.group.rotation.set(-0.08, 0, 0);
@@ -741,8 +741,8 @@ export class BookEngine {
       const hoverSlide = this.isBookHovered ? 0.35 : 0;
       const hoverAngle = this.isBookHovered ? -0.06 : 0;
       const targetShelfX = 0;
-      const targetShelfY = -0.04;
-      const targetShelfZ = -2.0 + hoverSlide;
+      const targetShelfY = -0.08;
+      const targetShelfZ = -2.05 + hoverSlide;
       const targetRotX = 0;
       const targetRotY = Math.PI / 2 + hoverAngle;
 
@@ -754,14 +754,14 @@ export class BookEngine {
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
       this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
 
-      // Atmospheric wide grand library framing: shows all tiers of shelves, desk, and ladder
-      const targetCamDist = 6.6;
-      const targetCamY = 0.52;
+      // Intimate single shelf framing: focused directly on the single shelf with Bishal's glowing book centered
+      const targetCamDist = 1.75;
+      const targetCamY = 0.02;
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
-      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.55;
-      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.35;
+      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.25;
+      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.15;
       this.camera.position.set(camParallaxX, targetCamY + camParallaxY, this.dist);
-      this.camera.lookAt(0, 0.35, -2.0);
+      this.camera.lookAt(0, 0.0, -2.05);
     } else {
       // Floating in reading position facing user
       this.group.position.x += (-fx - this.group.position.x) * kPos;
