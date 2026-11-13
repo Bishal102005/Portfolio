@@ -1,14 +1,14 @@
 :root {
-  /* Imperial Emerald & Champagne Gold (Light Mode) */
-  --bg1: #ffffff;
-  --bg2: #f1ede4; /* soft warm sunlit marble showroom */
-  --fg: #062317;  /* deep imperial hunter slate */
-  --ac: #b8860b;  /* 24k champagne gold */
-  --ac-hover: #996515;
-  --pn: rgba(255, 255, 255, 0.88); /* high clarity glass */
-  --pn-border: rgba(184, 134, 11, 0.25);
-  --ribbon-bg: linear-gradient(135deg, #991b1b, #7f1d1d); /* rich ruby red silk */
-  --shadow-hud: 0 12px 32px rgba(6, 35, 23, 0.08);
+  /* Sunset Horizon (Light Mode) */
+  --bg1: #fff5eb; /* soft sunrise morning aura */
+  --bg2: #fed7aa; /* warm radiant apricot & lavender sky */
+  --fg: #26152e;  /* deep plum charcoal */
+  --ac: #ff7a59;  /* radiant solar coral & tangerine */
+  --ac-hover: #ea580c;
+  --pn: rgba(255, 255, 255, 0.88); /* warm high-clarity frosted glass */
+  --pn-border: rgba(255, 122, 89, 0.28);
+  --ribbon-bg: linear-gradient(135deg, #ff7a59, #ea580c); /* radiant sunset tangerine */
+  --shadow-hud: 0 12px 32px rgba(38, 21, 46, 0.08);
   color-scheme: light dark;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
@@ -17,41 +17,41 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    /* Imperial Emerald Velvet (Dark Mode) */
-    --bg1: #062317; /* deep forest emerald */
-    --bg2: #02100a; /* midnight obsidian */
-    --fg: #fbf9f4;  /* creamy warm white */
-    --ac: #d4af37;  /* gleaming champagne gold */
-    --ac-hover: #f3ce63;
-    --pn: rgba(6, 35, 23, 0.75); /* frosted emerald glass */
-    --pn-border: rgba(212, 175, 55, 0.25);
-    --ribbon-bg: linear-gradient(135deg, #b91c1c, #991b1b);
+    /* Sunset Horizon Twilight (Dark Mode) */
+    --bg1: #2b0a3d; /* deep blackberry wine */
+    --bg2: #13031f; /* midnight plum obsidian */
+    --fg: #fff5eb;  /* warm sunrise ivory */
+    --ac: #ff7a59;  /* radiant solar coral */
+    --ac-hover: #f59e0b;
+    --pn: rgba(43, 10, 61, 0.75); /* frosted blackberry glass */
+    --pn-border: rgba(255, 122, 89, 0.25);
+    --ribbon-bg: linear-gradient(135deg, #ff8c6b, #ff5722);
     --shadow-hud: 0 12px 32px rgba(0, 0, 0, 0.55);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg1: #062317;
-  --bg2: #02100a;
-  --fg: #fbf9f4;
-  --ac: #d4af37;
-  --ac-hover: #f3ce63;
-  --pn: rgba(6, 35, 23, 0.75);
-  --pn-border: rgba(212, 175, 55, 0.25);
-  --ribbon-bg: linear-gradient(135deg, #b91c1c, #991b1b);
+  --bg1: #2b0a3d;
+  --bg2: #13031f;
+  --fg: #fff5eb;
+  --ac: #ff7a59;
+  --ac-hover: #f59e0b;
+  --pn: rgba(43, 10, 61, 0.75);
+  --pn-border: rgba(255, 122, 89, 0.25);
+  --ribbon-bg: linear-gradient(135deg, #ff8c6b, #ff5722);
   --shadow-hud: 0 12px 32px rgba(0, 0, 0, 0.55);
 }
 
 :root[data-theme="light"] {
-  --bg1: #ffffff;
-  --bg2: #f1ede4;
-  --fg: #062317;
-  --ac: #b8860b;
-  --ac-hover: #996515;
+  --bg1: #fff5eb;
+  --bg2: #fed7aa;
+  --fg: #26152e;
+  --ac: #ff7a59;
+  --ac-hover: #ea580c;
   --pn: rgba(255, 255, 255, 0.88);
-  --pn-border: rgba(184, 134, 11, 0.25);
-  --ribbon-bg: linear-gradient(135deg, #991b1b, #7f1d1d);
-  --shadow-hud: 0 12px 32px rgba(6, 35, 23, 0.08);
+  --pn-border: rgba(255, 122, 89, 0.28);
+  --ribbon-bg: linear-gradient(135deg, #ff7a59, #ea580c);
+  --shadow-hud: 0 12px 32px rgba(38, 21, 46, 0.08);
 }
 
 *, *::before, *::after {
@@ -103,7 +103,7 @@ body {
 .logo {
   font: 700 22px "Playfair Display", Georgia, serif;
   letter-spacing: -0.015em;
-  background: linear-gradient(135deg, var(--fg) 35%, var(--ac) 100%);
+  background: linear-gradient(135deg, var(--fg) 35%, #ff7a59 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.05));
@@ -128,13 +128,13 @@ button {
   cursor: pointer;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 12px rgba(6, 35, 23, 0.04);
+  box-shadow: 0 4px 12px rgba(38, 21, 46, 0.04);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 button:hover {
   transform: translateY(-1.5px);
-  box-shadow: 0 8px 20px rgba(6, 35, 23, 0.1);
+  box-shadow: 0 8px 20px rgba(38, 21, 46, 0.1);
   border-color: var(--ac);
 }
 
@@ -148,7 +148,7 @@ nav button[aria-current="true"] {
   color: #ffffff;
   border-color: var(--ac);
   font-weight: 700;
-  box-shadow: 0 4px 16px rgba(184, 134, 11, 0.4);
+  box-shadow: 0 4px 16px rgba(255, 122, 89, 0.45);
   transform: translateY(-1px);
 }
 
@@ -167,7 +167,7 @@ nav button[aria-current="true"] {
   cursor: pointer;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 12px rgba(6, 35, 23, 0.04);
+  box-shadow: 0 4px 12px rgba(38, 21, 46, 0.04);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -237,13 +237,13 @@ nav button[aria-current="true"] {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   z-index: 3;
-  box-shadow: 0 8px 24px rgba(153, 27, 27, 0.45);
+  box-shadow: 0 8px 24px rgba(255, 122, 89, 0.45);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
 
 .rib:hover {
   transform: translateY(3px);
-  box-shadow: 0 12px 28px rgba(153, 27, 27, 0.6);
+  box-shadow: 0 12px 28px rgba(255, 122, 89, 0.6);
 }
 
 .hint {

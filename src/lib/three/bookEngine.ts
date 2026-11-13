@@ -94,11 +94,11 @@ export class BookEngine {
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
-    // Warm sunlit gallery lights
-    const hemiLight = new THREE.HemisphereLight(0xfffff0, 0x3d5a49, 0.95);
+    // Warm sunset ambient & solar keylights
+    const hemiLight = new THREE.HemisphereLight(0xfff7ed, 0x5a3969, 0.95);
     this.scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xfffaea, 0.85);
+    const dirLight = new THREE.DirectionalLight(0xffedd5, 0.85);
     dirLight.position.set(-2, 3, 4);
     this.scene.add(dirLight);
 
@@ -140,9 +140,9 @@ export class BookEngine {
       this.sheets.push({ geo, fm, bm, p: -1, tp: 0 });
     }
 
-    // Imperial British Racing Green cover boards and spine
+    // Deep blackberry wine cover boards and spine
     const leatherMat = new THREE.MeshStandardMaterial({
-      color: 0x042417,
+      color: 0x220732,
       roughness: 0.55,
       metalness: 0.1
     });
@@ -155,7 +155,7 @@ export class BookEngine {
     this.spine.position.z = -0.02;
     this.group.add(this.backRight, this.backLeft, this.spine);
 
-    // Warm champagne gold floating dust motes
+    // Warm apricot & peach starlight dust motes
     this.particlesGeo = new THREE.BufferGeometry();
     const posArr = new Float32Array(360);
     for (let i = 0; i < 120; i++) {
@@ -168,9 +168,9 @@ export class BookEngine {
       this.particlesGeo,
       new THREE.PointsMaterial({
         size: 0.025,
-        color: 0xe5c07b,
+        color: 0xffa07a,
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.6,
         depthWrite: false
       })
     );
