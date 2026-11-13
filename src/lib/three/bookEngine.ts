@@ -222,7 +222,7 @@ export class BookEngine {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
+    this.camera = new THREE.PerspectiveCamera(44, 1, 0.1, 60);
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
@@ -420,7 +420,7 @@ export class BookEngine {
     this.group.add(this.bookParticles);
 
     // Invisible pick hit box for responsive hover and clicking
-    const hitGeo = new THREE.BoxGeometry(0.38, this.H + 0.25, 0.38);
+    const hitGeo = new THREE.BoxGeometry(0.75, this.H + 0.5, 0.75);
     const hitMat = new THREE.MeshBasicMaterial({ visible: false });
     this.pickHitBox = new THREE.Mesh(hitGeo, hitMat);
     this.group.add(this.pickHitBox);
@@ -459,7 +459,7 @@ export class BookEngine {
     if (!this.isFloating) {
       this.group.position.set(0, -0.04, -2.0);
       this.group.rotation.set(0, Math.PI / 2, 0);
-      this.dist = 3.65;
+      this.dist = 6.6;
     } else {
       this.group.position.set(0, 0, 0);
       this.group.rotation.set(-0.08, 0, 0);
@@ -791,13 +791,14 @@ export class BookEngine {
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
       this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
 
-      // Atmospheric grand library framing with subtle 3D parallax
-      const targetCamDist = 3.65;
+      // Atmospheric wide grand library framing: shows all tiers of shelves, desk, and ladder
+      const targetCamDist = 6.6;
+      const targetCamY = 0.52;
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
-      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.35;
-      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.18;
-      this.camera.position.set(camParallaxX, 0.12 + camParallaxY, this.dist);
-      this.camera.lookAt(0, 0.02, -2.0);
+      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.55;
+      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.35;
+      this.camera.position.set(camParallaxX, targetCamY + camParallaxY, this.dist);
+      this.camera.lookAt(0, 0.35, -2.0);
     } else {
       // Floating in reading position facing user
       this.group.position.x += (-fx - this.group.position.x) * kPos;

@@ -160,13 +160,17 @@ export const Book3D: React.FC = () => {
       {!isFloating && (
         <div
           className="shelf-pill-hint"
+          onClick={handlePullFromShelf}
           style={{
             opacity: showHint ? 0.95 : 0,
+            cursor: 'pointer',
+            pointerEvents: 'auto',
             transition: 'opacity 0.6s ease'
           }}
+          title="Click to take out the glowing book"
         >
           <span style={{ color: '#e5a958' }}>✦</span>
-          <span>Click the book on the shelf to pick it up</span>
+          <span>Click the glowing book to open portfolio</span>
           <span style={{ color: '#e5a958' }}>✦</span>
         </div>
       )}
