@@ -3,8 +3,8 @@ import { Project } from '../types/portfolio';
 
 export const TW = 700;
 export const TH = 990;
-export const INK = '#0f172a';
-export const GOLD = '#d97706';
+export const INK = '#062317';
+export const GOLD = '#b8860b';
 export const SERIF = '"Playfair Display", Georgia, serif';
 export const SANS = 'Inter, system-ui, sans-serif';
 
@@ -50,26 +50,26 @@ export function wrap(
 }
 
 export function paper(g: CanvasRenderingContext2D, f: number) {
-  // Luminous archival silk vellum
-  g.fillStyle = '#faf9f5';
+  // Warm archival linen silk
+  g.fillStyle = '#fbf9f2';
   g.fillRect(0, 0, TW, TH);
 
   // Subtle clean paper texture
   for (let i = 0; i < 400; i++) {
-    g.fillStyle = `rgba(148, 163, 184, ${Math.random() * 0.03})`;
+    g.fillStyle = `rgba(184, 134, 11, ${Math.random() * 0.025})`;
     g.fillRect(Math.random() * TW, Math.random() * TH, 2, 2);
   }
 
   // Soft ambient spine shadow
   const r = f % 2 === 0;
   const gr = r ? g.createLinearGradient(0, 0, 90, 0) : g.createLinearGradient(TW, 0, TW - 90, 0);
-  gr.addColorStop(0, 'rgba(15, 23, 42, 0.10)');
-  gr.addColorStop(1, 'rgba(15, 23, 42, 0)');
+  gr.addColorStop(0, 'rgba(6, 35, 23, 0.10)');
+  gr.addColorStop(1, 'rgba(6, 35, 23, 0)');
   g.fillStyle = gr;
   g.fillRect(r ? 0 : TW - 90, 0, 90, TH);
 
   // Crisp modern page number
-  T(g, String(f), r ? TW - 60 : 60, TH - 50, '15px ' + SANS, '#64748b', r ? 'right' : 'left');
+  T(g, String(f), r ? TW - 60 : 60, TH - 50, '15px ' + SANS, '#5c7165', r ? 'right' : 'left');
 }
 
 export const mx = (f: number) => (f % 2 === 0 ? 90 : 60);
@@ -80,43 +80,43 @@ export function leather(
   sub: string,
   note: string
 ) {
-  // Imperial Midnight Royal Sapphire & Indigo gradient
+  // Imperial British Racing Green & Emerald Obsidian gradient
   const gr = g.createLinearGradient(0, 0, TW, TH);
-  gr.addColorStop(0, '#1e1b4b');
-  gr.addColorStop(0.5, '#17153a');
-  gr.addColorStop(1, '#090d16');
+  gr.addColorStop(0, '#063321');
+  gr.addColorStop(0.5, '#042417');
+  gr.addColorStop(1, '#02160e');
   g.fillStyle = gr;
   g.fillRect(0, 0, TW, TH);
 
-  // Starlight micro-grain
+  // Champagne gold micro-stippling
   for (let i = 0; i < 1500; i++) {
-    g.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.04})`;
+    g.fillStyle = `rgba(212, 175, 55, ${Math.random() * 0.04})`;
     g.fillRect(Math.random() * TW, Math.random() * TH, 2, 2);
   }
 
-  // 24k Gold Foil Filigree border
-  g.strokeStyle = '#f59e0b';
+  // 24k Champagne Gold Filigree border
+  g.strokeStyle = '#d4af37';
   g.lineWidth = 3;
   g.strokeRect(44, 44, TW - 88, TH - 88);
 
-  g.strokeStyle = 'rgba(251, 191, 36, 0.5)';
+  g.strokeStyle = 'rgba(212, 175, 55, 0.55)';
   g.lineWidth = 1;
   g.strokeRect(58, 58, TW - 116, TH - 116);
 
-  // Embossed gold titles
-  T(g, big[0], TW / 2, 420, '700 84px ' + SERIF, '#fbbf24', 'center');
-  if (big[1]) T(g, big[1], TW / 2, 515, '700 84px ' + SERIF, '#fbbf24', 'center');
+  // Embossed champagne gold titles
+  T(g, big[0], TW / 2, 420, '700 84px ' + SERIF, '#e5c07b', 'center');
+  if (big[1]) T(g, big[1], TW / 2, 515, '700 84px ' + SERIF, '#e5c07b', 'center');
 
-  g.fillStyle = '#f59e0b';
+  g.fillStyle = '#d4af37';
   g.fillRect(TW / 2 - 60, 560, 120, 2);
 
-  T(g, sub, TW / 2, 615, 'italic 28px ' + SERIF, '#fde68a', 'center');
-  T(g, note, TW / 2, TH - 120, '16px ' + SANS, '#f59e0b', 'center');
+  T(g, sub, TW / 2, 615, 'italic 28px ' + SERIF, '#f3e5ab', 'center');
+  T(g, note, TW / 2, TH - 120, '16px ' + SANS, '#d4af37', 'center');
 }
 
 export function cover(g: CanvasRenderingContext2D) {
   leather(g, ME.name.split(' '), ME.role + ', a portfolio', 'Open the cover to begin');
-  T(g, 'Volume I', TW / 2, 230, 'italic 24px ' + SERIF, '#fde68a', 'center');
+  T(g, 'Volume I', TW / 2, 230, 'italic 24px ' + SERIF, '#f3e5ab', 'center');
 }
 
 export function back(g: CanvasRenderingContext2D) {
@@ -129,15 +129,15 @@ export function fore(g: CanvasRenderingContext2D, f: number) {
   T(g, 'Foreword', m, 150, '700 54px ' + SERIF, INK);
   g.fillStyle = GOLD;
   g.fillRect(m, 175, 70, 3);
-  T(g, INTRO[0][0], m, 330, '700 130px ' + SERIF, '#d97706');
+  T(g, INTRO[0][0], m, 330, '700 130px ' + SERIF, '#b8860b');
   g.font = 'italic 25px ' + SERIF;
   g.fillStyle = INK;
   let y = wrap(g, INTRO[0].slice(1), m + 88, 250, 460, 38);
   g.font = '19px ' + SANS;
-  g.fillStyle = '#334155';
+  g.fillStyle = '#1b3a2c';
   y = wrap(g, INTRO[1], m, y > 360 ? y + 20 : 380, 550, 32) + 10;
   y = wrap(g, 'Read it front to back, or use the contents on the facing page to jump to a chapter.', m, y, 550, 32);
-  T(g, ME.name.split(' ')[0], m, y + 70, 'italic 46px ' + SERIF, '#475569');
+  T(g, ME.name.split(' ')[0], m, y + 70, 'italic 46px ' + SERIF, '#2c4639');
 }
 
 export function toc(g: CanvasRenderingContext2D, f: number) {
@@ -159,10 +159,10 @@ export function toc(g: CanvasRenderingContext2D, f: number) {
   E.forEach((e, i) => {
     const y = 300 + i * 85;
     T(g, e[0], m, y, '500 29px ' + SERIF, INK);
-    T(g, String(e[1]), m + 550, y, '20px ' + SANS, '#64748b', 'right');
+    T(g, String(e[1]), m + 550, y, '20px ' + SANS, '#5c7165', 'right');
     g.save();
     g.setLineDash([2, 7]);
-    g.strokeStyle = '#cbd5e1';
+    g.strokeStyle = '#cbd7cf';
     g.beginPath();
     g.moveTo(m + g.measureText(e[0]).width + 14, y);
     g.lineTo(m + 510, y);
@@ -170,7 +170,7 @@ export function toc(g: CanvasRenderingContext2D, f: number) {
     g.restore();
     HIT[f].push([y - 36, y + 26, e[2]]);
   });
-  T(g, 'Tap a title to turn straight to it.', m, TH - 110, 'italic 18px ' + SERIF, '#64748b');
+  T(g, 'Tap a title to turn straight to it.', m, TH - 110, 'italic 18px ' + SERIF, '#5c7165');
 }
 
 export function art(
@@ -192,14 +192,14 @@ export function art(
   g.clip();
   const gr = g.createLinearGradient(x, y, x + w, y + h);
   gr.addColorStop(0, p.c[0]);
-  gr.addColorStop(1, '#050814');
+  gr.addColorStop(1, '#020f08');
   g.fillStyle = gr;
   g.fillRect(x, y, w, h);
   const cx = x + w / 2;
   const cy = y + h / 2;
 
   if (k === 0) {
-    // Aurora: Vibrant neon cyan wave and glowing telemetry bars
+    // Aurora: Mint jade waveform with telemetry bars
     g.strokeStyle = 'rgba(255,255,255,.08)';
     for (let i = 1; i < 7; i++) {
       g.beginPath();
@@ -225,7 +225,7 @@ export function art(
   }
 
   if (k === 1) {
-    // Lumen: Radiant neon planetary orb with vibrant orbital rings
+    // Lumen: Golden amber planetary orb with fine rings
     const s = g.createRadialGradient(cx - 50, cy - 70, 10, cx, cy, 190);
     s.addColorStop(0, '#ffffff');
     s.addColorStop(0.35, p.c[1]);
@@ -254,8 +254,8 @@ export function art(
   }
 
   if (k === 2) {
-    // Fable: Radiant sunset mobile device with bright orange interactive cards
-    g.fillStyle = '#140c08';
+    // Fable: Ruby obsidian device with warm coral cards
+    g.fillStyle = '#140808';
     g.beginPath();
     if (typeof (g as any).roundRect === 'function') {
       (g as any).roundRect(cx - 125, y + 45, 250, 550, 36);
@@ -275,7 +275,7 @@ export function art(
     g.beginPath();
     g.arc(cx + 45, y + 140, 34, 0, 7);
     g.fill();
-    g.fillStyle = '#ffb703';
+    g.fillStyle = '#fbbf24';
     g.beginPath();
     g.arc(cx + 58, y + 130, 30, 0, 7);
     g.fill();
@@ -296,7 +296,7 @@ export function art(
   }
 
   g.restore();
-  g.strokeStyle = 'rgba(15, 23, 42, 0.2)';
+  g.strokeStyle = 'rgba(6, 35, 23, 0.2)';
   g.lineWidth = 1.5;
   g.beginPath();
   if (typeof (g as any).roundRect === 'function') {
@@ -313,7 +313,7 @@ export function vis(g: CanvasRenderingContext2D, f: number) {
   const m = mx(f);
   paper(g, f);
   art(g, k, p, m, 110, 550, 650);
-  T(g, 'Figure ' + (k + 1) + '. ' + p.t + ', ' + p.sub.toLowerCase(), m, 805, 'italic 20px ' + SERIF, '#475569');
+  T(g, 'Figure ' + (k + 1) + '. ' + p.t + ', ' + p.sub.toLowerCase(), m, 805, 'italic 20px ' + SERIF, '#2c4639');
   g.font = 'italic 24px ' + SERIF;
   g.fillStyle = INK;
   wrap(g, p.q, m, 860, 550, 34);
@@ -324,10 +324,10 @@ export function story(g: CanvasRenderingContext2D, f: number) {
   const p = PROJ[k];
   const m = mx(f);
   paper(g, f);
-  T(g, 'Chapter ' + ['one', 'two', 'three'][k], m, 110, '600 17px ' + SANS, '#d97706');
+  T(g, 'Chapter ' + ['one', 'two', 'three'][k], m, 110, '600 17px ' + SANS, '#b8860b');
   T(g, p.t, m, 185, '700 72px ' + SERIF, INK);
-  T(g, p.sub, m, 228, 'italic 25px ' + SERIF, '#475569');
-  T(g, p.role + ', ' + p.yr, m, 264, '15px ' + SANS, '#64748b');
+  T(g, p.sub, m, 228, 'italic 25px ' + SERIF, '#2c4639');
+  T(g, p.role + ', ' + p.yr, m, 264, '15px ' + SANS, '#5c7165');
   let y = 330;
   [
     ['The challenge', p.ch],
@@ -336,7 +336,7 @@ export function story(g: CanvasRenderingContext2D, f: number) {
   ].forEach(([h, t]) => {
     T(g, h, m, y, '700 23px ' + SERIF, INK);
     g.font = '17px ' + SANS;
-    g.fillStyle = '#334155';
+    g.fillStyle = '#1b3a2c';
     y = wrap(g, t, m, y + 32, 550, 27) + 24;
   });
   let x = m;
@@ -344,7 +344,7 @@ export function story(g: CanvasRenderingContext2D, f: number) {
   p.stack.forEach((s) => {
     g.font = '600 14px ' + SANS;
     const w = g.measureText(s).width + 26;
-    g.fillStyle = 'rgba(99, 102, 241, 0.08)';
+    g.fillStyle = 'rgba(6, 51, 33, 0.07)';
     g.beginPath();
     if (typeof (g as any).roundRect === 'function') {
       (g as any).roundRect(x, y, w, 32, 16);
@@ -352,39 +352,39 @@ export function story(g: CanvasRenderingContext2D, f: number) {
       g.rect(x, y, w, 32);
     }
     g.fill();
-    g.strokeStyle = 'rgba(99, 102, 241, 0.2)';
+    g.strokeStyle = 'rgba(6, 51, 33, 0.18)';
     g.lineWidth = 1;
     g.stroke();
-    T(g, s, x + 13, y + 21, '600 14px ' + SANS, '#312e81');
+    T(g, s, x + 13, y + 21, '600 14px ' + SANS, '#063321');
     x += w + 8;
   });
   p.m.forEach((q, i) => {
     const bx = m + i * 280;
-    T(g, q[0], bx, y + 170, '700 60px ' + SERIF, '#d97706');
-    T(g, q[1], bx, y + 202, '16px ' + SANS, '#64748b');
+    T(g, q[0], bx, y + 170, '700 60px ' + SERIF, '#b8860b');
+    T(g, q[1], bx, y + 202, '16px ' + SANS, '#5c7165');
   });
 }
 
 export function skillsA(g: CanvasRenderingContext2D, f: number) {
   paper(g, f);
   const m = mx(f);
-  T(g, 'Appendix A', m, 110, '600 17px ' + SANS, '#d97706');
+  T(g, 'Appendix A', m, 110, '600 17px ' + SANS, '#b8860b');
   T(g, 'Skills', m, 185, '700 62px ' + SERIF, INK);
   SK.forEach((s, i) => {
     const y = 290 + i * 105;
     T(g, s[0], m, y, '500 24px ' + SERIF, INK);
-    g.fillStyle = 'rgba(226, 232, 240, 0.8)';
+    g.fillStyle = 'rgba(6, 51, 33, 0.09)';
     g.fillRect(m, y + 18, 550, 10);
-    g.fillStyle = '#f59e0b';
+    g.fillStyle = '#d4af37';
     g.fillRect(m, y + 18, 5.5 * s[1], 10);
-    T(g, s[1] + '%', m + 550, y, '15px ' + SANS, '#64748b', 'right');
+    T(g, s[1] + '%', m + 550, y, '15px ' + SANS, '#5c7165', 'right');
   });
 }
 
 export function skillsB(g: CanvasRenderingContext2D, f: number) {
   paper(g, f);
   const m = mx(f);
-  T(g, 'Appendix B', m, 110, '600 17px ' + SANS, '#d97706');
+  T(g, 'Appendix B', m, 110, '600 17px ' + SANS, '#b8860b');
   T(g, 'Toolbox', m, 185, '700 62px ' + SERIF, INK);
   let x = m;
   let y = 260;
@@ -395,7 +395,7 @@ export function skillsB(g: CanvasRenderingContext2D, f: number) {
       x = m;
       y += 58;
     }
-    g.fillStyle = 'rgba(99, 102, 241, 0.08)';
+    g.fillStyle = 'rgba(6, 51, 33, 0.07)';
     g.beginPath();
     if (typeof (g as any).roundRect === 'function') {
       (g as any).roundRect(x, y, w, 40, 20);
@@ -403,15 +403,15 @@ export function skillsB(g: CanvasRenderingContext2D, f: number) {
       g.rect(x, y, w, 40);
     }
     g.fill();
-    g.strokeStyle = 'rgba(99, 102, 241, 0.2)';
+    g.strokeStyle = 'rgba(184, 134, 11, 0.25)';
     g.lineWidth = 1;
     g.stroke();
-    T(g, s, x + 16, y + 26, '600 17px ' + SANS, '#1e1b4b');
+    T(g, s, x + 16, y + 26, '600 17px ' + SANS, '#063321');
     x += w + 10;
   });
   T(g, 'Currently exploring', m, 600, '700 23px ' + SERIF, INK);
   g.font = '18px ' + SANS;
-  g.fillStyle = '#334155';
+  g.fillStyle = '#1b3a2c';
   wrap(
     g,
     'WebGPU, procedural audio and ways to make 3D pages load faster than the text around them.',
@@ -421,7 +421,7 @@ export function skillsB(g: CanvasRenderingContext2D, f: number) {
     30
   );
   g.font = 'italic 26px ' + SERIF;
-  g.fillStyle = '#475569';
+  g.fillStyle = '#2c4639';
   wrap(g, 'Good tools disappear. The work is what is left on the table.', m, 790, 500, 38);
 }
 
@@ -429,9 +429,9 @@ export function time(g: CanvasRenderingContext2D, f: number) {
   paper(g, f);
   const m = mx(f);
   const a = f === 11;
-  T(g, 'Appendix C', m, 110, '600 17px ' + SANS, '#d97706');
+  T(g, 'Appendix C', m, 110, '600 17px ' + SANS, '#b8860b');
   T(g, a ? 'Journey' : 'Journey, continued', m, 185, '700 ' + (a ? 62 : 44) + 'px ' + SERIF, INK);
-  g.strokeStyle = '#cbd5e1';
+  g.strokeStyle = '#cbd7cf';
   g.lineWidth = 2;
   g.beginPath();
   g.moveTo(m + 8, 260);
@@ -439,15 +439,15 @@ export function time(g: CanvasRenderingContext2D, f: number) {
   g.stroke();
   TL.slice(a ? 0 : 2, a ? 2 : 4).forEach((e, i) => {
     const y = 290 + i * 270;
-    g.fillStyle = '#f59e0b';
+    g.fillStyle = '#d4af37';
     g.beginPath();
     g.arc(m + 8, y - 6, 9, 0, 7);
     g.fill();
-    T(g, e[0], m + 40, y, '600 16px ' + SANS, '#d97706');
+    T(g, e[0], m + 40, y, '600 16px ' + SANS, '#b8860b');
     T(g, e[1], m + 40, y + 40, '700 28px ' + SERIF, INK);
-    T(g, e[2], m + 40, y + 72, 'italic 21px ' + SERIF, '#475569');
+    T(g, e[2], m + 40, y + 72, 'italic 21px ' + SERIF, '#2c4639');
     g.font = '17px ' + SANS;
-    g.fillStyle = '#334155';
+    g.fillStyle = '#1b3a2c';
     wrap(g, e[3], m + 40, y + 108, 500, 27);
   });
 }
@@ -455,12 +455,12 @@ export function time(g: CanvasRenderingContext2D, f: number) {
 export function conL(g: CanvasRenderingContext2D, f: number) {
   paper(g, f);
   const m = mx(f);
-  T(g, 'The last chapter', m, 110, '600 17px ' + SANS, '#d97706');
+  T(g, 'The last chapter', m, 110, '600 17px ' + SANS, '#b8860b');
   g.font = 'italic 700 52px ' + SERIF;
   g.fillStyle = INK;
   let y = wrap(g, 'Let’s write the next one together.', m, 200, 550, 66);
   g.font = '19px ' + SANS;
-  g.fillStyle = '#334155';
+  g.fillStyle = '#1b3a2c';
   y = wrap(
     g,
     'I take on a few projects each year: interactive sites, 3D product experiences and design-system work.',
@@ -496,13 +496,13 @@ export function conR(g: CanvasRenderingContext2D, f: number) {
   HIT[f] = [];
   R.forEach((r, i) => {
     const y = 290 + i * 130;
-    T(g, r[0], m, y, '600 16px ' + SANS, '#d97706');
+    T(g, r[0], m, y, '600 16px ' + SANS, '#b8860b');
     T(g, r[1], m, y + 42, '500 31px ' + SERIF, INK);
-    g.fillStyle = '#f59e0b';
+    g.fillStyle = '#d4af37';
     g.fillRect(m, y + 56, g.measureText(r[1]).width, 2);
     HIT[f].push([y - 30, y + 66, r[2]]);
   });
-  T(g, 'Tap any line to open it.', m, TH - 110, 'italic 18px ' + SERIF, '#64748b');
+  T(g, 'Tap any line to open it.', m, TH - 110, 'italic 18px ' + SERIF, '#5c7165');
 }
 
 export const FACES = [
