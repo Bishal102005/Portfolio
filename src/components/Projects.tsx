@@ -52,7 +52,7 @@ export function drawProjectVisual(g: CanvasRenderingContext2D, f: number) {
   const m = mx(f);
   paper(g, f);
   art(g, k, p, m, 110, 550, 650);
-  T(g, 'Figure ' + (k + 1) + '. ' + p.t + ', ' + p.sub.toLowerCase(), m, 805, 'italic 20px ' + SERIF, '#5a3969');
+  T(g, 'Figure ' + (k + 1) + '. ' + p.t + ', ' + p.sub.toLowerCase(), m, 805, 'italic 600 20px ' + SERIF, '#3c234a');
   g.font = 'italic 24px ' + SERIF;
   g.fillStyle = INK;
   wrap(g, p.q, m, 860, 550, 34);
@@ -63,10 +63,10 @@ export function drawProjectStory(g: CanvasRenderingContext2D, f: number) {
   const p = projectsData[k];
   const m = mx(f);
   paper(g, f);
-  T(g, 'Chapter ' + ['one', 'two', 'three'][k], m, 110, '600 17px ' + SANS, '#ff7a59');
+  T(g, 'Chapter ' + ['one', 'two', 'three'][k], m, 110, '700 17px ' + SANS, '#d96b34');
   T(g, p.t, m, 185, '700 72px ' + SERIF, INK);
-  T(g, p.sub, m, 228, 'italic 25px ' + SERIF, '#5a3969');
-  T(g, p.role + ', ' + p.yr, m, 264, '15px ' + SANS, '#84688f');
+  T(g, p.sub, m, 228, 'italic 600 25px ' + SERIF, '#3c234a');
+  T(g, p.role + ', ' + p.yr, m, 264, '600 16px ' + SANS, '#4c3358');
   let y = 330;
   [
     ['The challenge', p.ch],
@@ -74,9 +74,9 @@ export function drawProjectStory(g: CanvasRenderingContext2D, f: number) {
     ['The outcome', p.out]
   ].forEach(([h, t]) => {
     T(g, h, m, y, '700 23px ' + SERIF, INK);
-    g.font = '17px ' + SANS;
-    g.fillStyle = '#3f274a';
-    y = wrap(g, t, m, y + 32, 550, 27) + 24;
+    g.font = '500 18px ' + SANS;
+    g.fillStyle = '#180e1c';
+    y = wrap(g, t, m, y + 32, 550, 28) + 24;
   });
   let x = m;
   y += 6;

@@ -32,11 +32,11 @@ export function drawTOC(g: CanvasRenderingContext2D, f: number) {
   HIT[f] = [];
   tocEntries.forEach((e, i) => {
     const y = 300 + i * 85;
-    T(g, e[0], m, y, '500 29px ' + SERIF, INK);
-    T(g, String(e[1]), m + 550, y, '20px ' + SANS, '#84688f', 'right');
+    T(g, e[0], m, y, '600 29px ' + SERIF, INK);
+    T(g, String(e[1]), m + 550, y, '600 21px ' + SANS, '#3c234a', 'right');
     g.save();
-    g.setLineDash([2, 7]);
-    g.strokeStyle = '#e2d5e6';
+    g.setLineDash([2, 6]);
+    g.strokeStyle = '#b59ebf';
     g.beginPath();
     g.moveTo(m + g.measureText(e[0]).width + 14, y);
     g.lineTo(m + 510, y);
@@ -44,7 +44,7 @@ export function drawTOC(g: CanvasRenderingContext2D, f: number) {
     g.restore();
     HIT[f].push([y - 36, y + 26, e[2]]);
   });
-  T(g, 'Tap a title to turn straight to it.', m, TH - 110, 'italic 18px ' + SERIF, '#84688f');
+  T(g, 'Tap a title to turn straight to it.', m, TH - 110, 'italic 600 18px ' + SERIF, '#483054');
 }
 
 interface NavbarProps {

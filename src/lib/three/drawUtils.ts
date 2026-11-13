@@ -2,8 +2,8 @@ import { Project } from '../types/portfolio';
 
 export const TW = 700;
 export const TH = 990;
-export const INK = '#26152e';
-export const GOLD = '#ff7a59';
+export const INK = '#140c18';
+export const GOLD = '#d96b34';
 export const SERIF = '"Playfair Display", Georgia, serif';
 export const SANS = 'Inter, system-ui, sans-serif';
 
@@ -49,27 +49,20 @@ export function wrap(
 }
 
 export function paper(g: CanvasRenderingContext2D, f: number) {
-  // Warm Luxurious Archival Off-White Paper
-  g.fillStyle = '#f8f5ee';
-  g.fillRect(0, 0, TW, TH);
-
-  // Subtle organic paper warmth gradient
-  const pGrad = g.createRadialGradient(TW / 2, TH / 2, 80, TW / 2, TH / 2, TW * 0.75);
-  pGrad.addColorStop(0, 'rgba(255, 252, 246, 0.45)');
-  pGrad.addColorStop(1, 'rgba(242, 236, 224, 0.55)');
-  g.fillStyle = pGrad;
+  // Luminous Warm Archival Off-White Paper
+  g.fillStyle = '#fcfbf8';
   g.fillRect(0, 0, TW, TH);
 
   // Delicate soft spine gutter shadow
   const r = f % 2 === 0;
-  const gr = r ? g.createLinearGradient(0, 0, 90, 0) : g.createLinearGradient(TW, 0, TW - 90, 0);
-  gr.addColorStop(0, 'rgba(38, 21, 46, 0.08)');
-  gr.addColorStop(1, 'rgba(38, 21, 46, 0)');
+  const gr = r ? g.createLinearGradient(0, 0, 75, 0) : g.createLinearGradient(TW, 0, TW - 75, 0);
+  gr.addColorStop(0, 'rgba(25, 12, 30, 0.06)');
+  gr.addColorStop(1, 'rgba(25, 12, 30, 0)');
   g.fillStyle = gr;
-  g.fillRect(r ? 0 : TW - 90, 0, 90, TH);
+  g.fillRect(r ? 0 : TW - 75, 0, 75, TH);
 
-  // Page number
-  T(g, String(f), r ? TW - 60 : 60, TH - 50, '15px ' + SANS, '#968878', r ? 'right' : 'left');
+  // Crisp high-contrast page number
+  T(g, String(f), r ? TW - 60 : 60, TH - 50, '600 15px ' + SANS, '#5a425c', r ? 'right' : 'left');
 }
 
 export const mx = (f: number) => (f % 2 === 0 ? 90 : 60);

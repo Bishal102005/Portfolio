@@ -22,17 +22,17 @@ export function drawForeword(g: CanvasRenderingContext2D, f: number) {
   g.fillRect(m, 175, 70, 3);
 
   // Drop cap initial letter
-  T(g, aboutData.intro[0][0], m, 330, '700 130px ' + SERIF, '#ff7a59');
+  T(g, aboutData.intro[0][0], m, 330, '700 130px ' + SERIF, '#d96b34');
   g.font = 'italic 25px ' + SERIF;
   g.fillStyle = INK;
   let y = wrap(g, aboutData.intro[0].slice(1), m + 88, 250, 460, 38);
 
-  g.font = '19px ' + SANS;
-  g.fillStyle = '#3f274a';
+  g.font = '500 19px ' + SANS;
+  g.fillStyle = '#180e1c';
   y = wrap(g, aboutData.intro[1], m, y > 360 ? y + 20 : 380, 550, 32) + 10;
   y = wrap(g, aboutData.instructions, m, y, 550, 32);
 
-  T(g, aboutData.signature, m, y + 70, 'italic 46px ' + SERIF, '#5a3969');
+  T(g, aboutData.signature, m, y + 70, 'italic 700 46px ' + SERIF, '#3c184a');
 }
 
 export const About: React.FC = () => {
