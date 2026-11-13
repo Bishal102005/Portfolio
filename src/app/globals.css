@@ -87,7 +87,7 @@ body {
   position: fixed;
   top: calc(14px + env(safe-area-inset-top, 0px));
   left: 24px;
-  right: 24px;
+  right: 124px; /* Generous clearance for the ribbon bookmark at right: 24px */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -107,15 +107,16 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.05));
+  white-space: nowrap;
 }
 
 nav {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-end;
-  margin-right: 64px;
+  margin-right: 0;
 }
 
 button {
@@ -279,6 +280,20 @@ nav button[aria-current="true"] {
   margin: 80px auto;
   padding: 0 20px;
   line-height: 1.6;
+}
+
+@media (max-width: 960px) {
+  .top {
+    right: 110px;
+    gap: 8px;
+  }
+  nav {
+    gap: 6px;
+  }
+  nav button {
+    padding: 7px 12px;
+    font-size: 13.5px;
+  }
 }
 
 @media (max-width: 700px) {
