@@ -7,7 +7,6 @@ function createWoodTexture(): THREE.CanvasTexture {
   canvas.height = 512;
   const ctx = canvas.getContext('2d')!;
 
-  // Base warm dark walnut
   const grad = ctx.createLinearGradient(0, 0, 512, 0);
   grad.addColorStop(0, '#211007');
   grad.addColorStop(0.28, '#2e170c');
@@ -16,7 +15,6 @@ function createWoodTexture(): THREE.CanvasTexture {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 512, 512);
 
-  // Flowing wood grain waves
   for (let y = 0; y < 512; y++) {
     const wave = Math.sin(y * 0.038) * 7 + Math.sin(y * 0.016) * 16;
     const alpha = 0.05 + Math.sin(y * 0.16 + wave * 0.09) * 0.035;
@@ -24,7 +22,6 @@ function createWoodTexture(): THREE.CanvasTexture {
     ctx.fillRect(0, y, 512, 1);
   }
 
-  // Linear wood fibers
   for (let i = 0; i < 300; i++) {
     const y = Math.random() * 512;
     const h = 1 + Math.random() * 2.5;
@@ -32,7 +29,6 @@ function createWoodTexture(): THREE.CanvasTexture {
     ctx.fillRect(0, y, 512, h);
   }
 
-  // Subtle edge bevel shadow
   const vGrad = ctx.createLinearGradient(0, 0, 0, 512);
   vGrad.addColorStop(0, 'rgba(0, 0, 0, 0.22)');
   vGrad.addColorStop(0.08, 'rgba(0, 0, 0, 0)');
@@ -49,6 +45,36 @@ function createWoodTexture(): THREE.CanvasTexture {
   return tex;
 }
 
+// Procedural bump map for tactile wood grain micro-relief
+function createWoodBumpTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#808080';
+  ctx.fillRect(0, 0, 256, 256);
+
+  for (let y = 0; y < 256; y++) {
+    const wave = Math.sin(y * 0.08) * 4;
+    const val = 128 + Math.floor(Math.sin(y * 0.35 + wave) * 35);
+    ctx.fillStyle = `rgb(${val},${val},${val})`;
+    ctx.fillRect(0, y, 256, 1);
+  }
+
+  for (let i = 0; i < 150; i++) {
+    const y = Math.random() * 256;
+    ctx.fillStyle = Math.random() > 0.5 ? '#a0a0a0' : '#606060';
+    ctx.fillRect(0, y, 256, 1.5);
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(4, 1);
+  return tex;
+}
+
 // Procedural texture generator for parquet hardwood floor
 function createParquetTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -59,7 +85,6 @@ function createParquetTexture(): THREE.CanvasTexture {
   ctx.fillStyle = '#1e0e06';
   ctx.fillRect(0, 0, 512, 512);
 
-  // Parquet plank grid
   const plankW = 64;
   const plankH = 128;
   for (let x = 0; x < 512; x += plankW) {
@@ -68,7 +93,6 @@ function createParquetTexture(): THREE.CanvasTexture {
       ctx.fillStyle = isAlt ? '#2a140a' : '#220f06';
       ctx.fillRect(x + 1, y + 1, plankW - 2, plankH - 2);
 
-      // Plank grain
       for (let py = y + 2; py < y + plankH - 2; py += 3) {
         ctx.fillStyle = 'rgba(55, 28, 12, 0.25)';
         ctx.fillRect(x + 1, py, plankW - 2, 1.5);
@@ -114,11 +138,9 @@ function createDeskBlotterTexture(): THREE.CanvasTexture {
   canvas.height = 256;
   const ctx = canvas.getContext('2d')!;
 
-  // Deep luxury burgundy-oxblood leather
   ctx.fillStyle = '#1c090d';
   ctx.fillRect(0, 0, 512, 256);
 
-  // Soft leather texture
   for (let i = 0; i < 600; i++) {
     const x = Math.random() * 512;
     const y = Math.random() * 256;
@@ -126,7 +148,6 @@ function createDeskBlotterTexture(): THREE.CanvasTexture {
     ctx.fillRect(x, y, 2, 2);
   }
 
-  // 24k Gold leaf tooled border
   ctx.strokeStyle = '#cda158';
   ctx.lineWidth = 3;
   ctx.strokeRect(16, 16, 480, 224);
@@ -134,7 +155,6 @@ function createDeskBlotterTexture(): THREE.CanvasTexture {
   ctx.lineWidth = 1;
   ctx.strokeRect(22, 22, 468, 212);
 
-  // Corner ornaments
   ctx.font = '16px serif';
   ctx.fillStyle = '#cda158';
   ctx.fillText('❖', 28, 40);
@@ -144,6 +164,44 @@ function createDeskBlotterTexture(): THREE.CanvasTexture {
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// Ambient occlusion shadow strip for under-shelf depth
+function createShelfShadowTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+
+  const grad = ctx.createLinearGradient(0, 0, 0, 64);
+  grad.addColorStop(0, 'rgba(0, 0, 0, 0.88)');
+  grad.addColorStop(0.3, 'rgba(12, 6, 3, 0.55)');
+  grad.addColorStop(0.7, 'rgba(12, 6, 3, 0.18)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 64, 64);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  return tex;
+}
+
+// Volumetric light ray gradient texture
+function createLightBeamTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  const grad = ctx.createLinearGradient(0, 0, 0, 512);
+  grad.addColorStop(0, 'rgba(255, 230, 160, 0.65)');
+  grad.addColorStop(0.2, 'rgba(255, 210, 120, 0.35)');
+  grad.addColorStop(0.7, 'rgba(240, 180, 80, 0.15)');
+  grad.addColorStop(1, 'rgba(200, 140, 50, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 512);
+
+  const tex = new THREE.CanvasTexture(canvas);
   return tex;
 }
 
@@ -165,14 +223,14 @@ const VINTAGE_TITLES = [
 
 // Rich antique leather color palettes
 const LEATHER_PALETTES = [
-  { base: '#3b0e14', dark: '#1b0508', gold: '#dfb76c' }, // Burgundy Morocco
-  { base: '#102a1b', dark: '#08170e', gold: '#e4c379' }, // Antique Hunter Green
-  { base: '#111f2f', dark: '#080f18', gold: '#dfbe75' }, // Midnight Navy
-  { base: '#3d2010', dark: '#1f1008', gold: '#e6c882' }, // Cognac Calfskin
-  { base: '#4a3518', dark: '#261b0c', gold: '#ebd18e' }, // Aged Ochre
-  { base: '#25152a', dark: '#120a14', gold: '#e2be72' }, // Imperial Plum
-  { base: '#2d1810', dark: '#160b07', gold: '#dfba6f' }, // Deep Mahogany
-  { base: '#1a1917', dark: '#0c0b0a', gold: '#d5ae63' }  // Antique Ebony
+  { base: '#3b0e14', dark: '#1b0508', gold: '#dfb76c' },
+  { base: '#102a1b', dark: '#08170e', gold: '#e4c379' },
+  { base: '#111f2f', dark: '#080f18', gold: '#dfbe75' },
+  { base: '#3d2010', dark: '#1f1008', gold: '#e6c882' },
+  { base: '#4a3518', dark: '#261b0c', gold: '#ebd18e' },
+  { base: '#25152a', dark: '#120a14', gold: '#e2be72' },
+  { base: '#2d1810', dark: '#160b07', gold: '#dfba6f' },
+  { base: '#1a1917', dark: '#0c0b0a', gold: '#d5ae63' }
 ];
 
 // Procedural generator for vintage book spine textures
@@ -185,7 +243,6 @@ function createVintageSpineTexture(paletteIndex: number, titleIndex: number): TH
   const pal = LEATHER_PALETTES[paletteIndex % LEATHER_PALETTES.length];
   const title = VINTAGE_TITLES[titleIndex % VINTAGE_TITLES.length];
 
-  // Cylindrical leather gradient
   const bgGrad = ctx.createLinearGradient(0, 0, 128, 0);
   bgGrad.addColorStop(0, pal.dark);
   bgGrad.addColorStop(0.2, pal.base);
@@ -195,7 +252,6 @@ function createVintageSpineTexture(paletteIndex: number, titleIndex: number): TH
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, 128, 512);
 
-  // Leather speckle
   for (let i = 0; i < 400; i++) {
     const x = Math.random() * 128;
     const y = Math.random() * 512;
@@ -203,7 +259,6 @@ function createVintageSpineTexture(paletteIndex: number, titleIndex: number): TH
     ctx.fillRect(x, y, 1.5, 1.5);
   }
 
-  // Five raised embossed horizontal ribs
   const ribYs = [65, 155, 260, 365, 450];
   ribYs.forEach((ry) => {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
@@ -218,12 +273,10 @@ function createVintageSpineTexture(paletteIndex: number, titleIndex: number): TH
     }
   });
 
-  // Gilded borders
   ctx.strokeStyle = pal.gold;
   ctx.lineWidth = 1.5;
   ctx.strokeRect(10, 12, 108, 488);
 
-  // Stamped gold lettering and emblems
   ctx.fillStyle = pal.gold;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -256,37 +309,69 @@ function createVintageSpineTexture(paletteIndex: number, titleIndex: number): TH
   return tex;
 }
 
+// Bump map for raised spine ribs & embossed crests
+function createSpineBumpTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#808080';
+  ctx.fillRect(0, 0, 64, 256);
+
+  const ribYs = [32, 78, 130, 182, 225];
+  ribYs.forEach((ry) => {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(4, ry, 56, 3);
+    ctx.fillStyle = '#404040';
+    ctx.fillRect(4, ry + 3, 56, 3);
+  });
+
+  const tex = new THREE.CanvasTexture(canvas);
+  return tex;
+}
+
 export function createLibraryScene(): THREE.Group {
   const library = new THREE.Group();
   library.name = 'virtual-library';
 
-  // 1. Textures & Materials
+  // 1. Textures & Materials with Bump Mapping
   const woodTexture = createWoodTexture();
+  const woodBump = createWoodBumpTexture();
   const parquetTexture = createParquetTexture();
   const paperEdgeTexture = createPaperEdgeTexture();
   const blotterTexture = createDeskBlotterTexture();
+  const shelfShadowTexture = createShelfShadowTexture();
+  const spineBumpTexture = createSpineBumpTexture();
+  const lightBeamTexture = createLightBeamTexture();
 
   const woodMat = new THREE.MeshStandardMaterial({
     map: woodTexture,
-    roughness: 0.68,
+    bumpMap: woodBump,
+    bumpScale: 0.035,
+    roughness: 0.65,
     metalness: 0.08
   });
 
   const shelfMat = new THREE.MeshStandardMaterial({
     map: woodTexture,
-    roughness: 0.62,
+    bumpMap: woodBump,
+    bumpScale: 0.04,
+    roughness: 0.58,
     metalness: 0.08
   });
 
   const floorMat = new THREE.MeshStandardMaterial({
     map: parquetTexture,
-    roughness: 0.48,
+    bumpMap: woodBump,
+    bumpScale: 0.03,
+    roughness: 0.45,
     metalness: 0.12
   });
 
   const backboardMat = new THREE.MeshStandardMaterial({
-    color: 0x140a06,
-    roughness: 0.92,
+    color: 0x120905,
+    roughness: 0.94,
     metalness: 0.02
   });
 
@@ -299,18 +384,27 @@ export function createLibraryScene(): THREE.Group {
   const brassMat = new THREE.MeshStandardMaterial({
     color: 0xd4a054,
     metalness: 0.88,
-    roughness: 0.25
+    roughness: 0.22
   });
 
-  // Pre-generate pool of vintage spine materials
+  const shadowStripMat = new THREE.MeshBasicMaterial({
+    map: shelfShadowTexture,
+    transparent: true,
+    opacity: 0.65,
+    depthWrite: false
+  });
+
+  // Pre-generate pool of vintage spine materials with bump mapping
   const spineMaterials: THREE.MeshStandardMaterial[] = [];
   for (let i = 0; i < 8; i++) {
     const spineTex = createVintageSpineTexture(i, i);
     spineMaterials.push(
       new THREE.MeshStandardMaterial({
         map: spineTex,
-        roughness: 0.58,
-        metalness: 0.12
+        bumpMap: spineBumpTexture,
+        bumpScale: 0.06,
+        roughness: 0.52,
+        metalness: 0.14
       })
     );
   }
@@ -322,14 +416,16 @@ export function createLibraryScene(): THREE.Group {
   );
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(0, -2.25, 0.5);
+  floor.receiveShadow = true;
   library.add(floor);
 
-  // Back Wall / Bookcase Backing (Massive 22m span)
+  // Back Wall
   const backWall = new THREE.Mesh(
     new THREE.PlaneGeometry(22, 10),
     backboardMat
   );
   backWall.position.set(0, 1.2, -2.75);
+  backWall.receiveShadow = true;
   library.add(backWall);
 
   // Left Room Wall
@@ -339,6 +435,7 @@ export function createLibraryScene(): THREE.Group {
   );
   leftWall.rotation.y = Math.PI / 2;
   leftWall.position.set(-10.5, 1.2, 0);
+  leftWall.receiveShadow = true;
   library.add(leftWall);
 
   // Right Room Wall
@@ -348,6 +445,7 @@ export function createLibraryScene(): THREE.Group {
   );
   rightWall.rotation.y = -Math.PI / 2;
   rightWall.position.set(10.5, 1.2, 0);
+  rightWall.receiveShadow = true;
   library.add(rightWall);
 
   // Ceiling & Heavy Crossbeams
@@ -367,13 +465,6 @@ export function createLibraryScene(): THREE.Group {
   });
 
   // 3. Grand 5-Bay Floor-to-Ceiling Bookcase (6 Shelf Levels)
-  // Shelf Y Levels:
-  // Baseboard: Y = -2.15
-  // Shelf 1 (Low): Y = -1.07 (Where Bishal's book sits, perfectly level with eye)
-  // Shelf 2 (Mid): Y = 1.05
-  // Shelf 3 (Upper): Y = 2.15
-  // Shelf 4 (Gallery): Y = 3.25
-  // Crown Top: Y = 4.15
   const shelfYPositions = [4.15, 3.25, 2.15, 1.05, -1.07, -2.15];
   shelfYPositions.forEach((y, idx) => {
     const isCrown = idx === 0;
@@ -384,7 +475,19 @@ export function createLibraryScene(): THREE.Group {
       shelfMat
     );
     shelf.position.set(0, y, -2.1);
+    shelf.receiveShadow = true;
+    shelf.castShadow = true;
     library.add(shelf);
+
+    // Deep ambient occlusion shadow strip right beneath each shelf board
+    if (idx < shelfYPositions.length - 1) {
+      const shadowStrip = new THREE.Mesh(
+        new THREE.PlaneGeometry(19.0, 0.35),
+        shadowStripMat
+      );
+      shadowStrip.position.set(0, y - shelfThickness / 2 - 0.175, -2.05);
+      library.add(shadowStrip);
+    }
   });
 
   // 6 Massive Vertical Architectural Columns / Fluted Pilasters
@@ -395,6 +498,8 @@ export function createLibraryScene(): THREE.Group {
       woodMat
     );
     col.position.set(x, 1.0, -2.05);
+    col.receiveShadow = true;
+    col.castShadow = true;
     library.add(col);
   });
 
@@ -404,9 +509,10 @@ export function createLibraryScene(): THREE.Group {
     woodMat
   );
   crownHeader.position.set(0, 4.3, -2.02);
+  crownHeader.castShadow = true;
   library.add(crownHeader);
 
-  // Helper to create a single 3D vintage book
+  // Helper to create a single 3D vintage book with shadows
   function createShelfBook(
     w: number,
     h: number,
@@ -432,7 +538,10 @@ export function createLibraryScene(): THREE.Group {
       coverMat       // -Z
     ];
 
-    return new THREE.Mesh(geo, materials);
+    const bookMesh = new THREE.Mesh(geo, materials);
+    bookMesh.castShadow = true;
+    bookMesh.receiveShadow = true;
+    return bookMesh;
   }
 
   // Populate shelf section with authentic books (including tilts and horizontal stacks!)
@@ -453,7 +562,7 @@ export function createLibraryScene(): THREE.Group {
         continue;
       }
 
-      // 10% chance for a horizontal stack of 2-3 books
+      // Horizontal book stack
       if (Math.random() < 0.09 && curX < xEnd - 0.35 && (!skipCenterSlot || Math.abs(curX) > 0.45)) {
         const stackW = 0.22 + Math.random() * 0.06;
         const stackH = 0.055 + Math.random() * 0.02;
@@ -498,12 +607,12 @@ export function createLibraryScene(): THREE.Group {
   const bays: [number, number][] = [
     [-9.0, -5.3],
     [-5.1, -1.6],
-    [-1.42, 1.42], // Center Bay (holds Bishal's book!)
+    [-1.42, 1.42], // Center Bay
     [1.6, 5.1],
     [5.3, 9.0]
   ];
 
-  // Tier 1: Eye-level Feature Shelf (Y = -1.07) -> H = 1.98 to fit Bishal's book!
+  // Tier 1: Eye-level Feature Shelf (Y = -1.07)
   bays.forEach(([x1, x2], idx) => {
     const isCenter = idx === 2;
     fillShelf(-1.07, x1, x2, 1.98, 0.12, isCenter);
@@ -538,12 +647,14 @@ export function createLibraryScene(): THREE.Group {
   const brassRail = new THREE.Mesh(railGeo, brassMat);
   brassRail.rotation.z = Math.PI / 2;
   brassRail.position.set(0, 2.3, -1.35);
+  brassRail.castShadow = true;
   library.add(brassRail);
 
   // Brass rail brackets
   [-7.0, -3.5, 0, 3.5, 7.0].forEach((bx) => {
     const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.08, 0.4), brassMat);
     bracket.position.set(bx, 2.3, -1.55);
+    bracket.castShadow = true;
     library.add(bracket);
   });
 
@@ -553,25 +664,25 @@ export function createLibraryScene(): THREE.Group {
   const leftStringer = new THREE.Mesh(stringerGeo, woodMat);
   const rightStringer = new THREE.Mesh(stringerGeo, woodMat);
 
-  const ladderAngle = 0.18; // Leaning backwards towards the shelf
+  const ladderAngle = 0.18;
   leftStringer.rotation.x = ladderAngle;
   rightStringer.rotation.x = ladderAngle;
-
   leftStringer.position.set(-0.28, 0.08, -1.0);
   rightStringer.position.set(0.28, 0.08, -1.0);
+  leftStringer.castShadow = true;
+  rightStringer.castShadow = true;
   ladderGroup.add(leftStringer, rightStringer);
 
-  // Ladder Rungs (Steps)
   for (let r = 0; r < 11; r++) {
     const rungY = -1.9 + r * 0.38;
     const rungZ = -0.65 - r * 0.068;
     const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.56, 12), woodMat);
     rung.rotation.z = Math.PI / 2;
     rung.position.set(0, rungY, rungZ);
+    rung.castShadow = true;
     ladderGroup.add(rung);
   }
 
-  // Brass rolling wheels & top hooks
   const wheelGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.03, 16);
   const leftWheel = new THREE.Mesh(wheelGeo, brassMat);
   const rightWheel = new THREE.Mesh(wheelGeo, brassMat);
@@ -579,6 +690,8 @@ export function createLibraryScene(): THREE.Group {
   rightWheel.rotation.z = Math.PI / 2;
   leftWheel.position.set(-0.28, -2.18, -0.6);
   rightWheel.position.set(0.28, -2.18, -0.6);
+  leftWheel.castShadow = true;
+  rightWheel.castShadow = true;
   ladderGroup.add(leftWheel, rightWheel);
 
   library.add(ladderGroup);
@@ -587,23 +700,23 @@ export function createLibraryScene(): THREE.Group {
   const deskGroup = new THREE.Group();
   deskGroup.position.set(0, 0, 0);
 
-  // Desk Tabletop (Rich dark mahogany with beveled edges)
   const deskTop = new THREE.Mesh(
     new THREE.BoxGeometry(5.2, 0.09, 1.4),
     shelfMat
   );
   deskTop.position.set(0, -1.32, -0.85);
+  deskTop.castShadow = true;
+  deskTop.receiveShadow = true;
   deskGroup.add(deskTop);
 
-  // Tabletop Apron Trim
   const deskApron = new THREE.Mesh(
     new THREE.BoxGeometry(4.9, 0.14, 1.22),
     woodMat
   );
   deskApron.position.set(0, -1.43, -0.85);
+  deskApron.castShadow = true;
   deskGroup.add(deskApron);
 
-  // 4 Carved Wooden Desk Legs
   const legGeo = new THREE.CylinderGeometry(0.06, 0.04, 0.86, 16);
   const legPositions: [number, number][] = [
     [-2.35, -0.35],
@@ -614,15 +727,14 @@ export function createLibraryScene(): THREE.Group {
   legPositions.forEach(([lx, lz]) => {
     const leg = new THREE.Mesh(legGeo, woodMat);
     leg.position.set(lx, -1.82, lz);
+    leg.castShadow = true;
     deskGroup.add(leg);
 
-    // Brass foot ferrule
     const ferrule = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.06, 16), brassMat);
     ferrule.position.set(lx, -2.22, lz);
     deskGroup.add(ferrule);
   });
 
-  // Leather Desk Blotter / Writing Pad with Gold Tooling
   const blotterMat = new THREE.MeshStandardMaterial({
     map: blotterTexture,
     roughness: 0.55,
@@ -633,9 +745,10 @@ export function createLibraryScene(): THREE.Group {
     blotterMat
   );
   blotter.position.set(0, -1.27, -0.82);
+  blotter.receiveShadow = true;
   deskGroup.add(blotter);
 
-  // Desk Accessory 1: Stack of 3 vintage books lying horizontally on left desk edge
+  // Desk accessories
   const deskStackColors = [0x4a181d, 0x182a3c, 0x56381c];
   deskStackColors.forEach((col, sIdx) => {
     const bGeo = new THREE.BoxGeometry(0.55, 0.06, 0.75);
@@ -643,13 +756,15 @@ export function createLibraryScene(): THREE.Group {
     const sBook = new THREE.Mesh(bGeo, bMat);
     sBook.position.set(-1.85 + sIdx * 0.01, -1.24 + sIdx * 0.06, -0.82 + sIdx * 0.02);
     sBook.rotation.y = 0.08 - sIdx * 0.04;
+    sBook.castShadow = true;
+    sBook.receiveShadow = true;
     deskGroup.add(sBook);
   });
 
-  // Desk Accessory 2: Wooden Book Stand / Caddy on right desk edge with 4 small volumes
   const caddyMat = new THREE.MeshStandardMaterial({ color: 0x221108, roughness: 0.7 });
   const caddyBase = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.04, 0.5), caddyMat);
   caddyBase.position.set(1.85, -1.25, -0.82);
+  caddyBase.castShadow = true;
   deskGroup.add(caddyBase);
 
   for (let cb = 0; cb < 4; cb++) {
@@ -660,10 +775,10 @@ export function createLibraryScene(): THREE.Group {
     const cBook = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.38, 0.44), cbMat);
     cBook.position.set(1.58 + cb * 0.08, -1.04, -0.82);
     cBook.rotation.z = cb === 3 ? -0.1 : 0;
+    cBook.castShadow = true;
     deskGroup.add(cBook);
   }
 
-  // Desk Accessory 3: Vintage Brass Reading Spectacles on the blotter
   const specsGroup = new THREE.Group();
   specsGroup.position.set(-0.55, -1.26, -0.65);
   specsGroup.rotation.y = 0.35;
@@ -684,25 +799,42 @@ export function createLibraryScene(): THREE.Group {
 
   library.add(deskGroup);
 
-  // 7. Warm Atmospheric Multi-Layered Library Lighting
-  // Soft ambient chandelier bounce
-  const chandelierFill = new THREE.PointLight(0xffecd0, 1.6, 12);
-  chandelierFill.position.set(0, 3.2, 0.5);
+  // 7. Atmospheric Volumetric God Ray (Cone of Golden Light shining down on the Centerpiece)
+  const beamMat = new THREE.MeshBasicMaterial({
+    map: lightBeamTexture,
+    transparent: true,
+    opacity: 0.16,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+  const lightRayGeo = new THREE.CylinderGeometry(0.18, 1.35, 3.2, 24, 1, true);
+  const lightBeam = new THREE.Mesh(lightRayGeo, beamMat);
+  lightBeam.position.set(0, 1.25, -1.35);
+  lightBeam.rotation.x = 0.22; // Angled down towards Bishal's book slot
+  library.add(lightBeam);
+
+  // 8. Warm Multi-Layered Library Lighting with Realistic Shadows
+  const chandelierFill = new THREE.PointLight(0xffecd0, 1.8, 14);
+  chandelierFill.position.set(0, 3.4, 0.6);
   library.add(chandelierFill);
 
-  // Left & right library wing fill lights
-  const leftWingLight = new THREE.PointLight(0xf59e0b, 1.4, 10);
+  const leftWingLight = new THREE.PointLight(0xf59e0b, 1.5, 10);
   leftWingLight.position.set(-4.5, 1.2, -0.8);
   library.add(leftWingLight);
 
-  const rightWingLight = new THREE.PointLight(0xf59e0b, 1.4, 10);
+  const rightWingLight = new THREE.PointLight(0xf59e0b, 1.5, 10);
   rightWingLight.position.set(4.5, 1.2, -0.8);
   library.add(rightWingLight);
 
-  // Dedicated Warm Accent Spotlight focused right on Bishal's centerpiece book slot
-  const featureSpot = new THREE.SpotLight(0xfffaed, 2.2, 8.0, Math.PI / 4, 0.35);
-  featureSpot.position.set(0, 1.6, -0.4);
+  // Dedicated Warm Accent Spotlight with PCF Soft Shadows focused right on Bishal's book
+  const featureSpot = new THREE.SpotLight(0xfffaed, 2.5, 9.0, Math.PI / 3.6, 0.45);
+  featureSpot.position.set(0, 2.2, -0.3);
   featureSpot.target.position.set(0, -0.04, -2.0);
+  featureSpot.castShadow = true;
+  featureSpot.shadow.mapSize.width = 1024;
+  featureSpot.shadow.mapSize.height = 1024;
+  featureSpot.shadow.bias = -0.0005;
   library.add(featureSpot);
   library.add(featureSpot.target);
 
