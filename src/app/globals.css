@@ -152,30 +152,6 @@ nav button[aria-current="true"] {
   transform: translateY(-1px);
 }
 
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  border-radius: 50%;
-  font-size: 16px;
-  border: 1px solid var(--pn-border);
-  background: var(--pn);
-  color: var(--fg);
-  cursor: pointer;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 12px rgba(80, 50, 0, 0.04);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.theme-toggle:hover {
-  transform: translateY(-1.5px) rotate(15deg);
-  border-color: var(--ac);
-}
-
 .hud {
   position: fixed;
   left: 0;
@@ -290,7 +266,7 @@ nav button[aria-current="true"] {
   -webkit-user-select: auto;
 }
 
-.nogl #c, .nogl .hud, .nogl .rib, .nogl nav, .nogl #load, .nogl .hint, .nogl .theme-toggle {
+.nogl #c, .nogl .hud, .nogl .rib, .nogl nav, .nogl #load, .nogl .hint {
   display: none !important;
 }
 
