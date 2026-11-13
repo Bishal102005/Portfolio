@@ -799,7 +799,7 @@ export function createLibraryScene(): THREE.Group {
   library.add(moonLight);
 
   // Dedicated Warm Accent Spotlight focused right on Bishal's centerpiece book
-  const featureSpot = new THREE.SpotLight(0xfffaed, 2.8, 9.5, Math.PI / 3.4, 0.4);
+  const featureSpot = new THREE.SpotLight(0xfffaed, 1.9, 9.5, Math.PI / 3.4, 0.4);
   featureSpot.position.set(0, 2.5, -0.2);
   featureSpot.target.position.set(0, 0.0, -2.05);
   library.add(featureSpot);

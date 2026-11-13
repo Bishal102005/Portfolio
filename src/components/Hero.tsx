@@ -13,7 +13,7 @@ export const heroData = {
   // Main stacked title lines with exact styling
   titleLines: [
     { text: 'THE', color: '#ffffff', size: 52, weight: '600' },
-    { text: 'PORTFOLIO', color: '#e5a958', size: 60, weight: '700' }, // Glowing Warm Gold
+    { text: 'PORTFOLIO', color: '#df9c48', size: 60, weight: '700' }, // Burnished Warm Gold
     { text: 'OF', color: '#ffffff', size: 46, weight: '600' },
     { text: 'SELECTED', color: '#ffffff', size: 52, weight: '600' },
     { text: 'WORKS', color: '#ffffff', size: 62, weight: '700' }
@@ -160,13 +160,13 @@ export function drawCover(g: CanvasRenderingContext2D) {
   }
 
   // 2. Left-side typographic atmosphere vignette for pristine contrast
-  const vig = g.createLinearGradient(0, 0, TW * 0.68, 0);
-  vig.addColorStop(0, 'rgba(5, 5, 8, 0.94)');
-  vig.addColorStop(0.45, 'rgba(5, 5, 8, 0.72)');
-  vig.addColorStop(0.75, 'rgba(5, 5, 8, 0.3)');
+  const vig = g.createLinearGradient(0, 0, TW * 0.72, 0);
+  vig.addColorStop(0, 'rgba(5, 5, 8, 0.96)');
+  vig.addColorStop(0.48, 'rgba(5, 5, 8, 0.76)');
+  vig.addColorStop(0.78, 'rgba(5, 5, 8, 0.35)');
   vig.addColorStop(1, 'rgba(5, 5, 8, 0)');
   g.fillStyle = vig;
-  g.fillRect(0, 0, TW * 0.68, TH);
+  g.fillRect(0, 0, TW * 0.72, TH);
 
   // Top header vignette
   const topVig = g.createLinearGradient(0, 0, 0, 160);

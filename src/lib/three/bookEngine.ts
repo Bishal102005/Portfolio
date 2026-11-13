@@ -216,7 +216,7 @@ export class BookEngine {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.18;
+    this.renderer.toneMappingExposure = 1.0;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     this.scene = new THREE.Scene();
@@ -228,25 +228,25 @@ export class BookEngine {
     const library = createLibraryScene();
     this.scene.add(library);
 
-    // Crisp, radiant ambient and directional lighting
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x44301e, 1.45);
+    // Balanced, atmospheric ambient and directional lighting
+    const hemiLight = new THREE.HemisphereLight(0xffeedd, 0x3a2518, 0.9);
     this.scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xfff3e3, 1.4);
+    const dirLight = new THREE.DirectionalLight(0xfff5ea, 0.85);
     dirLight.position.set(-2, 3.5, 4);
     this.scene.add(dirLight);
 
-    const lampLight = new THREE.PointLight(0xf59e0b, 1.4, 10);
+    const lampLight = new THREE.PointLight(0xf59e0b, 0.8, 10);
     lampLight.position.set(-2.5, 1.2, 1.8);
     this.scene.add(lampLight);
 
-    // Dedicated brilliant Reading Key Light directly illuminating the floating book
-    this.readingLight = new THREE.DirectionalLight(0xfffdf7, this.isFloating ? 2.5 : 0.6);
+    // Dedicated Reading Key Light directly illuminating the floating book (soft, balanced, non-glaring)
+    this.readingLight = new THREE.DirectionalLight(0xfffbf5, this.isFloating ? 1.15 : 0.4);
     this.readingLight.position.set(0.1, 2.8, 4.2);
     this.scene.add(this.readingLight);
 
     // Soft warm front fill light directly for book pages
-    this.readingFillLight = new THREE.PointLight(0xfffaec, this.isFloating ? 1.8 : 0.4, 12);
+    this.readingFillLight = new THREE.PointLight(0xfff7ee, this.isFloating ? 0.65 : 0.25, 12);
     this.readingFillLight.position.set(0, 0.4, 3.6);
     this.scene.add(this.readingFillLight);
 
@@ -273,8 +273,8 @@ export class BookEngine {
       new THREE.MeshStandardMaterial({
         map: m,
         side,
-        roughness: 0.52,
-        metalness: 0.02
+        roughness: 0.88,
+        metalness: 0.0
       });
 
     // Build sheets
@@ -350,9 +350,9 @@ export class BookEngine {
     // =========================================================================
     const glowTex = createGlowTexture();
 
-    // 1. PointLight attached inside the book that softly pulses and casts warm golden light
-    this.bookAuraLight = new THREE.PointLight(0xffbe3b, 2.6, 4.0);
-    this.bookAuraLight.position.set(-0.03, 0, 0.05);
+    // 1. PointLight attached inside the spine that softly pulses and casts warm golden backlight
+    this.bookAuraLight = new THREE.PointLight(0xffbe3b, 1.8, 3.5);
+    this.bookAuraLight.position.set(-0.06, 0, -0.05);
     this.group.add(this.bookAuraLight);
 
     // 2. Soft radial spine glow flare
@@ -777,8 +777,8 @@ export class BookEngine {
 
     // Dynamic light brightness easing
     if (this.readingLight && this.readingFillLight) {
-      const targetReadLight = this.isFloating ? 2.5 : 0.6;
-      const targetFillLight = this.isFloating ? 1.8 : 0.4;
+      const targetReadLight = this.isFloating ? 1.15 : 0.4;
+      const targetFillLight = this.isFloating ? 0.65 : 0.25;
       this.readingLight.intensity += (targetReadLight - this.readingLight.intensity) * (1 - Math.exp(-dt * 4.0));
       this.readingFillLight.intensity += (targetFillLight - this.readingFillLight.intensity) * (1 - Math.exp(-dt * 4.0));
     }
@@ -787,10 +787,10 @@ export class BookEngine {
     // Animate Soft Golden Glow & Clean Embers for Bishal's Book
     // =========================================================================
     const pulse = Math.sin(t * 2.5) * 0.22 + 0.78; // Gentle breathing cycle
-    const hoverMult = this.isBookHovered ? 1.5 : 1.0;
+    const hoverMult = this.isBookHovered ? 1.4 : 1.0;
 
     if (this.bookAuraLight) {
-      this.bookAuraLight.intensity = (this.isFloating ? 3.0 : 2.4) * pulse * hoverMult;
+      this.bookAuraLight.intensity = (this.isFloating ? 0.35 : 1.8) * pulse * hoverMult;
     }
     if (this.spineGlowPlane) {
       (this.spineGlowPlane.material as THREE.MeshBasicMaterial).opacity = 0.7 * pulse * hoverMult;
