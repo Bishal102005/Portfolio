@@ -50,12 +50,30 @@ export function drawTOC(g: CanvasRenderingContext2D, f: number) {
 interface NavbarProps {
   currentSpread?: number;
   onNavigate?: (spreadIndex: number) => void;
+  isFloating?: boolean;
+  onReturnToShelf?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentSpread = 0, onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  currentSpread = 0,
+  onNavigate,
+  onReturnToShelf
+}) => {
   return (
     <header className="top">
-      <div className="logo">{heroData.name}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="logo">{heroData.name}</div>
+        {onReturnToShelf && (
+          <button
+            type="button"
+            className="return-library-btn"
+            onClick={onReturnToShelf}
+            title="Return book to the library desk"
+          >
+            <span>🏛️ Library</span>
+          </button>
+        )}
+      </div>
       <nav id="nav" aria-label="Chapters">
         {navItems.map(([label, spreadIdx], i) => {
           const nextSpread = i === navItems.length - 1 ? 999 : navItems[i + 1][1];

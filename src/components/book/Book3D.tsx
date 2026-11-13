@@ -17,6 +17,7 @@ export const Book3D: React.FC = () => {
   const [showHint, setShowHint] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSupported, setIsSupported] = useState<boolean>(true);
+  const [isFloating, setIsFloating] = useState<boolean>(false);
 
   const handleSpreadChange = useCallback((spread: number) => {
     setCurrentSpread(spread);
@@ -24,6 +25,10 @@ export const Book3D: React.FC = () => {
 
   const handleHintHide = useCallback(() => {
     setShowHint(false);
+  }, []);
+
+  const handleFloatingChange = useCallback((floating: boolean) => {
+    setIsFloating(floating);
   }, []);
 
   useEffect(() => {
@@ -59,13 +64,20 @@ export const Book3D: React.FC = () => {
       const hashIdx = NAMES.indexOf(initialHash);
       const startSpread = hashIdx >= 0 ? hashIdx : 0;
 
+      const initialFloating = startSpread > 0;
+      if (initialFloating) setIsFloating(true);
+
       const engine = new BookEngine({
         canvas,
+        initialFloating,
         onSpreadChange: (target) => {
           if (mounted) handleSpreadChange(target);
         },
         onHintHide: () => {
           if (mounted) handleHintHide();
+        },
+        onFloatingChange: (floating) => {
+          if (mounted) handleFloatingChange(floating);
         }
       });
 
@@ -124,6 +136,18 @@ export const Book3D: React.FC = () => {
     }
   };
 
+  const handlePullFromShelf = () => {
+    if (engineRef.current) {
+      engineRef.current.pullFromShelf();
+    }
+  };
+
+  const handleReturnToShelf = () => {
+    if (engineRef.current) {
+      engineRef.current.returnToShelf();
+    }
+  };
+
   if (!isSupported) {
     return null;
   }
@@ -132,16 +156,53 @@ export const Book3D: React.FC = () => {
     <>
       <canvas id="c" ref={canvasRef} aria-hidden="true" />
 
-      <Navbar currentSpread={currentSpread} onNavigate={handleNavigate} />
+      {/* Atmospheric depth-of-field overlay when reading */}
+      <div className={`library-backdrop ${isFloating ? 'active' : ''}`} />
 
-      <Ribbon onJumpContact={handleJumpContact} />
+      {/* Library Welcome Banner when book is resting on desk/shelf */}
+      {!isFloating && (
+        <div className="library-welcome">
+          <div className="library-badge">
+            <span className="dot" /> The Library &bull; Volume I
+          </div>
+          <h1 className="library-title">Bishal Saha</h1>
+          <p className="library-subtitle">Creative Developer &bull; 3D Portfolio</p>
+          <button
+            type="button"
+            className="library-open-btn"
+            onClick={handlePullFromShelf}
+            aria-label="Take book from library"
+          >
+            <span>📖 Take Book from Library</span>
+          </button>
+          <p className="library-hint">Click the book or button to pull it from the library</p>
+        </div>
+      )}
 
-      <BookHUD
-        currentSpread={currentSpread}
-        onPrev={handlePrev}
-        onNext={handleNext}
-        showHint={showHint}
-      />
+      {/* Reading Navigation & HUD (Fades in when book floats into view) */}
+      <div
+        style={{
+          opacity: isFloating ? 1 : 0,
+          pointerEvents: isFloating ? 'auto' : 'none',
+          transition: 'opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}
+      >
+        <Navbar
+          currentSpread={currentSpread}
+          onNavigate={handleNavigate}
+          isFloating={isFloating}
+          onReturnToShelf={handleReturnToShelf}
+        />
+
+        <Ribbon onJumpContact={handleJumpContact} />
+
+        <BookHUD
+          currentSpread={currentSpread}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          showHint={showHint && isFloating}
+        />
+      </div>
 
       <LoadingOverlay isLoading={isLoading} />
     </>

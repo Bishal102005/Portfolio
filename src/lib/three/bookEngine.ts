@@ -15,6 +15,8 @@ export interface BookEngineOptions {
   onSpreadChange: (target: number) => void;
   onPortraitChange?: (portrait: boolean) => void;
   onHintHide?: () => void;
+  onFloatingChange?: (floating: boolean) => void;
+  initialFloating?: boolean;
 }
 
 export class BookEngine {
@@ -42,6 +44,7 @@ export class BookEngine {
   public target = 0;
   public side = 1;
   public portrait = false;
+  public isFloating = false;
 
   private acc = 0;
   private hov = 0;
@@ -57,12 +60,15 @@ export class BookEngine {
   private onSpreadChange: (target: number) => void;
   private onPortraitChange?: (portrait: boolean) => void;
   private onHintHide?: () => void;
+  private onFloatingChange?: (floating: boolean) => void;
 
   constructor(options: BookEngineOptions) {
     this.canvas = options.canvas;
     this.onSpreadChange = options.onSpreadChange;
     this.onPortraitChange = options.onPortraitChange;
     this.onHintHide = options.onHintHide;
+    this.onFloatingChange = options.onFloatingChange;
+    this.isFloating = options.initialFloating ?? false;
   }
 
   public async init(initialSpread = 0): Promise<boolean> {
@@ -94,13 +100,17 @@ export class BookEngine {
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
-    // Pure white daylight & keylights for brilliant white pages
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe2e8f0, 1.0);
+    // Warm incandescent & lamp keylights for cozy library atmosphere
+    const hemiLight = new THREE.HemisphereLight(0xfff5ea, 0x3d2716, 1.05);
     this.scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.15);
     dirLight.position.set(-2, 3, 4);
     this.scene.add(dirLight);
+
+    const lampLight = new THREE.PointLight(0xf59e0b, 1.2, 10);
+    lampLight.position.set(-2.5, 1.2, 1.8);
+    this.scene.add(lampLight);
 
     // Textures from FACES
     const maxAniso = this.renderer.capabilities.getMaxAnisotropy();
@@ -260,6 +270,24 @@ export class BookEngine {
     this.go(n, s);
   }
 
+  public pullFromShelf() {
+    if (this.isFloating) return;
+    this.isFloating = true;
+    this.onFloatingChange?.(true);
+    this.onHintHide?.();
+    setTimeout(() => {
+      if (this.target === 0) {
+        this.go(1, 0);
+      }
+    }, 650);
+  }
+
+  public returnToShelf() {
+    this.go(0, 0);
+    this.isFloating = false;
+    this.onFloatingChange?.(false);
+  }
+
   private handleResize = () => {
     if (!this.canvas) return;
     const w = window.innerWidth;
@@ -291,6 +319,11 @@ export class BookEngine {
     const dx = e.clientX - this.pointerDownCoord[0];
     const dy = e.clientY - this.pointerDownCoord[1];
     this.pointerDownCoord = null;
+
+    if (!this.isFloating) {
+      this.pullFromShelf();
+      return;
+    }
 
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       return this.step(dx < 0 ? 1 : -1);
@@ -341,6 +374,16 @@ export class BookEngine {
   };
 
   private handleKeyDown = (e: KeyboardEvent) => {
+    if (!this.isFloating) {
+      if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        this.pullFromShelf();
+        return;
+      }
+    }
+    if (e.key === 'Escape' && this.isFloating) {
+      this.returnToShelf();
+      return;
+    }
     if (e.key === 'ArrowRight' || e.key === 'PageDown') this.step(1);
     if (e.key === 'ArrowLeft' || e.key === 'PageUp') this.step(-1);
     if (e.key === 'Home') this.go(0, 1);
@@ -414,16 +457,43 @@ export class BookEngine {
       : this.W * 1.12;
 
     const tn = Math.tan(0.5 * 38 * (Math.PI / 180));
-    const dd = Math.max(hw / (tn * this.camera.aspect), (this.H * 0.68) / tn);
-    this.dist += (dd - this.dist) * Math.min(1, dt * 4);
-    this.camera.position.set(0, 0.35, this.dist);
-    this.camera.lookAt(0, 0, 0);
+    let dd = Math.max(hw / (tn * this.camera.aspect), (this.H * 0.68) / tn);
+    if (!this.isFloating) {
+      // Pull camera back slightly in library view to reveal the cozy desk and surroundings
+      dd = Math.max(dd * 1.25, 4.0);
+    }
+    this.dist += (dd - this.dist) * Math.min(1, dt * 3.5);
 
-    this.group.position.x += (-fx - this.group.position.x) * Math.min(1, dt * 5);
+    const targetCamY = this.isFloating ? 0.35 : 0.45;
+    this.camera.position.set(0, targetCamY, this.dist);
+    this.camera.lookAt(0, this.isFloating ? 0 : -0.15, 0);
+
     const t = now / 1000;
-    this.group.position.y = this.isReducedMotion ? 0 : Math.sin(t * 0.8) * 0.025;
-    this.group.rotation.y += ((this.isReducedMotion ? 0 : this.px * 0.18) - this.group.rotation.y) * 0.05;
-    this.group.rotation.x += ((this.isReducedMotion ? -0.1 : -0.1 + this.py * 0.1) - this.group.rotation.x) * 0.05;
+    const shelfLerp = Math.min(1, dt * 3.5);
+
+    if (!this.isFloating) {
+      // Resting on the wooden library desk
+      const targetDeskX = 0;
+      const targetDeskY = -0.42 + (this.isReducedMotion ? 0 : Math.sin(t * 1.3) * 0.02);
+      const targetDeskZ = -0.75;
+      const targetRotX = 0.42;
+      const targetRotY = 0.16 + (this.isReducedMotion ? 0 : Math.sin(t * 0.7) * 0.03);
+
+      this.group.position.x += (targetDeskX - this.group.position.x) * shelfLerp;
+      this.group.position.y += (targetDeskY - this.group.position.y) * shelfLerp;
+      this.group.position.z += (targetDeskZ - this.group.position.z) * shelfLerp;
+      this.group.rotation.x += (targetRotX - this.group.rotation.x) * shelfLerp;
+      this.group.rotation.y += (targetRotY - this.group.rotation.y) * shelfLerp;
+    } else {
+      // Floating over the screen in reading mode
+      this.group.position.x += (-fx - this.group.position.x) * Math.min(1, dt * 5);
+      const targetFloatY = this.isReducedMotion ? 0 : Math.sin(t * 0.8) * 0.025;
+      this.group.position.y += (targetFloatY - this.group.position.y) * shelfLerp;
+      this.group.position.z += (0 - this.group.position.z) * shelfLerp;
+
+      this.group.rotation.y += ((this.isReducedMotion ? 0 : this.px * 0.18) - this.group.rotation.y) * 0.05;
+      this.group.rotation.x += ((this.isReducedMotion ? -0.1 : -0.1 + this.py * 0.1) - this.group.rotation.x) * 0.05;
+    }
 
     // Dust particles float
     const pos = this.particlesGeo.attributes.position.array as Float32Array;
