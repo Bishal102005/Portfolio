@@ -146,7 +146,6 @@ export class BookEngine {
 
   // Magical Golden Aura & Embers for Bishal's Glowing Book
   private bookAuraLight!: THREE.PointLight;
-  private bookGlowMesh!: THREE.Mesh;
   private spineGlowPlane!: THREE.Mesh;
   private bookParticlesGeo!: THREE.BufferGeometry;
   private bookParticles!: THREE.Points;
@@ -155,7 +154,6 @@ export class BookEngine {
   private bookParticleSpeeds!: Float32Array;
   private bookParticleHeights!: Float32Array;
 
-  private particlesGeo!: THREE.BufferGeometry;
   private textures: THREE.CanvasTexture[] = [];
   private raycaster = new THREE.Raycaster();
 
@@ -352,31 +350,17 @@ export class BookEngine {
     // =========================================================================
     const glowTex = createGlowTexture();
 
-    // 1. PointLight attached inside the book that pulses and casts radiant golden light!
-    this.bookAuraLight = new THREE.PointLight(0xffbe3b, 3.2, 4.2);
+    // 1. PointLight attached inside the book that softly pulses and casts warm golden light
+    this.bookAuraLight = new THREE.PointLight(0xffbe3b, 2.6, 4.0);
     this.bookAuraLight.position.set(-0.03, 0, 0.05);
     this.group.add(this.bookAuraLight);
 
-    // 2. Translucent golden aura halo surrounding the book
-    const glowBoxGeo = new THREE.BoxGeometry(0.22, this.H + 0.24, 0.28);
-    const glowBoxMat = new THREE.MeshBasicMaterial({
-      color: 0xffd269,
-      transparent: true,
-      opacity: 0.52,
-      blending: THREE.AdditiveBlending,
-      side: THREE.BackSide,
-      depthWrite: false
-    });
-    this.bookGlowMesh = new THREE.Mesh(glowBoxGeo, glowBoxMat);
-    this.bookGlowMesh.position.set(-0.03, 0, -0.02);
-    this.group.add(this.bookGlowMesh);
-
-    // 3. Radiant spine glow plane
-    const spineGlowGeo = new THREE.PlaneGeometry(0.32, this.H + 0.25);
+    // 2. Soft radial spine glow flare
+    const spineGlowGeo = new THREE.PlaneGeometry(0.36, this.H + 0.22);
     const spineGlowMat = new THREE.MeshBasicMaterial({
       map: glowTex,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.7,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       side: THREE.DoubleSide
@@ -386,19 +370,19 @@ export class BookEngine {
     this.spineGlowPlane.position.set(-0.065, 0, -0.02);
     this.group.add(this.spineGlowPlane);
 
-    // 4. Swarm of 80 swirling golden stardust embers orbiting the book!
+    // 3. Cluster of 24 delicate golden embers swirling gracefully around the book
     this.bookParticlesGeo = new THREE.BufferGeometry();
-    const bPosArr = new Float32Array(80 * 3);
-    this.bookParticleAngles = new Float32Array(80);
-    this.bookParticleRadii = new Float32Array(80);
-    this.bookParticleSpeeds = new Float32Array(80);
-    this.bookParticleHeights = new Float32Array(80);
+    const bPosArr = new Float32Array(24 * 3);
+    this.bookParticleAngles = new Float32Array(24);
+    this.bookParticleRadii = new Float32Array(24);
+    this.bookParticleSpeeds = new Float32Array(24);
+    this.bookParticleHeights = new Float32Array(24);
 
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 24; i++) {
       this.bookParticleAngles[i] = Math.random() * Math.PI * 2;
-      this.bookParticleRadii[i] = 0.16 + Math.random() * 0.38;
-      this.bookParticleSpeeds[i] = 0.5 + Math.random() * 0.9;
-      this.bookParticleHeights[i] = (Math.random() - 0.5) * (this.H + 0.2);
+      this.bookParticleRadii[i] = 0.14 + Math.random() * 0.26;
+      this.bookParticleSpeeds[i] = 0.4 + Math.random() * 0.6;
+      this.bookParticleHeights[i] = (Math.random() - 0.5) * (this.H + 0.1);
 
       bPosArr[i * 3] = -0.03 + Math.cos(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
       bPosArr[i * 3 + 1] = this.bookParticleHeights[i];
@@ -409,10 +393,10 @@ export class BookEngine {
     this.bookParticles = new THREE.Points(
       this.bookParticlesGeo,
       new THREE.PointsMaterial({
-        size: 0.045,
+        size: 0.034,
         color: 0xffd875,
         transparent: true,
-        opacity: 0.95,
+        opacity: 0.9,
         blending: THREE.AdditiveBlending,
         depthWrite: false
       })
@@ -424,27 +408,6 @@ export class BookEngine {
     const hitMat = new THREE.MeshBasicMaterial({ visible: false });
     this.pickHitBox = new THREE.Mesh(hitGeo, hitMat);
     this.group.add(this.pickHitBox);
-
-    // Room ambient dust motes
-    this.particlesGeo = new THREE.BufferGeometry();
-    const posArr = new Float32Array(360);
-    for (let i = 0; i < 120; i++) {
-      posArr[i * 3] = (Math.random() - 0.5) * 12;
-      posArr[i * 3 + 1] = (Math.random() - 0.5) * 8;
-      posArr[i * 3 + 2] = (Math.random() - 0.5) * 6;
-    }
-    this.particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-    const particles = new THREE.Points(
-      this.particlesGeo,
-      new THREE.PointsMaterial({
-        size: 0.028,
-        color: 0xf59e0b,
-        transparent: true,
-        opacity: 0.75,
-        depthWrite: false
-      })
-    );
-    this.scene.add(particles);
 
     // Setup initial state
     this.cur = initialSpread;
@@ -826,32 +789,27 @@ export class BookEngine {
     }
 
     // =========================================================================
-    // Animate Breathing Golden Glow & Swirling Embers
+    // Animate Soft Golden Glow & Clean Embers for Bishal's Book
     // =========================================================================
-    const pulse = Math.sin(t * 2.6) * 0.25 + 0.75; // 0.50 to 1.00 breathing cycle
-    const hoverMult = this.isBookHovered ? 1.6 : 1.0;
+    const pulse = Math.sin(t * 2.5) * 0.22 + 0.78; // Gentle breathing cycle
+    const hoverMult = this.isBookHovered ? 1.5 : 1.0;
 
     if (this.bookAuraLight) {
-      this.bookAuraLight.intensity = (this.isFloating ? 3.4 : 2.5) * pulse * hoverMult;
+      this.bookAuraLight.intensity = (this.isFloating ? 3.0 : 2.4) * pulse * hoverMult;
     }
     if (this.spineGlowPlane) {
-      (this.spineGlowPlane.material as THREE.MeshBasicMaterial).opacity = 0.85 * pulse * hoverMult;
-    }
-    if (this.bookGlowMesh) {
-      (this.bookGlowMesh.material as THREE.MeshBasicMaterial).opacity = 0.5 * pulse * hoverMult;
-      const s = 1.0 + (pulse - 0.75) * 0.05;
-      this.bookGlowMesh.scale.set(s, s, s);
+      (this.spineGlowPlane.material as THREE.MeshBasicMaterial).opacity = 0.7 * pulse * hoverMult;
     }
 
-    // Swirl magical golden embers around Bishal's glowing book
+    // Swirl delicate golden embers around Bishal's glowing book
     if (this.bookParticlesGeo && this.bookParticleAngles) {
       const bPos = this.bookParticlesGeo.attributes.position.array as Float32Array;
-      const speedMult = this.isBookHovered ? 2.2 : 1.0;
-      for (let i = 0; i < 80; i++) {
+      const speedMult = this.isBookHovered ? 1.8 : 1.0;
+      for (let i = 0; i < 24; i++) {
         this.bookParticleAngles[i] += dt * this.bookParticleSpeeds[i] * speedMult;
-        this.bookParticleHeights[i] += dt * 0.18;
-        if (this.bookParticleHeights[i] > (this.H + 0.25) / 2) {
-          this.bookParticleHeights[i] = -(this.H + 0.25) / 2;
+        this.bookParticleHeights[i] += dt * 0.16;
+        if (this.bookParticleHeights[i] > (this.H + 0.15) / 2) {
+          this.bookParticleHeights[i] = -(this.H + 0.15) / 2;
         }
         bPos[i * 3] = -0.03 + Math.cos(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
         bPos[i * 3 + 1] = this.bookParticleHeights[i];
@@ -859,14 +817,6 @@ export class BookEngine {
       }
       this.bookParticlesGeo.attributes.position.needsUpdate = true;
     }
-
-    // Ambient room dust motes
-    const pos = this.particlesGeo.attributes.position.array as Float32Array;
-    for (let i = 0; i < 120; i++) {
-      pos[i * 3 + 1] += dt * 0.04;
-      if (pos[i * 3 + 1] > 3) pos[i * 3 + 1] = -3;
-    }
-    this.particlesGeo.attributes.position.needsUpdate = true;
 
     this.renderer.render(this.scene, this.camera);
     this.animId = requestAnimationFrame(this.animate);
@@ -893,7 +843,6 @@ export class BookEngine {
       (s.fm.material as THREE.Material).dispose();
       (s.bm.material as THREE.Material).dispose();
     });
-    this.particlesGeo?.dispose();
     this.bookParticlesGeo?.dispose();
     this.renderer?.dispose();
   }
