@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { FACES, HIT, TH, TW } from './pageDrawers';
 import { NAMES } from '../constants/portfolioData';
+import { createLibraryScene } from './libraryScene';
 
 export interface Sheet {
   geo: THREE.PlaneGeometry;
@@ -100,6 +101,10 @@ export class BookEngine {
     this.camera = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
     this.group = new THREE.Group();
     this.scene.add(this.group);
+
+    // Build & add procedural 3D virtual library bookcase environment
+    const library = createLibraryScene();
+    this.scene.add(library);
 
     // Warm incandescent & lamp keylights for cozy library atmosphere
     const hemiLight = new THREE.HemisphereLight(0xfff5ea, 0x3d2716, 1.05);
@@ -495,13 +500,13 @@ export class BookEngine {
     const shelfLerp = Math.min(1, dt * 3.8);
 
     if (!this.isFloating) {
-      // Firmly placed inside the bookshelf (completely still, NO floating/bobbing)
-      const hoverSlide = this.isBookHovered ? 0.28 : 0;
-      const hoverAngle = this.isBookHovered ? 0.08 : 0;
+      // Firmly placed inside the bookshelf slot (completely still, NO floating/bobbing)
+      const hoverSlide = this.isBookHovered ? 0.35 : 0;
+      const hoverAngle = this.isBookHovered ? 0.09 : 0;
       const targetShelfX = 0;
-      const targetShelfY = 0.22; // Aligned with the bookshelf shelf
-      const targetShelfZ = -1.9 + hoverSlide;
-      const targetRotX = 0.04; // Standing upright on the shelf
+      const targetShelfY = 0.065; // Exactly resting on the middle shelf board
+      const targetShelfZ = -2.0 + hoverSlide;
+      const targetRotX = 0.02; // Standing upright on the shelf
       const targetRotY = 0.05 + hoverAngle;
 
       this.group.position.x += (targetShelfX - this.group.position.x) * shelfLerp;
