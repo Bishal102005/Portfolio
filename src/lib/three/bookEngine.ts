@@ -240,13 +240,13 @@ export class BookEngine {
     lampLight.position.set(-2.5, 1.2, 1.8);
     this.scene.add(lampLight);
 
-    // Dedicated Reading Key Light directly illuminating the floating book (positioned directly in front of pages)
-    this.readingLight = new THREE.DirectionalLight(0xfffaf2, this.isFloating ? (this.target > 0 ? 2.2 : 1.15) : 0.4);
+    // Dedicated Reading Key Light directly illuminating the floating book (soft, glare-free, restful reading light)
+    this.readingLight = new THREE.DirectionalLight(0xfff6ed, this.isFloating ? (this.target > 0 ? 1.05 : 0.95) : 0.4);
     this.readingLight.position.set(0, 1.2, 4.0);
     this.scene.add(this.readingLight);
 
     // Soft warm front fill light directly for book pages
-    this.readingFillLight = new THREE.PointLight(0xfff6ea, this.isFloating ? (this.target > 0 ? 1.5 : 0.65) : 0.25, 12);
+    this.readingFillLight = new THREE.PointLight(0xffeedd, this.isFloating ? (this.target > 0 ? 0.55 : 0.45) : 0.25, 12);
     this.readingFillLight.position.set(0, 0.2, 3.8);
     this.scene.add(this.readingFillLight);
 
@@ -775,11 +775,11 @@ export class BookEngine {
       this.camera.lookAt(0, 0, 0);
     }
 
-    // Dynamic light brightness easing: bright & clear for reading internal pages, balanced for dark cover
+    // Dynamic light brightness easing: gentle, glare-free reading light
     const isReadingPages = this.isFloating && (this.target > 0 || this.cur > 0);
     if (this.readingLight && this.readingFillLight) {
-      const targetReadLight = isReadingPages ? 2.2 : this.isFloating ? 1.15 : 0.4;
-      const targetFillLight = isReadingPages ? 1.5 : this.isFloating ? 0.65 : 0.25;
+      const targetReadLight = isReadingPages ? 1.05 : this.isFloating ? 0.95 : 0.4;
+      const targetFillLight = isReadingPages ? 0.55 : this.isFloating ? 0.45 : 0.25;
       this.readingLight.intensity += (targetReadLight - this.readingLight.intensity) * (1 - Math.exp(-dt * 4.0));
       this.readingFillLight.intensity += (targetFillLight - this.readingFillLight.intensity) * (1 - Math.exp(-dt * 4.0));
     }

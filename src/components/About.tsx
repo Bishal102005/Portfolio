@@ -17,22 +17,22 @@ export const aboutData = {
 export function drawForeword(g: CanvasRenderingContext2D, f: number) {
   paper(g, f);
   const m = mx(f);
-  T(g, aboutData.title, m, 150, '700 54px ' + SERIF, INK);
+  T(g, aboutData.title, m, 145, '700 58px ' + SERIF, INK);
   g.fillStyle = GOLD;
-  g.fillRect(m, 175, 70, 3);
+  g.fillRect(m, 172, 70, 3.5);
 
   // Drop cap initial letter
-  T(g, aboutData.intro[0][0], m, 330, '700 130px ' + SERIF, '#d96b34');
-  g.font = 'italic 25px ' + SERIF;
+  T(g, aboutData.intro[0][0], m, 320, '700 135px ' + SERIF, '#c85a20');
+  g.font = 'italic 600 26px ' + SERIF;
   g.fillStyle = INK;
-  let y = wrap(g, aboutData.intro[0].slice(1), m + 88, 250, 460, 38);
+  let y = wrap(g, aboutData.intro[0].slice(1), m + 92, 240, 455, 40);
 
-  g.font = '500 19px ' + SANS;
-  g.fillStyle = '#180e1c';
-  y = wrap(g, aboutData.intro[1], m, y > 360 ? y + 20 : 380, 550, 32) + 10;
-  y = wrap(g, aboutData.instructions, m, y, 550, 32);
+  g.font = '500 22px ' + SANS;
+  g.fillStyle = '#0e0712';
+  y = wrap(g, aboutData.intro[1], m, y > 350 ? y + 25 : 375, 550, 36) + 16;
+  y = wrap(g, aboutData.instructions, m, y, 550, 36);
 
-  T(g, aboutData.signature, m, y + 70, 'italic 700 46px ' + SERIF, '#3c184a');
+  T(g, aboutData.signature, m, y + 65, 'italic 700 48px ' + SERIF, '#2d1138');
 }
 
 export const About: React.FC = () => {
