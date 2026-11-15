@@ -116,3 +116,5 @@ export const NAV: [label: string, spreadIndex: number][] = [
   ['Contact', 7]
 ];
 
+export * from './shelfConfig';
+

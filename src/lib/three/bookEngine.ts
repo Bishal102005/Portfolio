@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { FACES, HIT, TH, TW } from './pageDrawers';
 import { NAMES } from '../constants/portfolioData';
 import { createLibraryScene } from './libraryScene';
-import { soundFX } from './soundFx';
 
 export interface Sheet {
   geo: THREE.PlaneGeometry;
@@ -18,7 +17,6 @@ export interface BookEngineOptions {
   onPortraitChange?: (portrait: boolean) => void;
   onHintHide?: () => void;
   onFloatingChange?: (floating: boolean) => void;
-  onSequencePhaseChange?: (phase: 'idle' | 'hovered' | 'animating' | 'completed') => void;
   initialFloating?: boolean;
 }
 
@@ -171,11 +169,7 @@ export class BookEngine {
   public side = 1;
   public portrait = false;
   public isFloating = false;
-  public isSequencing = false;
   private isBookHovered = false;
-  private sequenceStartTime = 0;
-  private sequenceDuration = 4.5;
-  private seqAudio = { slide: false, creak: false, page: false, bloom: false };
 
   private acc = 0;
   private hov = 0;
@@ -192,7 +186,6 @@ export class BookEngine {
   private onPortraitChange?: (portrait: boolean) => void;
   private onHintHide?: () => void;
   private onFloatingChange?: (floating: boolean) => void;
-  private onSequencePhaseChange?: (phase: 'idle' | 'hovered' | 'animating' | 'completed') => void;
 
   constructor(options: BookEngineOptions) {
     this.canvas = options.canvas;
@@ -200,7 +193,6 @@ export class BookEngine {
     this.onPortraitChange = options.onPortraitChange;
     this.onHintHide = options.onHintHide;
     this.onFloatingChange = options.onFloatingChange;
-    this.onSequencePhaseChange = options.onSequencePhaseChange;
     this.isFloating = options.initialFloating ?? false;
   }
 
@@ -228,12 +220,14 @@ export class BookEngine {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     this.scene = new THREE.Scene();
+    this.scene.fog = new THREE.FogExp2(0x0a0503, 0.055);
     this.camera = new THREE.PerspectiveCamera(48, 1, 0.1, 60);
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
-    // Build grand 3D virtual library environment
-    const library = createLibraryScene();
+    // Build grand 3D virtual library environment (with mobile quality scaling)
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    const library = createLibraryScene(isMobile);
     this.scene.add(library);
 
     // Balanced, atmospheric ambient lighting
@@ -514,46 +508,17 @@ export class BookEngine {
   }
 
   public pullFromShelf() {
-    if (this.isFloating || this.isSequencing) return;
-    if (this.isReducedMotion) {
-      this.isFloating = true;
-      this.isBookHovered = false;
-      if (this.canvas) this.canvas.style.cursor = 'default';
-      this.go(0, 1);
-      this.onFloatingChange?.(true);
-      this.onHintHide?.();
-      this.onSequencePhaseChange?.('completed');
-      return;
-    }
-
-    this.isSequencing = true;
-    this.isBookHovered = false;
-    if (this.canvas) this.canvas.style.cursor = 'default';
-    this.sequenceStartTime = performance.now();
-    this.sequenceDuration = this.portrait ? 3.0 : 4.5;
-    this.seqAudio = { slide: false, creak: false, page: false, bloom: false };
-    this.onSequencePhaseChange?.('animating');
-    this.onHintHide?.();
-  }
-
-  public skipSequence() {
-    if (!this.isSequencing) return;
-    this.isSequencing = false;
+    if (this.isFloating) return;
     this.isFloating = true;
     this.isBookHovered = false;
     if (this.canvas) this.canvas.style.cursor = 'default';
-    if (this.sheets[0]) {
-      this.sheets[0].p = this.sheets[0].tp = 1;
-      this.bend(this.sheets[0], 0);
-    }
     this.go(0, 1);
     this.onFloatingChange?.(true);
-    this.onSequencePhaseChange?.('completed');
+    this.onHintHide?.();
   }
 
   public returnToShelf() {
-    if (!this.isFloating && !this.isSequencing) return;
-    this.isSequencing = false;
+    if (!this.isFloating) return;
     this.go(0, 0);
 
     setTimeout(() => {
@@ -561,8 +526,7 @@ export class BookEngine {
       this.isBookHovered = false;
       if (this.canvas) this.canvas.style.cursor = 'default';
       this.onFloatingChange?.(false);
-      this.onSequencePhaseChange?.('idle');
-    }, 420);
+    }, 380);
   }
 
   private handleResize = () => {
@@ -588,7 +552,7 @@ export class BookEngine {
     this.px = e.clientX / window.innerWidth - 0.5;
     this.py = e.clientY / window.innerHeight - 0.5;
 
-    if (!this.isFloating && !this.isSequencing) {
+    if (!this.isFloating) {
       if (this.camera && this.canvas) {
         this.raycaster.setFromCamera(
           new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1),
@@ -600,8 +564,6 @@ export class BookEngine {
         if (hovered !== this.isBookHovered) {
           this.isBookHovered = hovered;
           this.canvas.style.cursor = hovered ? 'pointer' : 'default';
-          if (hovered) soundFX.playHover();
-          this.onSequencePhaseChange?.(hovered ? 'hovered' : 'idle');
         }
       }
       return;
@@ -612,10 +574,9 @@ export class BookEngine {
 
   private handlePointerLeave = () => {
     this.hov = 0;
-    if (!this.isFloating && !this.isSequencing) {
+    if (!this.isFloating) {
       this.isBookHovered = false;
       if (this.canvas) this.canvas.style.cursor = 'default';
-      this.onSequencePhaseChange?.('idle');
     }
   };
 
@@ -625,8 +586,6 @@ export class BookEngine {
     const dy = e.clientY - this.pointerDownCoord[1];
     this.pointerDownCoord = null;
     this.hov = 0;
-
-    if (this.isSequencing) return;
 
     if (!this.isFloating) {
       this.raycaster.setFromCamera(
@@ -761,15 +720,15 @@ export class BookEngine {
       ? this.target === 0
         ? this.W / 2
         : this.target === this.S
-        ? -this.W / 2
-        : this.side === 1
-        ? this.W / 2
-        : -this.W / 2
+          ? -this.W / 2
+          : this.side === 1
+            ? this.W / 2
+            : -this.W / 2
       : this.target === 0
-      ? this.W / 2
-      : this.target === this.S
-      ? -this.W / 2
-      : 0;
+        ? this.W / 2
+        : this.target === this.S
+          ? -this.W / 2
+          : 0;
 
     const vFovRad = (this.camera.fov * Math.PI) / 180;
     const tn = Math.tan(0.5 * vFovRad);
@@ -777,8 +736,8 @@ export class BookEngine {
     const hw = this.portrait
       ? this.W * 0.53
       : this.target === 0 || this.target === this.S
-      ? this.W * 0.65
-      : this.W * 1.12;
+        ? this.W * 0.65
+        : this.W * 1.12;
 
     const hh = this.portrait
       ? this.H * 0.58
@@ -790,124 +749,10 @@ export class BookEngine {
     const kPos = 1 - Math.exp(-dt * 4.5);
     const kRot = 1 - Math.exp(-dt * 4.5);
 
-    if (this.isSequencing) {
-      const elapsed = (now - this.sequenceStartTime) / 1000;
-      const speedScale = this.portrait ? 0.65 : 1.0;
-      const T = elapsed / speedScale;
-
-      let targetX = 0;
-      let targetY = 0;
-      let targetZ = -2.05;
-      let targetRotX = 0;
-      let targetRotY = Math.PI / 2;
-      let targetRotZ = 0;
-
-      const shelfDist = this.portrait ? 3.6 : 2.45;
-      const shelfCamY = this.portrait ? 0.16 : 0.20;
-      const readingCamY = this.portrait ? 0.08 : 0.35;
-      let targetCamDist = shelfDist;
-      let targetCamY = shelfCamY;
-
-      if (T < 0.8) {
-        // Step a (0.0s – 0.8s): Slide forward along Z axis out of the shelf
-        const p = Math.min(1, Math.max(0, T / 0.8));
-        const e = 1 - Math.pow(1 - p, 2); // power2.out
-        targetZ = -2.05 + e * 1.15; // moves from -2.05 to -0.90
-        targetRotY = Math.PI / 2;
-        if (!this.seqAudio.slide) {
-          this.seqAudio.slide = true;
-          soundFX.playSlide();
-        }
-      } else if (T < 1.8) {
-        // Step b (0.8s – 1.8s): Lift off pedestal & rotate 90° so cover faces camera
-        const p = Math.min(1, Math.max(0, (T - 0.8) / 1.0));
-        const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; // power2.inOut
-        targetZ = -0.90 + Math.sin(t * 1.8) * 0.012;
-        targetY = e * 0.35 + Math.sin(t * 1.6) * 0.015;
-        targetRotY = Math.PI / 2 - e * (Math.PI / 2);
-        targetRotX = -0.06 * e;
-        targetRotZ = Math.sin(t * 1.5) * 0.012;
-        if (!this.seqAudio.creak) {
-          this.seqAudio.creak = true;
-          soundFX.playCreak();
-        }
-      } else if (T < 2.8) {
-        // Step c (1.8s – 2.8s): Camera dollies in smoothly while book scales & centers
-        const p = Math.min(1, Math.max(0, (T - 1.8) / 1.0));
-        const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; // power3.inOut
-        targetY = 0.35 * (1 - e);
-        targetZ = -0.90 * (1 - e);
-        targetRotY = 0;
-        targetRotX = -0.08;
-        targetCamDist = shelfDist + e * (dd - shelfDist);
-        targetCamY = shelfCamY * (1 - e) + readingCamY * e;
-      } else if (T < 3.8) {
-        // Step d (2.8s – 3.8s): Front cover opens (-150° on Y) + warm light spill
-        const p = Math.min(1, Math.max(0, (T - 2.8) / 1.0));
-        const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-        targetY = 0;
-        targetZ = 0;
-        targetRotY = 0;
-        targetRotX = -0.08;
-        targetCamDist = dd;
-        targetCamY = readingCamY;
-
-        // Animate front cover opening on hinge
-        if (this.sheets[0]) {
-          this.sheets[0].p = e;
-          this.bend(this.sheets[0], 0);
-        }
-
-        const spill = Math.sin(p * Math.PI);
-        if (this.readingLight) this.readingLight.intensity = 1.05 + spill * 2.2;
-        if (this.readingFillLight) this.readingFillLight.intensity = 0.55 + spill * 1.6;
-
-        if (!this.seqAudio.page) {
-          this.seqAudio.page = true;
-          soundFX.playPageOpen();
-        }
-        if (p > 0.25 && !this.seqAudio.bloom) {
-          this.seqAudio.bloom = true;
-          soundFX.playBloomChime();
-        }
-      } else if (T < 4.5) {
-        // Step e (3.8s – 4.5s): Settle into interactive reading view
-        targetX = -fx;
-        targetY = 0;
-        targetZ = 0;
-        targetRotX = -0.08;
-        targetRotY = 0;
-        targetCamDist = dd;
-        targetCamY = readingCamY;
-      } else {
-        // Sequence finishes
-        this.isSequencing = false;
-        this.isFloating = true;
-        if (this.sheets[0]) {
-          this.sheets[0].p = this.sheets[0].tp = 1;
-          this.bend(this.sheets[0], 0);
-        }
-        this.go(0, 1);
-        this.onFloatingChange?.(true);
-        this.onSequencePhaseChange?.('completed');
-      }
-
-      this.group.position.x += (targetX - this.group.position.x) * kPos;
-      this.group.position.y += (targetY - this.group.position.y) * kPos;
-      this.group.position.z += (targetZ - this.group.position.z) * kPos;
-
-      this.group.rotation.x += (targetRotX - this.group.rotation.x) * kRot;
-      this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
-      this.group.rotation.z += (targetRotZ - this.group.rotation.z) * kRot;
-
-      this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 4.0));
-      this.camera.position.set(0, targetCamY, this.dist);
-      this.camera.lookAt(0, 0.02, targetZ > -1.0 ? 0 : -2.05);
-
-    } else if (!this.isFloating) {
+    if (!this.isFloating) {
       // Resting on shelf: spine facing viewer
-      const hoverSlide = this.isBookHovered ? 0.22 : 0;
-      const hoverAngle = this.isBookHovered ? -0.04 : 0;
+      const hoverSlide = this.isBookHovered ? 0.35 : 0;
+      const hoverAngle = this.isBookHovered ? -0.06 : 0;
       const targetShelfX = 0;
       const targetShelfY = 0.0;
       const targetShelfZ = -2.05 + hoverSlide;
@@ -922,14 +767,14 @@ export class BookEngine {
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
       this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
 
-      // Filmic Cinematic Bookshelf framing: intimate, warm, high-detail camera view
-      const targetCamDist = this.portrait ? 3.6 : 2.45;
-      const targetCamY = this.portrait ? 0.16 : 0.20;
+      // Filmic Cinematic Bookshelf framing: intimate, warm, slightly low-angle camera view
+      const targetCamDist = this.portrait ? 3.4 : 2.38;
+      const targetCamY = this.portrait ? 0.14 : 0.16;
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
-      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.35;
-      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.2;
+      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.28;
+      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.16;
       this.camera.position.set(camParallaxX, targetCamY + camParallaxY, this.dist);
-      this.camera.lookAt(0, 0.02, -2.05);
+      this.camera.lookAt(0, 0.04, -2.05);
     } else {
       // Floating in reading position facing user
       this.group.position.x += (-fx - this.group.position.x) * kPos;
@@ -952,20 +797,11 @@ export class BookEngine {
 
     // Dynamic light brightness easing: gentle, glare-free reading light
     const isReadingPages = this.isFloating && (this.target > 0 || this.cur > 0);
-    if (this.readingLight && this.readingFillLight && !this.isSequencing) {
+    if (this.readingLight && this.readingFillLight) {
       const targetReadLight = isReadingPages ? 1.05 : this.isFloating ? 0.95 : 0.4;
       const targetFillLight = isReadingPages ? 0.55 : this.isFloating ? 0.45 : 0.25;
       this.readingLight.intensity += (targetReadLight - this.readingLight.intensity) * (1 - Math.exp(-dt * 4.0));
       this.readingFillLight.intensity += (targetFillLight - this.readingFillLight.intensity) * (1 - Math.exp(-dt * 4.0));
-    }
-
-    // Cinematic background dimming: gently dim surrounding library shelves during sequence and reading
-    const libKeySpot = this.scene.getObjectByName('library-key-spot') as THREE.SpotLight | undefined;
-    const libAmbient = this.scene.getObjectByName('library-ambient') as THREE.HemisphereLight | undefined;
-    if (libKeySpot && libAmbient) {
-      const dimMult = this.isSequencing ? 0.38 : (this.isFloating ? 0.48 : 1.0);
-      libKeySpot.intensity += (2.4 * dimMult - libKeySpot.intensity) * (1 - Math.exp(-dt * 3.5));
-      libAmbient.intensity += (0.45 * dimMult - libAmbient.intensity) * (1 - Math.exp(-dt * 3.5));
     }
 
     // Hide stardust embers when reading internal pages so they do NOT obstruct text
@@ -984,6 +820,16 @@ export class BookEngine {
     }
     if (this.spineGlowPlane) {
       (this.spineGlowPlane.material as THREE.MeshBasicMaterial).opacity = 0.7 * pulse * hoverMult;
+    }
+
+    // Organic flickering for shelf candle lights
+    const candle1 = this.scene.getObjectByName('candle-light-1') as THREE.PointLight | undefined;
+    const candle2 = this.scene.getObjectByName('candle-light-2') as THREE.PointLight | undefined;
+    if (candle1) {
+      candle1.intensity = 0.88 + Math.sin(t * 11.2) * 0.09 + Math.cos(t * 17.5) * 0.05;
+    }
+    if (candle2) {
+      candle2.intensity = 0.78 + Math.sin(t * 13.7) * 0.08 + Math.cos(t * 21.1) * 0.05;
     }
 
     // Swirl delicate golden embers around Bishal's glowing book
