@@ -162,6 +162,7 @@ export const Book3D: React.FC = () => {
   return (
     <>
       <canvas id="c" ref={canvasRef} aria-hidden="true" />
+      <div className="film-vignette" aria-hidden="true" />
 
       {/* Virtual library subtle hint */}
       {!isFloating && (

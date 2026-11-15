@@ -228,25 +228,17 @@ export class BookEngine {
     const library = createLibraryScene();
     this.scene.add(library);
 
-    // Balanced, atmospheric ambient and directional lighting
-    const hemiLight = new THREE.HemisphereLight(0xffeedd, 0x3a2518, 0.9);
-    this.scene.add(hemiLight);
-
-    const dirLight = new THREE.DirectionalLight(0xfff5ea, 0.85);
-    dirLight.position.set(-2, 3.5, 4);
-    this.scene.add(dirLight);
-
-    const lampLight = new THREE.PointLight(0xf59e0b, 0.8, 10);
-    lampLight.position.set(-2.5, 1.2, 1.8);
-    this.scene.add(lampLight);
+    // Balanced, atmospheric ambient lighting
+    const ambientBaselight = new THREE.AmbientLight(0xffeedd, 0.22);
+    this.scene.add(ambientBaselight);
 
     // Dedicated Reading Key Light directly illuminating the floating book (soft, glare-free, restful reading light)
-    this.readingLight = new THREE.DirectionalLight(0xfff6ed, this.isFloating ? (this.target > 0 ? 1.05 : 0.95) : 0.4);
+    this.readingLight = new THREE.DirectionalLight(0xfff6ed, this.isFloating ? (this.target > 0 ? 1.05 : 0.95) : 0.2);
     this.readingLight.position.set(0, 1.2, 4.0);
     this.scene.add(this.readingLight);
 
     // Soft warm front fill light directly for book pages
-    this.readingFillLight = new THREE.PointLight(0xffeedd, this.isFloating ? (this.target > 0 ? 0.55 : 0.45) : 0.25, 12);
+    this.readingFillLight = new THREE.PointLight(0xffeedd, this.isFloating ? (this.target > 0 ? 0.55 : 0.45) : 0.15, 12);
     this.readingFillLight.position.set(0, 0.2, 3.8);
     this.scene.add(this.readingFillLight);
 
@@ -773,14 +765,14 @@ export class BookEngine {
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
       this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
 
-      // Grand Atmospheric Library framing: responsive distance for mobile & desktop
-      const targetCamDist = this.portrait ? 6.2 : 4.4;
-      const targetCamY = this.portrait ? 0.28 : 0.35;
+      // Filmic Cinematic Bookshelf framing: intimate, warm, high-detail camera view
+      const targetCamDist = this.portrait ? 3.6 : 2.45;
+      const targetCamY = this.portrait ? 0.16 : 0.20;
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
-      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.45;
-      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.25;
+      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.35;
+      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.2;
       this.camera.position.set(camParallaxX, targetCamY + camParallaxY, this.dist);
-      this.camera.lookAt(0, 0.08, -2.05);
+      this.camera.lookAt(0, 0.02, -2.05);
     } else {
       // Floating in reading position facing user
       this.group.position.x += (-fx - this.group.position.x) * kPos;
@@ -843,6 +835,19 @@ export class BookEngine {
         bPos[i * 3 + 2] = -0.02 + Math.sin(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
       }
       this.bookParticlesGeo.attributes.position.needsUpdate = true;
+    }
+
+    // Animate subtle drifting atmospheric dust motes in the library light beam
+    const motes = this.scene.getObjectByName('atmospheric-dust-motes') as THREE.Points | undefined;
+    if (motes && motes.geometry) {
+      const pos = motes.geometry.attributes.position.array as Float32Array;
+      const count = pos.length / 3;
+      for (let i = 0; i < count; i++) {
+        pos[i * 3 + 1] += Math.sin(t * 0.45 + i) * 0.0006;
+        pos[i * 3] += Math.cos(t * 0.35 + i * 2) * 0.0005;
+      }
+      motes.geometry.attributes.position.needsUpdate = true;
+      motes.visible = !isReadingPages;
     }
 
     this.renderer.render(this.scene, this.camera);
