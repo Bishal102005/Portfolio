@@ -145,175 +145,93 @@ function drawEnso(g: CanvasRenderingContext2D, cx: number, cy: number, r: number
   g.restore();
 }
 
-function drawTreeOfLife(g: CanvasRenderingContext2D, cx: number, cy: number, scale: number = 1.0) {
-  g.save();
-  g.translate(cx, cy);
-  g.scale(scale, scale);
-
-  g.fillStyle = '#fbe39d';
-  g.strokeStyle = '#d4a559';
-  g.lineWidth = 2.5;
-
-  // 1. Trunk
-  g.beginPath();
-  g.moveTo(-16, 45);
-  g.bezierCurveTo(-14, 15, -22, -15, -12, -45);
-  g.bezierCurveTo(-6, -65, 0, -85, 0, -95);
-  g.bezierCurveTo(0, -85, 6, -65, 12, -45);
-  g.bezierCurveTo(22, -15, 14, 15, 16, 45);
-  g.closePath();
-  g.fill();
-
-  // 2. Main Canopy Boughs
-  const branches = [
-    { cp1x: -12, cp1y: -45, cp2x: -55, cp2y: -65, endx: -115, endy: -75 },
-    { cp1x: -10, cp1y: -60, cp2x: -65, cp2y: -95, endx: -95, endy: -135 },
-    { cp1x: -5, cp1y: -80, cp2x: -45, cp2y: -125, endx: -65, endy: -175 },
-    { cp1x: 0, cp1y: -95, cp2x: -25, cp2y: -155, endx: -25, endy: -195 },
-    { cp1x: 12, cp1y: -45, cp2x: 55, cp2y: -65, endx: 115, endy: -75 },
-    { cp1x: 10, cp1y: -60, cp2x: 65, cp2y: -95, endx: 95, endy: -135 },
-    { cp1x: 5, cp1y: -80, cp2x: 45, cp2y: -125, endx: 65, endy: -175 },
-    { cp1x: 0, cp1y: -95, cp2x: 25, cp2y: -155, endx: 25, endy: -195 }
-  ];
-
-  branches.forEach((b) => {
-    g.beginPath();
-    g.moveTo(b.cp1x, b.cp1y);
-    g.bezierCurveTo(b.cp2x, b.cp2y, b.endx, b.endy, b.endx, b.endy);
-    g.lineWidth = 3.5;
-    g.stroke();
-
-    g.beginPath();
-    g.arc(b.endx, b.endy, 6.5, 0, Math.PI * 2);
-    g.fill();
-
-    for (let i = 0; i < 3; i++) {
-      const ang = (i / 3) * Math.PI - Math.PI / 2;
-      g.beginPath();
-      g.arc(b.endx + Math.cos(ang) * 14, b.endy + Math.sin(ang) * 14, 4.2, 0, Math.PI * 2);
-      g.fill();
-    }
-  });
-
-  // Stardust foliage spray in canopy
-  for (let a = 0; a < 36; a++) {
-    const angle = (a / 36) * Math.PI * 1.8 + Math.PI * 0.1;
-    const r = 85 + (a % 5) * 26;
-    const lx = Math.cos(angle) * r;
-    const ly = -105 - Math.sin(angle) * (r * 0.75);
-    g.beginPath();
-    g.arc(lx, ly, a % 3 === 0 ? 3.5 : 2.2, 0, Math.PI * 2);
-    g.fill();
-  }
-
-  // 3. Intertwined Root System
-  const roots = [
-    { x1: -12, y1: 45, x2: -45, y2: 65, x3: -85, y3: 85 },
-    { x1: -8, y1: 45, x2: -35, y2: 85, x3: -55, y3: 115 },
-    { x1: 0, y1: 45, x2: -15, y2: 95, x3: 0, y3: 125 },
-    { x1: 8, y1: 45, x2: 35, y2: 85, x3: 55, y3: 115 },
-    { x1: 12, y1: 45, x2: 45, y2: 65, x3: 85, y3: 85 }
-  ];
-
-  roots.forEach((rt) => {
-    g.beginPath();
-    g.moveTo(rt.x1, rt.y1);
-    g.bezierCurveTo(rt.x2, rt.y2, rt.x3, rt.y3, rt.x3, rt.y3);
-    g.lineWidth = 3.0;
-    g.stroke();
-
-    g.beginPath();
-    g.arc(rt.x3, rt.y3, 4.0, 0, Math.PI * 2);
-    g.fill();
-  });
-
-  g.restore();
-}
-
 export function drawCover(g: CanvasRenderingContext2D) {
-  // 1. Deep Antique Teal/Emerald Moroccan Leather Base (matching video_frame_06)
-  const gr = g.createLinearGradient(0, 0, TW, TH);
-  gr.addColorStop(0, '#061a12');
-  gr.addColorStop(0.25, '#0b3224');
-  gr.addColorStop(0.5, '#124835');
-  gr.addColorStop(0.8, '#0b3224');
-  gr.addColorStop(1, '#061a12');
-  g.fillStyle = gr;
-  g.fillRect(0, 0, TW, TH);
-
-  // Micro-leather texture pores
-  g.save();
-  for (let i = 0; i < 3500; i++) {
-    const px = Math.random() * TW;
-    const py = Math.random() * TH;
-    g.fillStyle = Math.random() > 0.5 ? 'rgba(255, 235, 175, 0.035)' : 'rgba(0, 15, 8, 0.18)';
-    g.fillRect(px, py, 2, 2);
+  // 1. Draw double-exposure background image or rich obsidian dusk fallback
+  if (cachedCoverImg && cachedCoverImg.complete && cachedCoverImg.naturalWidth > 0) {
+    g.drawImage(cachedCoverImg, 0, 0, TW, TH);
+  } else {
+    // Rich midnight charcoal atmospheric gradient
+    const gr = g.createLinearGradient(0, 0, TW, TH);
+    gr.addColorStop(0, '#06070a');
+    gr.addColorStop(0.5, '#0a0b0e');
+    gr.addColorStop(1, '#16110d');
+    g.fillStyle = gr;
+    g.fillRect(0, 0, TW, TH);
   }
-  g.restore();
 
-  // 2. 24k Gold Double Border with Ornamental Filigree
-  g.save();
-  g.strokeStyle = '#d4a559';
-  g.lineWidth = 4;
-  g.strokeRect(32, 32, TW - 64, TH - 64);
+  // 2. Left-side typographic atmosphere vignette for pristine contrast
+  const vig = g.createLinearGradient(0, 0, TW * 0.72, 0);
+  vig.addColorStop(0, 'rgba(5, 5, 8, 0.96)');
+  vig.addColorStop(0.48, 'rgba(5, 5, 8, 0.76)');
+  vig.addColorStop(0.78, 'rgba(5, 5, 8, 0.35)');
+  vig.addColorStop(1, 'rgba(5, 5, 8, 0)');
+  g.fillStyle = vig;
+  g.fillRect(0, 0, TW * 0.72, TH);
 
-  g.strokeStyle = 'rgba(251, 227, 157, 0.75)';
-  g.lineWidth = 1.5;
-  g.strokeRect(40, 40, TW - 80, TH - 80);
+  // Top header vignette
+  const topVig = g.createLinearGradient(0, 0, 0, 160);
+  topVig.addColorStop(0, 'rgba(5, 5, 8, 0.88)');
+  topVig.addColorStop(1, 'rgba(5, 5, 8, 0)');
+  g.fillStyle = topVig;
+  g.fillRect(0, 0, TW, 160);
 
-  // Corner Arabesques
-  const corners = [
-    { x: 42, y: 42 },
-    { x: TW - 42, y: 42 },
-    { x: 42, y: TH - 42 },
-    { x: TW - 42, y: TH - 42 }
-  ];
-  corners.forEach((c) => {
-    g.strokeStyle = '#fbe39d';
-    g.lineWidth = 2;
-    g.beginPath();
-    g.arc(c.x, c.y, 22, 0, Math.PI * 2);
-    g.stroke();
-
-    g.fillStyle = '#fbe39d';
-    g.beginPath();
-    g.arc(c.x, c.y, 4, 0, Math.PI * 2);
-    g.fill();
-  });
-  g.restore();
+  // Bottom footer vignette
+  const botVig = g.createLinearGradient(0, TH - 140, 0, TH);
+  botVig.addColorStop(0, 'rgba(5, 5, 8, 0)');
+  botVig.addColorStop(1, 'rgba(5, 5, 8, 0.92)');
+  g.fillStyle = botVig;
+  g.fillRect(0, TH - 140, TW, 140);
 
   // 3. Top Epigraph Tagline
-  g.font = '500 13px ' + SANS;
-  g.fillStyle = '#fbe39d';
-  drawTrackedText(g, 'AN ARCHIVE OF INTERACTIVE CRAFT', TW / 2, 88, 3.8, 'center');
-  drawDiamondDivider(g, TW / 2, 108, 120);
+  g.font = '400 12.5px ' + SANS;
+  g.fillStyle = '#dfd2bc';
+  drawTrackedText(g, heroData.topQuote[0], TW / 2, 54, 3.5, 'center');
+  drawTrackedText(g, heroData.topQuote[1], TW / 2, 74, 3.5, 'center');
+  drawDiamondDivider(g, TW / 2, 94, 90);
 
-  // 4. Main Title in 24k Gold Roman Serif Typography
-  g.font = '700 46px ' + SERIF;
-  g.fillStyle = '#ffffff';
-  drawTrackedText(g, 'THE', TW / 2, 175, 6, 'center');
+  // 4. Main Stacked Title
+  const leftX = 88;
+  let curY = 195;
+  for (const item of heroData.titleLines) {
+    g.font = `${item.weight} ${item.size}px ${SERIF}`;
+    g.fillStyle = item.color;
+    g.textAlign = 'left';
+    g.fillText(item.text, leftX, curY);
+    curY += item.size + 14;
+  }
 
-  g.font = '700 56px ' + SERIF;
-  g.fillStyle = '#fbe39d';
-  drawTrackedText(g, 'PORTFOLIO', TW / 2, 238, 7, 'center');
+  // 5. Zen Enso Circle
+  drawEnso(g, leftX + 22, curY + 22, 17);
 
-  g.font = '600 24px ' + SERIF;
-  g.fillStyle = '#dcd3c3';
-  drawTrackedText(g, 'OF SELECTED WORKS', TW / 2, 282, 5, 'center');
+  // 6. Subtitle Box
+  const subY = curY + 68;
+  const ruleW = 138;
+  g.save();
+  g.strokeStyle = 'rgba(220, 167, 93, 0.55)';
+  g.lineWidth = 1;
+  g.beginPath();
+  g.moveTo(leftX, subY);
+  g.lineTo(leftX + ruleW, subY);
+  g.stroke();
 
-  // 5. Centerpiece 24k Gold Tree of Life (matching video_frame_06!)
-  drawTreeOfLife(g, TW / 2, 550, 1.25);
+  g.font = '600 13px ' + SANS;
+  g.fillStyle = '#dfd2bc';
+  let tY = subY + 24;
+  for (const line of heroData.subtitleLines) {
+    drawTrackedText(g, line, leftX, tY, 2.8, 'left');
+    tY += 21;
+  }
 
-  // 6. Subtitle & Volume Tag
-  g.font = '600 15px ' + SANS;
-  g.fillStyle = '#fbe39d';
-  drawTrackedText(g, 'CREATIVE DEVELOPER • VOLUME I', TW / 2, TH - 145, 3.5, 'center');
-  drawDiamondDivider(g, TW / 2, TH - 125, 95);
+  g.beginPath();
+  g.moveTo(leftX, tY + 4);
+  g.lineTo(leftX + ruleW, tY + 4);
+  g.stroke();
+  g.restore();
 
   // 7. Author Name at Bottom
-  g.font = '700 32px ' + SERIF;
+  g.font = '500 27px ' + SERIF;
   g.fillStyle = '#ffffff';
-  drawTrackedText(g, 'B I S H A L   S A H A', TW / 2, TH - 78, 6, 'center');
+  drawTrackedText(g, heroData.authorName, TW / 2, TH - 82, 5, 'center');
 }
 
 export const Hero: React.FC = () => {

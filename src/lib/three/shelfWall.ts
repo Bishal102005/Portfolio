@@ -97,131 +97,102 @@ export function createShelfWall(options: ShelfWallOptions = {}): {
     metalness: 0.02
   });
 
-  const {
-    rows,
-    columns,
-    totalWidth,
-    totalHeight,
-    depth,
-    plankThickness,
-    dividerThickness,
-    rowSpacing,
-    shelfZ,
-    backZ
-  } = SHELF_CONFIG;
+  // =========================================================================
+  // Freestanding Warm Oak Bookcase Unit (Matching video sec_01.jpg & sec_02.jpg)
+  // Intimate eye-level shelf bay centered at Z = -2.05, open to grand hall behind
+  // =========================================================================
+  const shelfZ = -2.05;
+  const depth = 0.44;
+  const unitWidth = 3.08;
+  const plankThickness = 0.06;
 
-  // 1. Recessed Walnut Backboard Panel
-  const backPanel = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth + 1.2, totalHeight + 1.5), backboardMat);
-  backPanel.position.set(0, 0, backZ);
-  backPanel.receiveShadow = true;
-  group.add(backPanel);
+  // Middle Shelf Plank (where Bishal's book sits at Y = 0.0, surface at Y = -0.77)
+  const middlePlankY = -0.80;
+  // Lower Shelf Plank (where lower row of antique books sits)
+  const lowerPlankY = -2.25;
+  // Top Cap Board of the bookcase unit
+  const topPlankY = 0.88;
 
-  // 2. Compute Plank Y Positions
-  // Middle row (row index 2) plank sits directly beneath Bishal's book (which is at Y = 0.0, height ~1.53)
-  // Book bottom is at Y = -0.765, so plank top surface is at Y = -0.77
-  const middlePlankY = -0.77 - plankThickness / 2; // -0.82
-  const rowPlankY: number[] = [];
-  for (let r = 0; r < rows; r++) {
-    const y = middlePlankY + (r - 2) * rowSpacing;
-    rowPlankY.push(y);
-  }
-  // Also add top ceiling plank
-  const topPlankY = middlePlankY + (rows - 2) * rowSpacing;
+  const rowPlankY = [lowerPlankY, middlePlankY];
+  const bayXCenters = [0];
+  const bayWidth = 2.76;
 
-  // 3. Visible Horizontal Walnut Shelf Planks (5 shelf rows + 1 top plank)
-  const allPlankYs = [...rowPlankY, topPlankY];
-  allPlankYs.forEach((py) => {
-    const plank = new THREE.Mesh(new THREE.BoxGeometry(totalWidth, plankThickness, depth), walnutMat);
+  // 1. Recessed Walnut Backboard Panel (ONLY behind this bookcase bay!)
+  const backboard = new THREE.Mesh(
+    new THREE.BoxGeometry(unitWidth - 0.12, topPlankY - lowerPlankY + 0.15, 0.04),
+    backboardMat
+  );
+  backboard.position.set(0, (lowerPlankY + topPlankY) / 2, shelfZ - depth / 2 - 0.02);
+  backboard.receiveShadow = true;
+  group.add(backboard);
+
+  // 2. Horizontal Wooden Shelf Planks with Molded Bullnose Front Lips
+  [lowerPlankY, middlePlankY].forEach((py) => {
+    const plank = new THREE.Mesh(
+      new THREE.BoxGeometry(unitWidth - 0.16, plankThickness, depth),
+      walnutMat
+    );
     plank.position.set(0, py, shelfZ);
     plank.castShadow = true;
     plank.receiveShadow = true;
     group.add(plank);
 
-    // Molded Bullnose Front Lip for authentic joinery
-    const bullnoseLip = new THREE.Mesh(
-      new THREE.CylinderGeometry(plankThickness / 2.2, plankThickness / 2.2, totalWidth, 12),
+    const bullnose = new THREE.Mesh(
+      new THREE.CylinderGeometry(plankThickness / 2, plankThickness / 2, unitWidth - 0.16, 12),
       walnutMat
     );
-    bullnoseLip.rotation.z = Math.PI / 2;
-    bullnoseLip.position.set(0, py, shelfZ + depth / 2);
-    bullnoseLip.castShadow = true;
-    bullnoseLip.receiveShadow = true;
-    group.add(bullnoseLip);
+    bullnose.rotation.z = Math.PI / 2;
+    bullnose.position.set(0, py, shelfZ + depth / 2);
+    bullnose.castShadow = true;
+    bullnose.receiveShadow = true;
+    group.add(bullnose);
   });
 
-  // 4. Vertical Dividers (3 Bays = 4 Uprights)
-  const bayWidth = (totalWidth - (columns + 1) * dividerThickness) / columns;
-  const dividerXPositions: number[] = [];
-  const bayXCenters: number[] = [];
-
-  for (let c = 0; c <= columns; c++) {
-    const x = -totalWidth / 2 + dividerThickness / 2 + c * (bayWidth + dividerThickness);
-    dividerXPositions.push(x);
-  }
-
-  for (let c = 0; c < columns; c++) {
-    const centerX = -totalWidth / 2 + dividerThickness + bayWidth / 2 + c * (bayWidth + dividerThickness);
-    bayXCenters.push(centerX);
-  }
-
-  const dividerHeight = topPlankY - rowPlankY[0] + plankThickness;
-  const dividerCenterY = (rowPlankY[0] + topPlankY) / 2;
-
-  dividerXPositions.forEach((dx) => {
-    const divider = new THREE.Mesh(
-      new THREE.BoxGeometry(dividerThickness, dividerHeight, depth + 0.08),
+  // 3. Sturdy Vertical Outer Posts (Left & Right framing the bay)
+  [-1.45, 1.45].forEach((px) => {
+    const postH = topPlankY - lowerPlankY + 0.12;
+    const post = new THREE.Mesh(
+      new THREE.BoxGeometry(0.14, postH, depth + 0.04),
       walnutMat
     );
-    divider.position.set(dx, dividerCenterY, shelfZ);
-    divider.castShadow = true;
-    divider.receiveShadow = true;
-    group.add(divider);
+    post.position.set(px, (lowerPlankY + topPlankY) / 2, shelfZ);
+    post.castShadow = true;
+    post.receiveShadow = true;
+    group.add(post);
 
-    // Classical carved capital & base blocks on vertical dividers
-    const baseCap = new THREE.Mesh(
-      new THREE.BoxGeometry(dividerThickness + 0.08, 0.16, depth + 0.12),
+    // Carved classical plinth block
+    const baseBlock = new THREE.Mesh(
+      new THREE.BoxGeometry(0.20, 0.18, depth + 0.08),
       walnutMat
     );
-    baseCap.position.set(dx, rowPlankY[0] - plankThickness / 2, shelfZ);
-    group.add(baseCap);
+    baseBlock.position.set(px, lowerPlankY - plankThickness / 2, shelfZ);
+    group.add(baseBlock);
 
-    const topCap = new THREE.Mesh(
-      new THREE.BoxGeometry(dividerThickness + 0.08, 0.16, depth + 0.12),
+    // Carved capital block
+    const capBlock = new THREE.Mesh(
+      new THREE.BoxGeometry(0.20, 0.18, depth + 0.08),
       walnutMat
     );
-    topCap.position.set(dx, topPlankY + plankThickness / 2, shelfZ);
-    group.add(topCap);
+    capBlock.position.set(px, topPlankY, shelfZ);
+    group.add(capBlock);
   });
 
-  // Architectural Inner Framing Uprights on the middle shelf tier (matching video_frame_01)
-  [-1.42, 1.42].forEach((ix) => {
-    const innerUpright = new THREE.Mesh(
-      new THREE.BoxGeometry(0.12, rowSpacing, depth + 0.04),
-      walnutMat
-    );
-    innerUpright.position.set(ix, middlePlankY + rowSpacing / 2, shelfZ);
-    innerUpright.castShadow = true;
-    innerUpright.receiveShadow = true;
-    group.add(innerUpright);
-  });
-
-  // 5. Grand Architectural Top Crown Molding
-  const crownMolding = new THREE.Mesh(
-    new THREE.BoxGeometry(totalWidth + 0.6, 0.38, depth + 0.35),
+  // 4. Solid Wooden Top Cap / Crown of the Bookcase Unit (visible right above books)
+  const topCap = new THREE.Mesh(
+    new THREE.BoxGeometry(unitWidth + 0.12, 0.09, depth + 0.06),
     walnutMat
   );
-  crownMolding.position.set(0, topPlankY + plankThickness / 2 + 0.19, shelfZ);
-  crownMolding.castShadow = true;
-  group.add(crownMolding);
+  topCap.position.set(0, topPlankY, shelfZ);
+  topCap.castShadow = true;
+  group.add(topCap);
 
-  // 6. Sturdy Architectural Base Plinth
-  const basePlinth = new THREE.Mesh(
-    new THREE.BoxGeometry(totalWidth + 0.5, 0.32, depth + 0.32),
+  const topBullnose = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.045, 0.045, unitWidth + 0.12, 14),
     walnutMat
   );
-  basePlinth.position.set(0, rowPlankY[0] - plankThickness / 2 - 0.16, shelfZ);
-  basePlinth.receiveShadow = true;
-  group.add(basePlinth);
+  topBullnose.rotation.z = Math.PI / 2;
+  topBullnose.position.set(0, topPlankY, shelfZ + depth / 2 + 0.03);
+  group.add(topBullnose);
 
   return {
     group,

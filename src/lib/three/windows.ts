@@ -5,35 +5,35 @@ export function createArchedWindows(): THREE.Group {
   group.name = 'library-arched-windows';
 
   const stoneMat = new THREE.MeshStandardMaterial({
-    color: 0x181512,
-    roughness: 0.88,
+    color: 0xe0d6c8,
+    roughness: 0.82,
     metalness: 0.04
   });
 
-  // Stained glass / nocturnal deep midnight sky
+  // Luminous morning sky daylight glass
   const glassMat = new THREE.MeshBasicMaterial({
-    color: 0x1b283d
+    color: 0xebf3fc
   });
 
-  // Cool volumetric moonlight shaft material
+  // Soft volumetric daylight sun ray material
   const beamMat = new THREE.MeshBasicMaterial({
-    color: 0xa8c4e6,
+    color: 0xfff6e8,
     transparent: true,
-    opacity: 0.045,
+    opacity: 0.055,
     blending: THREE.AdditiveBlending,
     side: THREE.DoubleSide,
     depthWrite: false
   });
 
   const windowPositions = [-3.8, 0, 3.8];
-  const windowZ = 14.5;
-  const windowH = 5.2;
+  const windowZ = -13.0;
+  const windowH = 4.8;
   const windowW = 2.2;
   const archR = windowW / 2;
 
   windowPositions.forEach((wx, idx) => {
     const winGroup = new THREE.Group();
-    winGroup.position.set(wx, 1.2, windowZ);
+    winGroup.position.set(wx, 2.4, windowZ);
 
     // Main rectangular lower window
     const lowerRect = new THREE.Mesh(
@@ -41,16 +41,14 @@ export function createArchedWindows(): THREE.Group {
       glassMat
     );
     lowerRect.position.y = (windowH - archR) / 2;
-    lowerRect.rotation.y = Math.PI;
     winGroup.add(lowerRect);
 
     // Arched top half-circle
     const archTop = new THREE.Mesh(
-      new THREE.CircleGeometry(archR, 20, 0, Math.PI),
+      new THREE.CircleGeometry(archR, 24, 0, Math.PI),
       glassMat
     );
     archTop.position.y = windowH - archR;
-    archTop.rotation.y = Math.PI;
     winGroup.add(archTop);
 
     // Stone Frame
@@ -69,12 +67,12 @@ export function createArchedWindows(): THREE.Group {
     mullion.position.set(0, windowH / 2, 0);
     winGroup.add(mullion);
 
-    // Diagonal Volumetric God Ray cutting down through the hall
-    const godRayGeo = new THREE.CylinderGeometry(0.4, 2.8, 16.0, 16, 1, true);
+    // Diagonal Volumetric Sun Beam cutting forward and down through the hall
+    const godRayGeo = new THREE.CylinderGeometry(0.35, 2.6, 14.0, 16, 1, true);
     const godRay = new THREE.Mesh(godRayGeo, beamMat);
-    godRay.position.set(0, windowH / 2 - 3.5, -7.0);
-    godRay.rotation.x = 0.42; // Angled down toward reading tables
-    godRay.rotation.y = idx === 0 ? 0.12 : idx === 2 ? -0.12 : 0;
+    godRay.position.set(0, windowH / 2 - 2.8, 6.0);
+    godRay.rotation.x = -0.38; // Angled down and forward toward reading tables
+    godRay.rotation.y = idx === 0 ? -0.10 : idx === 2 ? 0.10 : 0;
     winGroup.add(godRay);
 
     group.add(winGroup);

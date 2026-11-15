@@ -109,16 +109,17 @@ export const LIBRARY_CONFIG: LibraryRoomConfig = {
     ]
   },
   lighting: {
-    ambientColor: 0xffeedd,
-    ambientIntensity: 0.26,
-    heroSpotColor: 0xfff5e0,
-    heroSpotIntensity: 2.4,
+    ambientColor: 0xffeed8,
+    ambientIntensity: 0.58,
+    heroSpotColor: 0xfff6e4,
+    heroSpotIntensity: 2.2,
     chandeliers: [
-      { x: 0, y: 3.8, z: 1.5 },
-      { x: 0, y: 3.8, z: 8.5 }
+      { x: 0, y: 3.4, z: -6.0 },
+      { x: -3.2, y: 3.4, z: -9.0 },
+      { x: 3.2, y: 3.4, z: -9.0 }
     ],
-    fogColor: 0x080402,
-    fogDensity: 0.048
+    fogColor: 0x3a2c1f,
+    fogDensity: 0.010
   },
   camera: {
     defaultPos: [0, 0.16, 2.38],

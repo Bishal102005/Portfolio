@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import gsap from 'gsap';
 import { FACES, HIT, TH, TW } from './pageDrawers';
 import { NAMES } from '../constants/portfolioData';
 import { createLibraryScene } from './libraryScene';
@@ -20,100 +21,66 @@ export interface BookEngineOptions {
   initialFloating?: boolean;
 }
 
-// Procedural generator for Bishal's luxury teal/emerald leather book spine with 24k gold arabesque filigree
+// Procedural generator for Bishal's luxury leather book spine with 24k gold filigree
 function createSpineTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 256;
   canvas.height = 1024;
   const ctx = canvas.getContext('2d')!;
 
-  // Deep, rich antique teal/emerald Moroccan leather gradient base
   const bgGrad = ctx.createLinearGradient(0, 0, 256, 0);
-  bgGrad.addColorStop(0, '#061c14');
-  bgGrad.addColorStop(0.18, '#0b3224');
-  bgGrad.addColorStop(0.5, '#124835');
-  bgGrad.addColorStop(0.82, '#0b3224');
-  bgGrad.addColorStop(1, '#061c14');
+  bgGrad.addColorStop(0, '#0a0b10');
+  bgGrad.addColorStop(0.18, '#161922');
+  bgGrad.addColorStop(0.5, '#202430');
+  bgGrad.addColorStop(0.82, '#161922');
+  bgGrad.addColorStop(1, '#0a0b10');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, 256, 1024);
 
-  // Micro-leather grain pores and vintage patina
-  for (let i = 0; i < 2200; i++) {
+  for (let i = 0; i < 1800; i++) {
     const x = Math.random() * 256;
     const y = Math.random() * 1024;
-    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255, 235, 175, 0.045)' : 'rgba(0, 15, 8, 0.16)';
-    ctx.fillRect(x, y, 1.8, 1.8);
+    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255, 255, 255, 0.035)' : 'rgba(0, 0, 0, 0.12)';
+    ctx.fillRect(x, y, 2, 2);
   }
 
-  // 24k Gold double border with delicate corner filigree
-  ctx.strokeStyle = '#d4a559';
+  ctx.strokeStyle = '#d4a359';
   ctx.lineWidth = 3.5;
   ctx.strokeRect(14, 18, 228, 988);
-  ctx.strokeStyle = 'rgba(250, 224, 155, 0.75)';
+  ctx.strokeStyle = 'rgba(245, 212, 133, 0.65)';
   ctx.lineWidth = 1;
   ctx.strokeRect(18, 22, 220, 980);
 
-  // 5 Raised embossed leather ribs with 24k gold bead stamping
   const ribYs = [125, 305, 515, 715, 885];
   ribYs.forEach((ry) => {
-    ctx.fillStyle = 'rgba(2, 12, 7, 0.85)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx.fillRect(8, ry + 8, 240, 6);
     ctx.fillStyle = '#b88636';
     ctx.fillRect(8, ry, 240, 8);
     ctx.fillStyle = '#fbe39d';
     ctx.fillRect(8, ry, 240, 3);
     for (let dx = 22; dx < 236; dx += 14) {
-      ctx.fillStyle = '#4a2d04';
+      ctx.fillStyle = '#5c3909';
       ctx.fillRect(dx, ry + 2, 3, 3);
     }
   });
 
-  // Dense 24k Gold Arabesque & Acanthus Filigree Panels
-  function drawArabesque(cy: number, h: number) {
-    ctx.save();
-    ctx.strokeStyle = 'rgba(235, 185, 95, 0.7)';
-    ctx.fillStyle = 'rgba(251, 227, 157, 0.85)';
-    ctx.lineWidth = 1.6;
-
-    // Symmetrical curving vine flourishes
-    ctx.beginPath();
-    ctx.arc(128, cy - h / 3, h / 3.5, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(128, cy + h / 3, h / 3.5, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(128, cy, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Little gold fleur-de-lis dots
-    [-35, 35].forEach((dx) => {
-      ctx.beginPath();
-      ctx.arc(128 + dx, cy, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    ctx.restore();
-  }
-
-  drawArabesque(70, 36);
-  drawArabesque(940, 42);
-
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  // Upper Cartouche: Author Name
+  ctx.font = '24px serif';
+  ctx.fillStyle = '#fbe39d';
+  ctx.fillText('✦ ✦ ✦', 128, 70);
+
   ctx.font = '700 24px "Playfair Display", Georgia, serif';
   ctx.fillStyle = '#ffffff';
   ctx.fillText('B I S H A L', 128, 195);
   ctx.fillText('S A H A', 128, 228);
 
   ctx.font = '14px sans-serif';
-  ctx.fillStyle = '#d4a559';
+  ctx.fillStyle = '#d4a359';
   ctx.fillText('━━━━ ✦ ━━━━', 128, 258);
 
-  // Center Cartouche: Main Title in 24k Gold
   ctx.font = '700 25px "Playfair Display", Georgia, serif';
   ctx.fillStyle = '#fbe39d';
   ctx.fillText('THE', 128, 390);
@@ -124,9 +91,8 @@ function createSpineTexture(): THREE.CanvasTexture {
   ctx.fillStyle = '#dcd3c3';
   ctx.fillText('SELECTED WORKS', 128, 462);
 
-  // Lower Cartouche: Volume & Profession
   ctx.font = '600 17px Inter, sans-serif';
-  ctx.fillStyle = '#d4a559';
+  ctx.fillStyle = '#d4a359';
   ctx.fillText('CREATIVE DEV', 128, 595);
   ctx.font = '500 15px "Playfair Display", Georgia, serif';
   ctx.fillText('VOLUME I', 128, 625);
@@ -134,6 +100,9 @@ function createSpineTexture(): THREE.CanvasTexture {
   ctx.font = '500 17px "Playfair Display", Georgia, serif';
   ctx.fillStyle = '#fbe39d';
   ctx.fillText('• 2026 •', 128, 798);
+
+  ctx.font = '24px serif';
+  ctx.fillText('❖', 128, 940);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -202,6 +171,22 @@ export class BookEngine {
   public portrait = false;
   public isFloating = false;
   private isBookHovered = false;
+
+  private animState = {
+    isAnimating: false,
+    stage: 'shelf' as 'shelf' | 'pulling' | 'reveal_cover' | 'reading' | 'returning',
+    posX: 0,
+    posY: 0,
+    posZ: -2.05,
+    rotX: 0,
+    rotY: Math.PI / 2,
+    rotZ: 0,
+    camDist: 2.38,
+    camY: 0.16,
+    lookY: 0.04,
+    lookZ: -2.05
+  };
+  private pullTimeline: gsap.core.Timeline | null = null;
 
   private acc = 0;
   private hov = 0;
@@ -319,11 +304,11 @@ export class BookEngine {
       this.sheets.push({ geo, fm, bm, p: -1, tp: 0 });
     }
 
-    // Deep luxury teal/emerald Moroccan leather cover boards (matching video_frame_06)
+    // Deep luxury leather cover boards
     const leatherMat = new THREE.MeshStandardMaterial({
-      color: 0x0c3828,
-      roughness: 0.52,
-      metalness: 0.08
+      color: 0x181a24,
+      roughness: 0.55,
+      metalness: 0.12
     });
 
     this.backRight = new THREE.Mesh(new THREE.BoxGeometry(this.W + 0.07, this.H + 0.07, 0.03), leatherMat);
@@ -540,25 +525,177 @@ export class BookEngine {
   }
 
   public pullFromShelf() {
-    if (this.isFloating) return;
-    this.isFloating = true;
+    if (this.isFloating || this.animState.isAnimating) return;
+
+    if (this.isReducedMotion) {
+      this.isFloating = true;
+      this.isBookHovered = false;
+      if (this.canvas) this.canvas.style.cursor = 'default';
+      this.go(1, 1);
+      this.onFloatingChange?.(true);
+      this.onHintHide?.();
+      return;
+    }
+
+    this.animState.isAnimating = true;
+    this.animState.stage = 'pulling';
     this.isBookHovered = false;
     if (this.canvas) this.canvas.style.cursor = 'default';
-    this.go(0, 1);
-    this.onFloatingChange?.(true);
     this.onHintHide?.();
+
+    if (this.pullTimeline) {
+      this.pullTimeline.kill();
+    }
+
+    const vFovRad = (this.camera.fov * Math.PI) / 180;
+    const tn = Math.tan(0.5 * vFovRad);
+    const hw = this.portrait ? this.W * 0.53 : this.W * 1.12;
+    const hh = this.portrait ? this.H * 0.58 : this.H * 0.62;
+    const dd = Math.max(hw / (tn * this.camera.aspect), hh / tn);
+
+    const targetCamDist = this.portrait ? 3.4 : 2.38;
+    const targetCamY = this.portrait ? 0.14 : 0.16;
+
+    // Reset book spread to cover closed
+    this.cur = 0;
+    this.target = 0;
+    this.side = 1;
+    this.sheets.forEach((s) => {
+      s.p = 0;
+      s.tp = 0;
+    });
+
+    this.animState.posX = 0;
+    this.animState.posY = 0;
+    this.animState.posZ = -2.05;
+    this.animState.rotX = 0;
+    this.animState.rotY = Math.PI / 2;
+    this.animState.rotZ = 0;
+    this.animState.camDist = targetCamDist;
+    this.animState.camY = targetCamY;
+    this.animState.lookY = 0.04;
+    this.animState.lookZ = -2.05;
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        this.animState.isAnimating = false;
+        this.animState.stage = 'reading';
+        this.isFloating = true;
+        this.onFloatingChange?.(true);
+      }
+    });
+    this.pullTimeline = tl;
+
+    // Phase 1 (0.0s – 0.8s): Slide forward along Z out of shelf slot (matching frame_005)
+    tl.to(this.animState, {
+      posZ: -0.95,
+      camDist: targetCamDist + 0.10,
+      duration: 0.8,
+      ease: 'power2.out',
+      onStart: () => {
+        if (this.bookParticlesGeo && this.bookParticleAngles) {
+          const pos = this.bookParticlesGeo.attributes.position.array as Float32Array;
+          for (let i = 0; i < this.bookParticleAngles.length; i++) {
+            this.bookParticleRadii[i] = 0.35 + Math.random() * 0.55;
+            pos[i * 3] = Math.cos(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
+            pos[i * 3 + 2] = Math.sin(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
+          }
+          this.bookParticlesGeo.attributes.position.needsUpdate = true;
+        }
+      }
+    });
+
+    // Phase 2 (0.8s – 1.9s): Lift & rotate 90° so FRONT COVER faces camera directly (matching frame_006/007)
+    tl.to(this.animState, {
+      posY: 0.08,
+      posZ: 0.0,
+      rotY: 0.0,    // Front cover now faces viewer!
+      rotX: -0.20,  // Natural reading angle
+      lookZ: 0.0,
+      lookY: 0.08,
+      camDist: 2.30,
+      duration: 1.1,
+      ease: 'power2.inOut'
+    });
+
+    // Phase 3 (1.9s – 3.3s): Front cover hinges open (-150° on left edge, revealing Spread 1) (matching frame_008/009)
+    tl.call(() => {
+      this.go(1, 1); // target = 1! Sheet 0 swings open to reveal Foreword & Contents!
+    });
+
+    tl.to(this.animState, {
+      camDist: dd,
+      camY: this.portrait ? 0.08 : 0.35,
+      lookY: this.portrait ? 0.02 : 0.0,
+      duration: 1.4,
+      ease: 'power2.inOut'
+    }, '<');
   }
 
   public returnToShelf() {
-    if (!this.isFloating) return;
-    this.go(0, 0);
+    if (!this.isFloating && !this.animState.isAnimating) return;
 
-    setTimeout(() => {
+    if (this.isReducedMotion) {
+      this.go(0, 0);
       this.isFloating = false;
       this.isBookHovered = false;
       if (this.canvas) this.canvas.style.cursor = 'default';
       this.onFloatingChange?.(false);
-    }, 380);
+      return;
+    }
+
+    this.animState.isAnimating = true;
+    this.animState.stage = 'returning';
+    this.isBookHovered = false;
+    if (this.canvas) this.canvas.style.cursor = 'default';
+
+    if (this.pullTimeline) {
+      this.pullTimeline.kill();
+    }
+
+    const targetCamDist = this.portrait ? 3.4 : 2.38;
+    const targetCamY = this.portrait ? 0.14 : 0.16;
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        this.animState.isAnimating = false;
+        this.animState.stage = 'shelf';
+        this.isFloating = false;
+        this.onFloatingChange?.(false);
+      }
+    });
+    this.pullTimeline = tl;
+
+    // Step 1 (0.0s – 0.8s): Cover hinges closed
+    this.go(0, 0); // target = 0, sheets fold back to cover closed
+
+    tl.to(this.animState, {
+      camDist: 2.35,
+      camY: targetCamY,
+      lookY: 0.04,
+      lookZ: 0.0,
+      duration: 0.8,
+      ease: 'power2.inOut'
+    });
+
+    // Step 2 (0.8s – 1.6s): Rotate back to spine alignment
+    tl.to(this.animState, {
+      rotY: Math.PI / 2, // Spine faces camera again
+      rotX: 0.0,
+      posY: 0.0,
+      posZ: -0.95,
+      lookZ: -2.05,
+      camDist: targetCamDist,
+      duration: 0.8,
+      ease: 'power2.inOut'
+    });
+
+    // Step 3 (1.6s – 2.3s): Slide smoothly back into shelf slot
+    tl.to(this.animState, {
+      posZ: -2.05,
+      duration: 0.7,
+      ease: 'power2.inOut'
+    });
   }
 
   private handleResize = () => {
@@ -584,7 +721,7 @@ export class BookEngine {
     this.px = e.clientX / window.innerWidth - 0.5;
     this.py = e.clientY / window.innerHeight - 0.5;
 
-    if (!this.isFloating) {
+    if (!this.isFloating && !this.animState.isAnimating) {
       if (this.camera && this.canvas) {
         this.raycaster.setFromCamera(
           new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1),
@@ -619,7 +756,7 @@ export class BookEngine {
     this.pointerDownCoord = null;
     this.hov = 0;
 
-    if (!this.isFloating) {
+    if (!this.isFloating && !this.animState.isAnimating) {
       this.raycaster.setFromCamera(
         new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1),
         this.camera
@@ -682,13 +819,13 @@ export class BookEngine {
   };
 
   private handleKeyDown = (e: KeyboardEvent) => {
-    if (!this.isFloating) {
+    if (!this.isFloating && !this.animState.isAnimating) {
       if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight' || e.key === 'ArrowUp') {
         this.pullFromShelf();
         return;
       }
     }
-    if (e.key === 'Escape' && this.isFloating) {
+    if (e.key === 'Escape' && (this.isFloating || this.animState.isAnimating)) {
       this.returnToShelf();
       return;
     }
@@ -781,7 +918,17 @@ export class BookEngine {
     const kPos = 1 - Math.exp(-dt * 4.5);
     const kRot = 1 - Math.exp(-dt * 4.5);
 
-    if (!this.isFloating) {
+    if (this.animState.isAnimating) {
+      // Actively running cinematic GSAP transition timeline matching the video
+      this.group.position.set(this.animState.posX, this.animState.posY, this.animState.posZ);
+      this.group.rotation.set(this.animState.rotX, this.animState.rotY, this.animState.rotZ);
+
+      this.dist = this.animState.camDist;
+      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.16;
+      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.08;
+      this.camera.position.set(camParallaxX, this.animState.camY + camParallaxY, this.dist);
+      this.camera.lookAt(0, this.animState.lookY, this.animState.lookZ);
+    } else if (!this.isFloating) {
       // Resting on shelf: spine facing viewer
       const hoverSlide = this.isBookHovered ? 0.35 : 0;
       const hoverAngle = this.isBookHovered ? -0.06 : 0;
@@ -913,6 +1060,7 @@ export class BookEngine {
 
   public destroy() {
     this.isDisposed = true;
+    if (this.pullTimeline) this.pullTimeline.kill();
     if (this.animId !== null) cancelAnimationFrame(this.animId);
 
     window.removeEventListener('resize', this.handleResize);

@@ -214,46 +214,75 @@ export function createLibraryScene(isMobile: boolean = false): THREE.Group {
     library.add(beamX);
   }
 
-  // Hanging Brass Ring Chandeliers
+  // 10. Hanging Spherical Milk-Glass Globe Pendant Lamps (Matching sec_01.jpg & sec_02.jpg)
+  const globeGlassMat = new THREE.MeshStandardMaterial({
+    color: 0xfff4e0,
+    emissive: 0xffd275,
+    emissiveIntensity: 0.85,
+    roughness: 0.18,
+    metalness: 0.05
+  });
+
   lightCfg.chandeliers.forEach((chPos, cIdx) => {
-    const chandelier = new THREE.Group();
-    chandelier.position.set(chPos.x, chPos.y, chPos.z);
+    const pendant = new THREE.Group();
+    pendant.position.set(chPos.x, chPos.y, chPos.z);
 
     // Brass suspension chain
     const chainH = room.ceilingY - chPos.y;
     const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, chainH, 6), brassMat);
     chain.position.y = chainH / 2;
-    chandelier.add(chain);
+    pendant.add(chain);
 
-    // Brass Chandelier Ring
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.035, 8, 24), brassMat);
-    ring.rotation.x = Math.PI / 2;
-    chandelier.add(ring);
+    // Brass fitting cap
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 0.08, 14), brassMat);
+    cap.position.y = 0.22;
+    pendant.add(cap);
 
-    // Candle lamps along ring
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      const lx = Math.cos(angle) * 0.85;
-      const lz = Math.sin(angle) * 0.85;
+    // Glowing Milk-Glass Globe
+    const globe = new THREE.Mesh(new THREE.SphereGeometry(0.32, 20, 16), globeGlassMat);
+    pendant.add(globe);
 
-      const candleStick = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.16, 6), brassMat);
-      candleStick.position.set(lx, 0.08, lz);
-      chandelier.add(candleStick);
-
-      const bulb = new THREE.Mesh(
-        new THREE.SphereGeometry(0.03, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0xffe2a0 })
-      );
-      bulb.position.set(lx, 0.18, lz);
-      chandelier.add(bulb);
-    }
-
-    // Warm chandelier pool light
-    const chLight = new THREE.PointLight(0xffbe65, 1.2, 8.5);
+    // Warm amber pendant pool light
+    const chLight = new THREE.PointLight(0xffbe65, 1.6, 12.0);
     chLight.name = `chandelier-light-${cIdx + 1}`;
-    chandelier.add(chLight);
+    pendant.add(chLight);
 
-    library.add(chandelier);
+    library.add(pendant);
+  });
+
+  // Authentic Stacks of Antique Books on Left and Right Floor (Matching sec_01.jpg)
+  const bookColors = [0x340b12, 0x162215, 0x3e2010, 0x141416, 0x421018, 0x2e170b];
+  const stackPositions = [
+    { x: -2.8, z: -4.2, count: 8 },
+    { x: -3.4, z: -3.8, count: 6 },
+    { x: 2.8, z: -4.5, count: 9 },
+    { x: 3.5, z: -3.9, count: 5 }
+  ];
+
+  stackPositions.forEach((st) => {
+    let curY = room.floorY;
+    for (let k = 0; k < st.count; k++) {
+      const bw = 0.52 + (Math.sin(k * 1.5) * 0.06);
+      const bd = 0.36 + (Math.cos(k * 1.8) * 0.04);
+      const bh = 0.07 + (k % 2 === 0 ? 0.02 : -0.01);
+      const rot = (Math.sin(k * 2.3) * 0.12);
+
+      const stackBook = new THREE.Mesh(
+        new THREE.BoxGeometry(bw, bh, bd),
+        new THREE.MeshStandardMaterial({
+          color: bookColors[k % bookColors.length],
+          roughness: 0.58,
+          metalness: 0.06
+        })
+      );
+      stackBook.position.set(st.x, curY + bh / 2, st.z);
+      stackBook.rotation.y = rot;
+      stackBook.castShadow = true;
+      stackBook.receiveShadow = true;
+      library.add(stackBook);
+
+      curY += bh + 0.003;
+    }
   });
 
   // 11. Atmospheric Golden Dust Motes in Light Beams
@@ -296,6 +325,14 @@ export function createLibraryScene(isMobile: boolean = false): THREE.Group {
   const aisleFill = new THREE.DirectionalLight(0x4a6e9a, 0.28);
   aisleFill.position.set(2.5, 3.5, 5.0);
   library.add(aisleFill);
+
+  // 13. Soft Morning Daylight Streaming from High Arched Windows (Matching sec_01.jpg)
+  const windowDaylight = new THREE.DirectionalLight(0xe8f4ff, 0.95);
+  windowDaylight.name = 'library-window-daylight';
+  windowDaylight.position.set(0, 6.5, -12.5);
+  windowDaylight.target.position.set(0, -1.0, -2.5);
+  library.add(windowDaylight);
+  library.add(windowDaylight.target);
 
   return library;
 }
