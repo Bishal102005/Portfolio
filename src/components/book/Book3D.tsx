@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { BookEngine } from '@/lib/three/bookEngine';
+import { soundFX } from '@/lib/three/soundFx';
 import { NAMES } from '@/lib/constants/portfolioData';
 import { Navbar } from '../Navbar';
 import { preloadCoverImage } from '../Hero';
@@ -20,6 +21,8 @@ export const Book3D: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSupported, setIsSupported] = useState<boolean>(true);
   const [isFloating, setIsFloating] = useState<boolean>(false);
+  const [sequencePhase, setSequencePhase] = useState<'idle' | 'hovered' | 'animating' | 'completed'>('idle');
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const handleSpreadChange = useCallback((spread: number, side: number = 0, portrait: boolean = false) => {
     setCurrentSpread(spread);
@@ -33,6 +36,9 @@ export const Book3D: React.FC = () => {
 
   const handleFloatingChange = useCallback((floating: boolean) => {
     setIsFloating(floating);
+    if (!floating) {
+      setSequencePhase('idle');
+    }
   }, []);
 
   useEffect(() => {
@@ -85,6 +91,9 @@ export const Book3D: React.FC = () => {
         },
         onFloatingChange: (floating) => {
           if (mounted) handleFloatingChange(floating);
+        },
+        onSequencePhaseChange: (phase) => {
+          if (mounted) setSequencePhase(phase);
         }
       });
 
@@ -155,6 +164,22 @@ export const Book3D: React.FC = () => {
     }
   };
 
+  const handleToggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMuted((prev) => {
+      const next = !prev;
+      soundFX.setMuted(next);
+      return next;
+    });
+  };
+
+  const handleSkipIntro = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (engineRef.current) {
+      engineRef.current.skipSequence();
+    }
+  };
+
   if (!isSupported) {
     return null;
   }
@@ -164,22 +189,59 @@ export const Book3D: React.FC = () => {
       <canvas id="c" ref={canvasRef} aria-hidden="true" />
       <div className="film-vignette" aria-hidden="true" />
 
-      {/* Virtual library subtle hint */}
-      {!isFloating && (
+      {/* 2.39:1 Anamorphic Cinematic Letterbox Bars */}
+      <div
+        className={`letterbox-bar-top ${sequencePhase === 'animating' ? 'active' : ''}`}
+        aria-hidden="true"
+      />
+      <div
+        className={`letterbox-bar-bottom ${sequencePhase === 'animating' ? 'active' : ''}`}
+        aria-hidden="true"
+      />
+
+      {/* Cinematic Controls (Mute & Skip Intro) */}
+      {sequencePhase === 'animating' && (
+        <div className="cinematic-overlay-controls" role="toolbar" aria-label="Cinematic intro controls">
+          <button
+            type="button"
+            className="cinematic-btn cinematic-mute-btn"
+            onClick={handleToggleMute}
+            aria-label={isMuted ? 'Unmute sound effects' : 'Mute sound effects'}
+            title={isMuted ? 'Unmute' : 'Mute'}
+          >
+            {isMuted ? '🔇' : '🔊'}
+          </button>
+          <button
+            type="button"
+            className="cinematic-btn cinematic-skip-btn"
+            onClick={handleSkipIntro}
+            aria-label="Skip cinematic introduction"
+          >
+            Skip intro ⏭
+          </button>
+        </div>
+      )}
+
+      {/* Virtual library subtle hint / hover tooltip */}
+      {!isFloating && sequencePhase !== 'animating' && (
         <div
-          className="shelf-pill-hint"
+          className={`shelf-pill-hint ${sequencePhase === 'hovered' ? 'hovered' : ''}`}
           onClick={handlePullFromShelf}
           style={{
-            opacity: showHint ? 0.95 : 0,
+            opacity: showHint || sequencePhase === 'hovered' ? 0.95 : 0,
             cursor: 'pointer',
             pointerEvents: 'auto',
-            transition: 'opacity 0.6s ease'
+            transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
           title="Click to take out the glowing book"
         >
           <span style={{ color: '#e5a958' }}>✦</span>
-          <span className="shelf-hint-desktop">Click the glowing book to open portfolio</span>
-          <span className="shelf-hint-mobile">Tap book to open</span>
+          <span className="shelf-hint-desktop">
+            {sequencePhase === 'hovered' ? 'Open Portfolio' : 'Click the glowing book to open portfolio'}
+          </span>
+          <span className="shelf-hint-mobile">
+            {sequencePhase === 'hovered' ? 'Open Portfolio' : 'Tap book to open'}
+          </span>
           <span style={{ color: '#e5a958' }}>✦</span>
         </div>
       )}

@@ -967,10 +967,12 @@ export function createLibraryScene(): THREE.Group {
   // 10. Master Cinematic Chiaroscuro Lighting
   // Balanced ambient baseline (velvety shadows, rich contrast)
   const ambientWarm = new THREE.HemisphereLight(0xffeedd, 0x1a0f08, 0.45);
+  ambientWarm.name = 'library-ambient';
   library.add(ambientWarm);
 
   // Cinematic Golden Key Spotlight angled from top-left
   const keySpot = new THREE.SpotLight(0xffe2a0, 2.4, 12.0, Math.PI / 3.2, 0.45);
+  keySpot.name = 'library-key-spot';
   keySpot.position.set(-3.2, 3.4, 1.6);
   keySpot.target.position.set(0, 0.0, -2.05);
   keySpot.castShadow = true;
@@ -982,6 +984,7 @@ export function createLibraryScene(): THREE.Group {
 
   // Dedicated Warm Accent Spotlight focused directly on Bishal's centerpiece book
   const heroSpot = new THREE.SpotLight(0xfff5e0, 2.2, 9.5, Math.PI / 3.6, 0.38);
+  heroSpot.name = 'library-hero-spot';
   heroSpot.position.set(0, 2.8, -0.2);
   heroSpot.target.position.set(0, 0.0, -2.05);
   library.add(heroSpot);
