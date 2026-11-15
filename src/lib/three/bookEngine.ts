@@ -767,12 +767,14 @@ export class BookEngine {
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
       this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
 
-      // Filmic Cinematic Bookshelf framing: intimate, warm, slightly low-angle camera view
+      // Filmic Cinematic Bookshelf framing: eye-level central aisle, gentle mouse-parallax sway & slow organic drift
       const targetCamDist = this.portrait ? 3.4 : 2.38;
       const targetCamY = this.portrait ? 0.14 : 0.16;
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
-      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.28;
-      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.16;
+      const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.035;
+      const idleDriftY = this.isReducedMotion ? 0 : Math.cos(t * 0.28) * 0.025;
+      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.28 + idleDriftX;
+      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.16 + idleDriftY;
       this.camera.position.set(camParallaxX, targetCamY + camParallaxY, this.dist);
       this.camera.lookAt(0, 0.04, -2.05);
     } else {
@@ -831,6 +833,17 @@ export class BookEngine {
     if (candle2) {
       candle2.intensity = 0.78 + Math.sin(t * 13.7) * 0.08 + Math.cos(t * 21.1) * 0.05;
     }
+
+    // Gentle pool flicker for reading table banker lamps & chandeliers
+    const banker1 = this.scene.getObjectByName('banker-lamp-1') as THREE.PointLight | undefined;
+    const banker2 = this.scene.getObjectByName('banker-lamp-2') as THREE.PointLight | undefined;
+    if (banker1) banker1.intensity = 1.35 + Math.sin(t * 7.5) * 0.04;
+    if (banker2) banker2.intensity = 1.35 + Math.cos(t * 8.2) * 0.04;
+
+    const ch1 = this.scene.getObjectByName('chandelier-light-1') as THREE.PointLight | undefined;
+    const ch2 = this.scene.getObjectByName('chandelier-light-2') as THREE.PointLight | undefined;
+    if (ch1) ch1.intensity = 1.15 + Math.sin(t * 2.8) * 0.05;
+    if (ch2) ch2.intensity = 1.15 + Math.cos(t * 3.1) * 0.05;
 
     // Swirl delicate golden embers around Bishal's glowing book
     if (this.bookParticlesGeo && this.bookParticleAngles) {

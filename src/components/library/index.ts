@@ -1,4 +1,12 @@
+export { LibraryRoom } from './LibraryRoom';
 export { ShelfWall } from './ShelfWall';
-export { BookRow } from './BookRow';
+export { Gallery } from './Gallery';
+export { Furniture } from './Furniture';
+export { Windows } from './Windows';
 export { InstancedBooks } from './InstancedBooks';
+export { FeaturedBook } from './FeaturedBook';
+export { Lights } from './Lights';
+export { Effects } from './Effects';
+export { CameraRig } from './CameraRig';
+export { BookRow } from './BookRow';
 export { Props } from './Props';

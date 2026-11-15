@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { SHELF_CONFIG, createSeededRandom } from '../constants/shelfConfig';
+import { LIBRARY_CONFIG } from '../constants/libraryRoomConfig';
 
 export interface BookInstanceData {
   position: THREE.Vector3;
@@ -21,13 +22,12 @@ export function createInstancedBooks(
   group.name = 'instanced-bookshelf-library';
 
   const rng = createSeededRandom(SHELF_CONFIG.seed);
-
   const { rows, columns, depth, shelfZ, featuredBook, leatherPalette } = SHELF_CONFIG;
+  const { room, gallery: galCfg } = LIBRARY_CONFIG;
 
-  // Flatten palette for fast random sampling
   const palettePool: number[] = [
     ...leatherPalette.burgundy,
-    ...leatherPalette.burgundy, // Weighted
+    ...leatherPalette.burgundy,
     ...leatherPalette.forestGreen,
     ...leatherPalette.forestGreen,
     ...leatherPalette.navy,
@@ -38,7 +38,6 @@ export function createInstancedBooks(
     ...leatherPalette.vellum
   ];
 
-  // Materials
   const leatherMat = new THREE.MeshStandardMaterial({
     roughness: 0.55,
     metalness: 0.08
@@ -52,10 +51,53 @@ export function createInstancedBooks(
 
   const booksData: BookInstanceData[] = [];
   const goldBandsData: { position: THREE.Vector3; rotation: THREE.Euler; scale: THREE.Vector3 }[] = [];
-
   const baseUnitBox = new THREE.BoxGeometry(1, 1, 1);
 
-  // Generate books bay by bay
+  // Helper to add a book
+  const addBook = (
+    pos: THREE.Vector3,
+    rot: THREE.Euler,
+    scale: THREE.Vector3,
+    colorHex: number,
+    facingAxis: 'z' | 'x'
+  ) => {
+    const color = new THREE.Color(colorHex);
+    booksData.push({ position: pos, rotation: rot, scale, color });
+
+    // Add gold embossed bands on spine
+    const bandH = 0.018 + rng() * 0.012;
+    if (facingAxis === 'z') {
+      const spineFaceZ = pos.z + scale.z / 2 + 0.002;
+      goldBandsData.push({
+        position: new THREE.Vector3(pos.x, pos.y + scale.y * 0.28, spineFaceZ),
+        rotation: rot,
+        scale: new THREE.Vector3(scale.x * 1.002, bandH, 0.006)
+      });
+      goldBandsData.push({
+        position: new THREE.Vector3(pos.x, pos.y - scale.y * 0.30, spineFaceZ),
+        rotation: rot,
+        scale: new THREE.Vector3(scale.x * 1.002, bandH, 0.006)
+      });
+    } else {
+      // Facing along X axis (for side wall shelves)
+      const signX = pos.x > 0 ? -1 : 1;
+      const spineFaceX = pos.x + (scale.x / 2) * signX;
+      goldBandsData.push({
+        position: new THREE.Vector3(spineFaceX, pos.y + scale.y * 0.28, pos.z),
+        rotation: rot,
+        scale: new THREE.Vector3(0.006, bandH, scale.z * 1.002)
+      });
+      goldBandsData.push({
+        position: new THREE.Vector3(spineFaceX, pos.y - scale.y * 0.30, pos.z),
+        rotation: rot,
+        scale: new THREE.Vector3(0.006, bandH, scale.z * 1.002)
+      });
+    }
+  };
+
+  // =========================================================================
+  // 1. Focal Wall Books (Eye-Level Center Shelf Wall, ~360 books)
+  // =========================================================================
   for (let r = 0; r < rows; r++) {
     const plankY = rowPlankY[r];
     const shelfSurfaceY = plankY + SHELF_CONFIG.plankThickness / 2;
@@ -65,67 +107,50 @@ export function createInstancedBooks(
       const halfBay = bayWidth / 2;
       const bayLeft = centerX - halfBay + 0.08;
       const bayRight = centerX + halfBay - 0.08;
-
       const isFeaturedBay = r === featuredBook.row && c === featuredBook.section;
 
       let currentX = bayLeft;
-
-      // Small prop reservation offsets in selected bays
       let reservedPropXStart = 999;
       let reservedPropXEnd = -999;
 
-      // Reserve space for props
       if (r === 3 && c === 0) {
-        // Brass Globe in top-left bay
         reservedPropXStart = centerX - 0.85;
         reservedPropXEnd = centerX + 0.85;
       } else if (r === 2 && c === 2) {
-        // Candle & flat stack in right middle bay
         reservedPropXStart = centerX + 0.45;
         reservedPropXEnd = centerX + 1.45;
       } else if (r === 3 && c === 2) {
-        // Small trailing plant in right upper bay
         reservedPropXStart = centerX + 0.65;
         reservedPropXEnd = centerX + 1.55;
       }
 
       while (currentX < bayRight) {
-        // Check featured book slot in middle row center bay
         if (isFeaturedBay) {
           const slotHalf = featuredBook.slotWidth / 2;
-          const slotMinX = -slotHalf;
-          const slotMaxX = slotHalf;
-
-          // If inside featured book slot, skip past it so Bishal's book sits cleanly
-          if (currentX > slotMinX - 0.12 && currentX < slotMaxX) {
-            currentX = slotMaxX + 0.05;
+          if (currentX > -slotHalf - 0.12 && currentX < slotHalf) {
+            currentX = slotHalf + 0.05;
             continue;
           }
         }
 
-        // Check prop reservation
         if (currentX >= reservedPropXStart && currentX < reservedPropXEnd) {
           currentX = reservedPropXEnd + 0.06;
           continue;
         }
 
-        // Book dimensions
-        const width = 0.065 + rng() * 0.085; // Thickness 6.5cm - 15cm
-        const height = 1.25 + rng() * 0.34; // Height 1.25m - 1.59m
-        const bookDepth = 0.88 + rng() * 0.22; // Depth 0.88m - 1.10m
+        const width = 0.065 + rng() * 0.085;
+        const height = 1.25 + rng() * 0.34;
+        const bookDepth = 0.88 + rng() * 0.22;
 
         if (currentX + width > bayRight) break;
 
         const posX = currentX + width / 2;
         const posY = shelfSurfaceY + height / 2;
-        // Align book spine near shelf front edge
         const frontEdgeZ = shelfZ + depth / 2 - 0.06;
         const posZ = frontEdgeZ - bookDepth / 2 - rng() * 0.04;
 
-        // Occasional leaning book at bay edges or gaps
-        let rotZ = (rng() - 0.5) * 0.025; // Subtle natural tilt
+        let rotZ = (rng() - 0.5) * 0.025;
         let tiltOffset = 0;
-
         if (rng() < (isMobile ? 0.04 : 0.08) && currentX < bayRight - 0.35) {
           rotZ = (rng() > 0.5 ? 1 : -1) * (0.12 + rng() * 0.09);
           tiltOffset = Math.sin(Math.abs(rotZ)) * (height / 2);
@@ -134,38 +159,67 @@ export function createInstancedBooks(
         const rotation = new THREE.Euler((rng() - 0.5) * 0.015, (rng() - 0.5) * 0.02, rotZ);
         const position = new THREE.Vector3(posX + tiltOffset * Math.sign(rotZ), posY, posZ);
         const scale = new THREE.Vector3(width, height, bookDepth);
-
         const hexColor = palettePool[Math.floor(rng() * palettePool.length)];
-        const color = new THREE.Color(hexColor);
 
-        booksData.push({ position, rotation, scale, color });
+        addBook(position, rotation, scale, hexColor, 'z');
 
-        // Add 2 gold embossed bands on the book spine
-        const spineFaceZ = posZ + bookDepth / 2 + 0.002;
-        const bandH = 0.018 + rng() * 0.012;
-        const bandW = width * 1.002;
-        const bandD = 0.006;
-
-        // Top band
-        goldBandsData.push({
-          position: new THREE.Vector3(position.x, position.y + height * 0.28, spineFaceZ),
-          rotation,
-          scale: new THREE.Vector3(bandW, bandH, bandD)
-        });
-
-        // Bottom band
-        goldBandsData.push({
-          position: new THREE.Vector3(position.x, position.y - height * 0.30, spineFaceZ),
-          rotation,
-          scale: new THREE.Vector3(bandW, bandH, bandD)
-        });
-
-        // Advance along shelf plank
         const gap = rng() < 0.15 ? 0.03 + rng() * 0.05 : 0.003 + rng() * 0.008;
         currentX += width + gap;
       }
     }
   }
+
+  // =========================================================================
+  // 2. Long Side Walls (Ground Tier + Gallery Tier, ~1,800 books)
+  // =========================================================================
+  // Generate books along the left wall (X = -5.55) and right wall (X = 5.55)
+  const sideWalls = [
+    { wallX: -room.width / 2 + 0.45, isLeft: true },
+    { wallX: room.width / 2 - 0.45, isLeft: false }
+  ];
+
+  const sideTierPlankYs = [
+    // Ground Tier shelves
+    room.floorY + 0.15,
+    room.floorY + 1.45,
+    room.floorY + 2.75,
+    // Gallery Tier shelves
+    room.floorY + galCfg.height + 0.15,
+    room.floorY + galCfg.height + 1.45,
+    room.floorY + galCfg.height + 2.75
+  ];
+
+  const zStart = -3.2;
+  const zEnd = isMobile ? 6.5 : 12.5; // Optimized bounds on mobile
+
+  sideWalls.forEach(({ wallX, isLeft }) => {
+    sideTierPlankYs.forEach((tierY) => {
+      let curZ = zStart;
+      while (curZ < zEnd) {
+        const thickness = 0.07 + rng() * 0.08;
+        const bHeight = 1.15 + rng() * 0.28;
+        const bDepth = 0.85 + rng() * 0.18;
+
+        const posX = wallX + (isLeft ? bDepth / 2 : -bDepth / 2);
+        const posY = tierY + bHeight / 2;
+        const posZ = curZ + thickness / 2;
+
+        const rotX = (rng() - 0.5) * 0.02;
+        const rotY = isLeft ? Math.PI / 2 : -Math.PI / 2;
+        const rotZ = rng() < 0.05 ? (rng() - 0.5) * 0.15 : 0;
+
+        const pos = new THREE.Vector3(posX, posY, posZ);
+        const rot = new THREE.Euler(rotX, rotY, rotZ);
+        const scale = new THREE.Vector3(bDepth, bHeight, thickness);
+        const hexColor = palettePool[Math.floor(rng() * palettePool.length)];
+
+        addBook(pos, rot, scale, hexColor, 'x');
+
+        const step = thickness + (rng() < 0.1 ? 0.04 : 0.005);
+        curZ += step;
+      }
+    });
+  });
 
   // Build InstancedMesh for leather book bodies
   const totalBooks = booksData.length;
@@ -193,8 +247,6 @@ export function createInstancedBooks(
   const totalBands = goldBandsData.length;
   const bandsMesh = new THREE.InstancedMesh(baseUnitBox, goldMat, totalBands);
   bandsMesh.name = 'instanced-books-gold-bands';
-  bandsMesh.castShadow = false;
-  bandsMesh.receiveShadow = true;
 
   for (let i = 0; i < totalBands; i++) {
     const b = goldBandsData[i];

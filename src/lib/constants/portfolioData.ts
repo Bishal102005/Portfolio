@@ -117,4 +117,5 @@ export const NAV: [label: string, spreadIndex: number][] = [
 ];
 
 export * from './shelfConfig';
+export * from './libraryRoomConfig';
 
