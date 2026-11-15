@@ -193,6 +193,18 @@ export function createShelfWall(options: ShelfWallOptions = {}): {
     group.add(topCap);
   });
 
+  // Architectural Inner Framing Uprights on the middle shelf tier (matching video_frame_01)
+  [-1.42, 1.42].forEach((ix) => {
+    const innerUpright = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, rowSpacing, depth + 0.04),
+      walnutMat
+    );
+    innerUpright.position.set(ix, middlePlankY + rowSpacing / 2, shelfZ);
+    innerUpright.castShadow = true;
+    innerUpright.receiveShadow = true;
+    group.add(innerUpright);
+  });
+
   // 5. Grand Architectural Top Crown Molding
   const crownMolding = new THREE.Mesh(
     new THREE.BoxGeometry(totalWidth + 0.6, 0.38, depth + 0.35),

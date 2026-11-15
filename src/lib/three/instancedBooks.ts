@@ -124,14 +124,68 @@ export function createInstancedBooks(
         reservedPropXEnd = centerX + 1.55;
       }
 
-      while (currentX < bayRight) {
-        if (isFeaturedBay) {
-          const slotHalf = featuredBook.slotWidth / 2;
-          if (currentX > -slotHalf - 0.12 && currentX < slotHalf) {
-            currentX = slotHalf + 0.05;
-            continue;
-          }
+      // In the hero bay (eye-level middle row), place the exact curated antique book series
+      // flanking Bishal's book matching video_frame_01 and video_frame_03!
+      if (isFeaturedBay) {
+        const heroLeftCluster = [
+          { x: -1.25, w: 0.10, h: 1.48, d: 0.94, c: 0x162215, rotZ: 0 },
+          { x: -1.05, w: 0.09, h: 1.40, d: 0.92, c: 0xd6cca8, rotZ: 0 }, // Deckle vellum
+          { x: -0.83, w: 0.11, h: 1.55, d: 0.98, c: 0x340b12, rotZ: 0 }, // Oxblood
+          { x: -0.60, w: 0.10, h: 1.50, d: 0.95, c: 0x421018, rotZ: 0 }, // Crimson
+          { x: -0.30, w: 0.12, h: 1.58, d: 1.02, c: 0x3e2010, rotZ: 0 }  // Cognac gold filigree
+        ];
+        const heroRightCluster = [
+          { x: 0.30, w: 0.12, h: 1.58, d: 1.02, c: 0x3e2010, rotZ: 0 },   // Cognac 5 ribs
+          { x: 0.56, w: 0.11, h: 1.54, d: 0.98, c: 0x2e170b, rotZ: 0 },   // Chestnut
+          { x: 0.79, w: 0.10, h: 1.52, d: 0.95, c: 0x141416, rotZ: 0 },   // Ebony
+          { x: 1.01, w: 0.09, h: 1.45, d: 0.92, c: 0xdfd5bc, rotZ: 0 },   // Vellum
+          { x: 1.23, w: 0.10, h: 1.52, d: 0.96, c: 0x340b12, rotZ: 0 }    // Plum oxblood
+        ];
+
+        [...heroLeftCluster, ...heroRightCluster].forEach((b) => {
+          const frontEdgeZ = shelfZ + depth / 2 - 0.06;
+          const posZ = frontEdgeZ - b.d / 2;
+          const posY = shelfSurfaceY + b.h / 2;
+          addBook(
+            new THREE.Vector3(b.x, posY, posZ),
+            new THREE.Euler(0, 0, b.rotZ),
+            new THREE.Vector3(b.w, b.h, b.d),
+            b.c,
+            'z'
+          );
+        });
+
+        // Continue packing the outer wings of this row outside [-1.35, 1.35]
+        let xL = bayLeft;
+        while (xL < -1.35) {
+          const width = 0.07 + rng() * 0.08;
+          const height = 1.25 + rng() * 0.32;
+          const bDepth = 0.88 + rng() * 0.20;
+          if (xL + width > -1.35) break;
+          const posX = xL + width / 2;
+          const posY = shelfSurfaceY + height / 2;
+          const posZ = shelfZ + depth / 2 - 0.06 - bDepth / 2;
+          addBook(new THREE.Vector3(posX, posY, posZ), new THREE.Euler(0, 0, 0), new THREE.Vector3(width, height, bDepth), palettePool[Math.floor(rng() * palettePool.length)], 'z');
+          xL += width + 0.005;
         }
+
+        let xR = 1.35;
+        while (xR < bayRight) {
+          const width = 0.07 + rng() * 0.08;
+          const height = 1.25 + rng() * 0.32;
+          const bDepth = 0.88 + rng() * 0.20;
+          if (xR + width > bayRight) break;
+          const posX = xR + width / 2;
+          const posY = shelfSurfaceY + height / 2;
+          const posZ = shelfZ + depth / 2 - 0.06 - bDepth / 2;
+          addBook(new THREE.Vector3(posX, posY, posZ), new THREE.Euler(0, 0, 0), new THREE.Vector3(width, height, bDepth), palettePool[Math.floor(rng() * palettePool.length)], 'z');
+          xR += width + 0.005;
+        }
+
+        continue;
+      }
+
+      while (currentX < bayRight) {
 
         if (currentX >= reservedPropXStart && currentX < reservedPropXEnd) {
           currentX = reservedPropXEnd + 0.06;

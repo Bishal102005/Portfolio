@@ -20,66 +20,100 @@ export interface BookEngineOptions {
   initialFloating?: boolean;
 }
 
-// Procedural generator for Bishal's luxury leather book spine with 24k gold filigree
+// Procedural generator for Bishal's luxury teal/emerald leather book spine with 24k gold arabesque filigree
 function createSpineTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 256;
   canvas.height = 1024;
   const ctx = canvas.getContext('2d')!;
 
+  // Deep, rich antique teal/emerald Moroccan leather gradient base
   const bgGrad = ctx.createLinearGradient(0, 0, 256, 0);
-  bgGrad.addColorStop(0, '#0a0b10');
-  bgGrad.addColorStop(0.18, '#161922');
-  bgGrad.addColorStop(0.5, '#202430');
-  bgGrad.addColorStop(0.82, '#161922');
-  bgGrad.addColorStop(1, '#0a0b10');
+  bgGrad.addColorStop(0, '#061c14');
+  bgGrad.addColorStop(0.18, '#0b3224');
+  bgGrad.addColorStop(0.5, '#124835');
+  bgGrad.addColorStop(0.82, '#0b3224');
+  bgGrad.addColorStop(1, '#061c14');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, 256, 1024);
 
-  for (let i = 0; i < 1800; i++) {
+  // Micro-leather grain pores and vintage patina
+  for (let i = 0; i < 2200; i++) {
     const x = Math.random() * 256;
     const y = Math.random() * 1024;
-    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255, 255, 255, 0.035)' : 'rgba(0, 0, 0, 0.12)';
-    ctx.fillRect(x, y, 2, 2);
+    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255, 235, 175, 0.045)' : 'rgba(0, 15, 8, 0.16)';
+    ctx.fillRect(x, y, 1.8, 1.8);
   }
 
-  ctx.strokeStyle = '#d4a359';
+  // 24k Gold double border with delicate corner filigree
+  ctx.strokeStyle = '#d4a559';
   ctx.lineWidth = 3.5;
   ctx.strokeRect(14, 18, 228, 988);
-  ctx.strokeStyle = 'rgba(245, 212, 133, 0.65)';
+  ctx.strokeStyle = 'rgba(250, 224, 155, 0.75)';
   ctx.lineWidth = 1;
   ctx.strokeRect(18, 22, 220, 980);
 
+  // 5 Raised embossed leather ribs with 24k gold bead stamping
   const ribYs = [125, 305, 515, 715, 885];
   ribYs.forEach((ry) => {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillStyle = 'rgba(2, 12, 7, 0.85)';
     ctx.fillRect(8, ry + 8, 240, 6);
     ctx.fillStyle = '#b88636';
     ctx.fillRect(8, ry, 240, 8);
     ctx.fillStyle = '#fbe39d';
     ctx.fillRect(8, ry, 240, 3);
     for (let dx = 22; dx < 236; dx += 14) {
-      ctx.fillStyle = '#5c3909';
+      ctx.fillStyle = '#4a2d04';
       ctx.fillRect(dx, ry + 2, 3, 3);
     }
   });
 
+  // Dense 24k Gold Arabesque & Acanthus Filigree Panels
+  function drawArabesque(cy: number, h: number) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(235, 185, 95, 0.7)';
+    ctx.fillStyle = 'rgba(251, 227, 157, 0.85)';
+    ctx.lineWidth = 1.6;
+
+    // Symmetrical curving vine flourishes
+    ctx.beginPath();
+    ctx.arc(128, cy - h / 3, h / 3.5, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(128, cy + h / 3, h / 3.5, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(128, cy, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Little gold fleur-de-lis dots
+    [-35, 35].forEach((dx) => {
+      ctx.beginPath();
+      ctx.arc(128 + dx, cy, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  drawArabesque(70, 36);
+  drawArabesque(940, 42);
+
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  ctx.font = '24px serif';
-  ctx.fillStyle = '#fbe39d';
-  ctx.fillText('✦ ✦ ✦', 128, 70);
-
+  // Upper Cartouche: Author Name
   ctx.font = '700 24px "Playfair Display", Georgia, serif';
   ctx.fillStyle = '#ffffff';
   ctx.fillText('B I S H A L', 128, 195);
   ctx.fillText('S A H A', 128, 228);
 
   ctx.font = '14px sans-serif';
-  ctx.fillStyle = '#d4a359';
+  ctx.fillStyle = '#d4a559';
   ctx.fillText('━━━━ ✦ ━━━━', 128, 258);
 
+  // Center Cartouche: Main Title in 24k Gold
   ctx.font = '700 25px "Playfair Display", Georgia, serif';
   ctx.fillStyle = '#fbe39d';
   ctx.fillText('THE', 128, 390);
@@ -90,8 +124,9 @@ function createSpineTexture(): THREE.CanvasTexture {
   ctx.fillStyle = '#dcd3c3';
   ctx.fillText('SELECTED WORKS', 128, 462);
 
+  // Lower Cartouche: Volume & Profession
   ctx.font = '600 17px Inter, sans-serif';
-  ctx.fillStyle = '#d4a359';
+  ctx.fillStyle = '#d4a559';
   ctx.fillText('CREATIVE DEV', 128, 595);
   ctx.font = '500 15px "Playfair Display", Georgia, serif';
   ctx.fillText('VOLUME I', 128, 625);
@@ -99,9 +134,6 @@ function createSpineTexture(): THREE.CanvasTexture {
   ctx.font = '500 17px "Playfair Display", Georgia, serif';
   ctx.fillStyle = '#fbe39d';
   ctx.fillText('• 2026 •', 128, 798);
-
-  ctx.font = '24px serif';
-  ctx.fillText('❖', 128, 940);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -287,11 +319,11 @@ export class BookEngine {
       this.sheets.push({ geo, fm, bm, p: -1, tp: 0 });
     }
 
-    // Deep luxury leather cover boards
+    // Deep luxury teal/emerald Moroccan leather cover boards (matching video_frame_06)
     const leatherMat = new THREE.MeshStandardMaterial({
-      color: 0x181a24,
-      roughness: 0.55,
-      metalness: 0.12
+      color: 0x0c3828,
+      roughness: 0.52,
+      metalness: 0.08
     });
 
     this.backRight = new THREE.Mesh(new THREE.BoxGeometry(this.W + 0.07, this.H + 0.07, 0.03), leatherMat);
