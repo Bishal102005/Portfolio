@@ -547,3 +547,16 @@ nav button[aria-current="true"] {
   box-shadow: none;
   transition: opacity 0.8s ease;
 }
+
+/* ==========================================================================
+   Next.js Dev Indicator Badge Suppression
+   ========================================================================== */
+nextjs-portal,
+[data-nextjs-dev-indicator],
+[data-nextjs-toast],
+div[data-nextjs-dev-indicator] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
