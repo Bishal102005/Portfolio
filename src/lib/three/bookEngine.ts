@@ -415,14 +415,18 @@ export class BookEngine {
       this.backLeft.visible = this.cur > 0;
       this.backRight.visible = this.cur < this.S;
 
-      const initScale = this.portrait ? 0.20 : 0.27;
+      const initScale = this.portrait ? 0.20 : 0.28;
       const initCoverOffsetX = initialSpread === 0 ? (this.W / 2) * initScale : (initialSpread === this.S ? -(this.W / 2) * initScale : 0);
       const initFloatX = (this.portrait ? -0.04 : 0.0) - initCoverOffsetX;
-      const initFloatY = this.portrait ? 0.20 : 0.19;
-      const initFloatZ = this.portrait ? 0.88 : 0.58;
+      const initFloatY = this.portrait ? 0.20 : 0.18;
+      const initFloatZ = this.portrait ? 0.88 : 0.60;
 
       this.group.position.set(initFloatX, initFloatY, initFloatZ);
-      this.group.rotation.set(this.portrait ? -0.14 : -0.08, this.portrait ? 0.01 : 0.0, 0);
+      this.group.rotation.set(
+        this.portrait ? -0.14 : -0.16,
+        this.portrait ? 0.02 : 0.04,
+        this.portrait ? 0.03 : 0.045
+      );
       this.group.scale.set(initScale, initScale, initScale);
       this.dist = this.portrait ? 1.78 : 1.28;
     }
@@ -569,11 +573,11 @@ export class BookEngine {
     this.animState.lookZ = this.portrait ? -0.28 : -0.36;
     this.animState.sunburstOpacity = 0.85;
 
-    const targetScale = this.portrait ? 0.20 : 0.27;
+    const targetScale = this.portrait ? 0.20 : 0.28;
     const coverOffsetX = targetSpread === 0 ? (this.W / 2) * targetScale : (targetSpread === this.S ? -(this.W / 2) * targetScale : 0);
     const endFloatX = (this.portrait ? -0.04 : 0.0) - coverOffsetX;
-    const endFloatY = this.portrait ? 0.20 : 0.19;
-    const endFloatZ = this.portrait ? 0.88 : 0.58;
+    const endFloatY = this.portrait ? 0.20 : 0.18;
+    const endFloatZ = this.portrait ? 0.88 : 0.60;
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -591,9 +595,9 @@ export class BookEngine {
       posY: endFloatY,
       posZ: endFloatZ,
       scale: targetScale,
-      rotX: this.portrait ? -0.14 : -0.08,
-      rotY: this.portrait ? 0.01 : 0.0,
-      rotZ: 0.0,
+      rotX: this.portrait ? -0.14 : -0.16,
+      rotY: this.portrait ? 0.02 : 0.04,
+      rotZ: this.portrait ? 0.03 : 0.045,
       sunburstOpacity: 1.0,
       duration: 0.9,
       ease: 'power2.out'
@@ -1072,18 +1076,18 @@ export class BookEngine {
         });
       }
     } else {
-      // Floating open in the room facing the viewer (foreground reading depth: in front of chair & desk, zero occlusion!)
-      const targetScale = this.portrait ? 0.20 : 0.27;
+      // Floating open in the room facing the viewer (editorial reading angle matching reference)
+      const targetScale = this.portrait ? 0.20 : 0.28;
       const coverOffsetX = this.target === 0 ? (this.W / 2) * targetScale : (this.target === this.S ? -(this.W / 2) * targetScale : 0);
       const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.003;
       const floatSwayX = this.isReducedMotion ? 0 : Math.cos(t * 0.9) * 0.002;
       const targetFloatX = (this.portrait ? -0.04 : 0.0) - coverOffsetX + floatSwayX;
-      const targetFloatY = (this.portrait ? 0.20 : 0.19) + floatSwayY;
-      const targetFloatZ = this.portrait ? 0.88 : 0.58;
+      const targetFloatY = (this.portrait ? 0.20 : 0.18) + floatSwayY;
+      const targetFloatZ = this.portrait ? 0.88 : 0.60;
 
-      const targetRotX = (this.portrait ? -0.14 : -0.08) + (this.isReducedMotion ? 0 : this.py * 0.015);
-      const targetRotY = (this.portrait ? 0.01 : 0.0) + (this.isReducedMotion ? 0 : this.px * 0.02);
-      const targetRotZ = 0.0;
+      const targetRotX = (this.portrait ? -0.14 : -0.16) + (this.isReducedMotion ? 0 : this.py * 0.015);
+      const targetRotY = (this.portrait ? 0.02 : 0.04) + (this.isReducedMotion ? 0 : this.px * 0.02);
+      const targetRotZ = (this.portrait ? 0.03 : 0.045) + (this.isReducedMotion ? 0 : this.px * 0.005);
 
       this.group.position.x += (targetFloatX - this.group.position.x) * kPos;
       this.group.position.y += (targetFloatY - this.group.position.y) * kPos;
