@@ -568,6 +568,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
     depthWrite: false
   });
   const steamParticles = new THREE.Points(steamGeo, steamMat);
+  steamParticles.visible = false; // Disabled to keep clean cinematic workspace without floating particle dots
   coffeeGroup.add(steamParticles);
 
   // Cylindrical Pen Holder cup next to coffee (frame_001.jpg)

@@ -150,22 +150,13 @@ export class BookEngine {
   private readingLight!: THREE.DirectionalLight;
   private readingFillLight!: THREE.PointLight;
 
-  // Magical Golden Aura & Embers for Bishal's Glowing Book
+  // Magical Golden Aura for Bishal's Glowing Book
   private bookAuraLight!: THREE.PointLight;
   private spineGlowPlane!: THREE.Mesh;
-  private bookParticlesGeo!: THREE.BufferGeometry;
-  private bookParticles!: THREE.Points;
-  private bookParticleAngles!: Float32Array;
-  private bookParticleRadii!: Float32Array;
-  private bookParticleSpeeds!: Float32Array;
-  private bookParticleHeights!: Float32Array;
 
   // Workspace Desk Environment & Cinematic Effects
   private workspace!: DeskWorkspaceResult;
   private sunburstCoverMesh!: THREE.Mesh;
-  private orbitalRibbonPoints!: THREE.Points;
-  private orbitalRibbonAngles!: Float32Array;
-  private orbitalRibbonSpeeds!: Float32Array;
 
   private textures: THREE.CanvasTexture[] = [];
   private raycaster = new THREE.Raycaster();
@@ -392,40 +383,6 @@ export class BookEngine {
     this.spineGlowPlane.position.set(-0.065, 0, -0.02);
     this.group.add(this.spineGlowPlane);
 
-    // 3. Cluster of 24 delicate golden embers swirling gracefully around the book
-    this.bookParticlesGeo = new THREE.BufferGeometry();
-    const bPosArr = new Float32Array(24 * 3);
-    this.bookParticleAngles = new Float32Array(24);
-    this.bookParticleRadii = new Float32Array(24);
-    this.bookParticleSpeeds = new Float32Array(24);
-    this.bookParticleHeights = new Float32Array(24);
-
-    for (let i = 0; i < 24; i++) {
-      this.bookParticleAngles[i] = Math.random() * Math.PI * 2;
-      this.bookParticleRadii[i] = 0.14 + Math.random() * 0.26;
-      this.bookParticleSpeeds[i] = 0.4 + Math.random() * 0.6;
-      this.bookParticleHeights[i] = (Math.random() - 0.5) * (this.H + 0.1);
-
-      bPosArr[i * 3] = -0.03 + Math.cos(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
-      bPosArr[i * 3 + 1] = this.bookParticleHeights[i];
-      bPosArr[i * 3 + 2] = -0.02 + Math.sin(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
-    }
-
-    this.bookParticlesGeo.setAttribute('position', new THREE.BufferAttribute(bPosArr, 3));
-    this.bookParticles = new THREE.Points(
-      this.bookParticlesGeo,
-      new THREE.PointsMaterial({
-        size: 0.045,
-        map: createSoftParticleTexture(),
-        color: 0xffd875,
-        transparent: true,
-        opacity: 0.9,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      })
-    );
-    this.group.add(this.bookParticles);
-
     // =========================================================================
     // Radiant Golden Sunburst Rays on Book Cover (Matching frame_003 & frame_005)
     // =========================================================================
@@ -441,41 +398,6 @@ export class BookEngine {
     this.sunburstCoverMesh = new THREE.Mesh(sunburstCoverGeo, sunburstCoverMat);
     this.sunburstCoverMesh.position.set(this.W / 2, 0, 0.025);
     this.group.add(this.sunburstCoverMesh);
-
-    // =========================================================================
-    // Swirling Dual-Strand Orbital Ribbon Particles (frame_005.jpg – frame_010.jpg)
-    // =========================================================================
-    const ribbonCount = 84;
-    const orbitalRibbonGeo = new THREE.BufferGeometry();
-    const ribbonPos = new Float32Array(ribbonCount * 3);
-    this.orbitalRibbonAngles = new Float32Array(ribbonCount);
-    this.orbitalRibbonSpeeds = new Float32Array(ribbonCount);
-
-    for (let i = 0; i < ribbonCount; i++) {
-      const strand = i % 2 === 0 ? 0 : Math.PI;
-      const progress = i / ribbonCount;
-      this.orbitalRibbonAngles[i] = progress * Math.PI * 4 + strand;
-      this.orbitalRibbonSpeeds[i] = 1.1 + Math.random() * 0.6;
-      const radius = 0.52 + (i % 3) * 0.14;
-      const y = (progress - 0.5) * 1.25;
-      ribbonPos[i * 3] = Math.cos(this.orbitalRibbonAngles[i]) * radius;
-      ribbonPos[i * 3 + 1] = y;
-      ribbonPos[i * 3 + 2] = Math.sin(this.orbitalRibbonAngles[i]) * radius;
-    }
-    orbitalRibbonGeo.setAttribute('position', new THREE.BufferAttribute(ribbonPos, 3));
-
-    const orbitalRibbonMat = new THREE.PointsMaterial({
-      size: 0.048,
-      map: createSoftParticleTexture(),
-      color: 0xffd875,
-      transparent: true,
-      opacity: 0.9,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    });
-    this.orbitalRibbonPoints = new THREE.Points(orbitalRibbonGeo, orbitalRibbonMat);
-    this.orbitalRibbonPoints.visible = this.isFloating;
-    this.group.add(this.orbitalRibbonPoints);
 
     // Invisible pick hit box for responsive hover and clicking
     const hitGeo = new THREE.BoxGeometry(this.W + 0.35, this.H + 0.35, 0.35);
