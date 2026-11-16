@@ -606,7 +606,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   });
   const deskSunburst = new THREE.Mesh(sunburstGeo, sunburstMat);
   deskSunburst.rotation.x = -Math.PI / 2;
-  deskSunburst.position.set(0.30, deskTopY + 0.002, -0.01);
+  deskSunburst.position.set(0.29, deskTopY + 0.002, 0.01);
   group.add(deskSunburst);
 
   // =========================================================================
