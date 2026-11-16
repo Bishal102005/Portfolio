@@ -187,26 +187,26 @@ export class BookEngine {
   private animState = {
     isAnimating: false,
     stage: 'desk' as 'desk' | 'pulling' | 'reveal_cover' | 'reading' | 'returning',
-    posX: 0.48,
-    posY: -0.48,
-    posZ: 0.05,
-    scale: 0.42,
-    rotX: -Math.PI / 2 + 0.12,
+    posX: 0.18,
+    posY: -0.10,
+    posZ: -0.06,
+    scale: 0.22, // Real-world book proportion matching frame_001.jpg
+    rotX: -Math.PI / 2 + 0.14,
     rotY: 0,
-    rotZ: -0.22,
-    camDist: 2.35,
+    rotZ: -0.38, // Exact diagonal angle in frame_001.jpg
+    camDist: 0.78,
     camX: 0.28,
-    camY: 0.52,
-    lookX: 0.0,
-    lookY: -0.30,
-    lookZ: -0.50,
+    camY: 0.15,
+    lookX: 0.04,
+    lookY: -0.10,
+    lookZ: -0.20,
     sunburstOpacity: 0
   };
   private pullTimeline: gsap.core.Timeline | null = null;
 
   private acc = 0;
   private hov = 0;
-  private dist = 2.35;
+  private dist = 0.78;
   private px = 0;
   private py = 0;
   private wheelT = 0;
@@ -496,10 +496,10 @@ export class BookEngine {
 
     if (!this.isFloating) {
       // Resting flat on the solid walnut desk on the right side (frame_001.jpg)
-      this.group.position.set(0.48, -0.48, 0.05);
-      this.group.rotation.set(-Math.PI / 2 + 0.12, 0, -0.22);
-      this.group.scale.set(0.42, 0.42, 0.42);
-      this.dist = 2.35;
+      this.group.position.set(0.18, -0.10, -0.06);
+      this.group.rotation.set(-Math.PI / 2 + 0.14, 0, -0.38);
+      this.group.scale.set(0.22, 0.22, 0.22);
+      this.dist = 0.78;
     } else {
       this.group.position.set(0, 0, 0);
       this.group.rotation.set(-0.08, 0, 0);
@@ -630,20 +630,20 @@ export class BookEngine {
       s.tp = 0;
     });
 
-    // Initialize animState from resting desk position (frame_001.jpg full room view)
-    this.animState.posX = 0.48;
-    this.animState.posY = -0.48;
-    this.animState.posZ = 0.05;
-    this.animState.scale = 0.42;
-    this.animState.rotX = -Math.PI / 2 + 0.12;
+    // Initialize animState from resting desk position (frame_001.jpg 3/4 seated perspective)
+    this.animState.posX = 0.18;
+    this.animState.posY = -0.10;
+    this.animState.posZ = -0.06;
+    this.animState.scale = 0.22;
+    this.animState.rotX = -Math.PI / 2 + 0.14;
     this.animState.rotY = 0;
-    this.animState.rotZ = -0.22;
-    this.animState.camDist = 2.35;
-    this.animState.camX = 0.28;
-    this.animState.camY = 0.52;
-    this.animState.lookX = 0.0;
-    this.animState.lookY = -0.30;
-    this.animState.lookZ = -0.50;
+    this.animState.rotZ = -0.38;
+    this.animState.camDist = this.portrait ? 0.98 : 0.78;
+    this.animState.camX = this.portrait ? 0.12 : 0.28;
+    this.animState.camY = this.portrait ? 0.16 : 0.15;
+    this.animState.lookX = this.portrait ? 0.10 : 0.04;
+    this.animState.lookY = -0.10;
+    this.animState.lookZ = -0.20;
     this.animState.sunburstOpacity = 0.85;
 
     if (this.orbitalRibbonPoints) this.orbitalRibbonPoints.visible = true;
@@ -660,10 +660,10 @@ export class BookEngine {
 
     // Phase 1 (0.0s – 1.0s): Levitate up from desk, expand toward reading scale & slide to center (frame_005.jpg)
     tl.to(this.animState, {
-      posX: 0.10,
+      posX: 0.08,
       posY: 0.08,
       posZ: 0.0,
-      scale: 0.85,
+      scale: 0.75,
       sunburstOpacity: 1.0,
       duration: 1.0,
       ease: 'power2.out',
@@ -723,7 +723,7 @@ export class BookEngine {
       this.go(0, 0);
       this.isFloating = false;
       this.isBookHovered = false;
-      this.group.scale.set(0.42, 0.42, 0.42);
+      this.group.scale.set(0.22, 0.22, 0.22);
       if (this.orbitalRibbonPoints) this.orbitalRibbonPoints.visible = false;
       if (this.canvas) this.canvas.style.cursor = 'default';
       this.onFloatingChange?.(false);
@@ -763,27 +763,27 @@ export class BookEngine {
       ease: 'power2.inOut'
     });
 
-    // Step 2 (0.8s – 1.6s): Tilt book flat, scale back down to 0.42 & rotate back toward desk alignment
+    // Step 2 (0.8s – 1.6s): Tilt book flat, scale back down to 0.22 & rotate back toward desk alignment
     tl.to(this.animState, {
-      rotX: -Math.PI / 2 + 0.12,
-      rotZ: -0.22,
+      rotX: -Math.PI / 2 + 0.14,
+      rotZ: -0.38,
       rotY: 0.0,
-      scale: 0.42,
+      scale: 0.22,
       duration: 0.8,
       ease: 'power2.inOut'
     });
 
-    // Step 3 (1.6s – 2.4s): Float back down to resting position on walnut desk & camera eases out to full room view
+    // Step 3 (1.6s – 2.4s): Float back down to resting position on walnut desk & camera eases out to 3/4 seated perspective
     tl.to(this.animState, {
-      posX: 0.48,
-      posY: -0.48,
-      posZ: 0.05,
-      camX: 0.28,
-      camY: 0.52,
-      camDist: 2.35,
-      lookX: 0.0,
-      lookY: -0.30,
-      lookZ: -0.50,
+      posX: 0.18,
+      posY: -0.10,
+      posZ: -0.06,
+      camX: this.portrait ? 0.12 : 0.28,
+      camY: this.portrait ? 0.16 : 0.15,
+      camDist: this.portrait ? 0.98 : 0.78,
+      lookX: this.portrait ? 0.10 : 0.04,
+      lookY: -0.10,
+      lookZ: -0.20,
       duration: 0.8,
       ease: 'power2.inOut'
     });
@@ -1037,15 +1037,15 @@ export class BookEngine {
       );
       this.camera.lookAt(this.animState.lookX, this.animState.lookY, this.animState.lookZ);
     } else if (!this.isFloating) {
-      // Resting flat on solid walnut desk beside keyboard (full room view, NOT zoomed in!)
-      const hoverLift = this.isBookHovered ? 0.02 : 0;
-      const targetDeskX = 0.48;
-      const targetDeskY = -0.48 + hoverLift;
-      const targetDeskZ = 0.05;
-      const targetRotX = -Math.PI / 2 + 0.12;
+      // Resting flat on solid walnut desk beside keyboard (exact 3/4 diagonal perspective matching frame_001.jpg)
+      const hoverLift = this.isBookHovered ? 0.015 : 0;
+      const targetDeskX = 0.18;
+      const targetDeskY = -0.10 + hoverLift;
+      const targetDeskZ = -0.06;
+      const targetRotX = -Math.PI / 2 + 0.14;
       const targetRotY = 0;
-      const targetRotZ = -0.22;
-      const targetScale = 0.42;
+      const targetRotZ = -0.38;
+      const targetScale = 0.22;
 
       this.group.position.x += (targetDeskX - this.group.position.x) * kPos;
       this.group.position.y += (targetDeskY - this.group.position.y) * kPos;
@@ -1057,17 +1057,21 @@ export class BookEngine {
 
       this.group.scale.set(targetScale, targetScale, targetScale);
 
-      // Full room camera framing (pulled back generously so full room is in view)
-      const targetCamDist = 2.35;
-      const targetCamX = 0.28;
-      const targetCamY = 0.52;
+      // Natural 3/4 diagonal seated perspective matching frame_001.jpg
+      const targetCamDist = this.portrait ? 0.98 : 0.78;
+      const targetCamX = this.portrait ? 0.12 : 0.28;
+      const targetCamY = this.portrait ? 0.16 : 0.15;
+      const targetLookX = this.portrait ? 0.10 : 0.04;
+      const targetLookY = -0.10;
+      const targetLookZ = -0.20;
+
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
-      const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.015;
-      const idleDriftY = this.isReducedMotion ? 0 : Math.cos(t * 0.28) * 0.012;
-      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.16 + idleDriftX;
-      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.10 + idleDriftY;
+      const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.008;
+      const idleDriftY = this.isReducedMotion ? 0 : Math.cos(t * 0.28) * 0.006;
+      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.04 + idleDriftX;
+      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.03 + idleDriftY;
       this.camera.position.set(targetCamX + camParallaxX, targetCamY + camParallaxY, this.dist);
-      this.camera.lookAt(0.0, -0.30, -0.50);
+      this.camera.lookAt(targetLookX, targetLookY, targetLookZ);
     } else {
       // Floating in reading position facing user
       this.group.scale.set(1.0, 1.0, 1.0);
