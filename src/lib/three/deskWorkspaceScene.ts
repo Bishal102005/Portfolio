@@ -547,7 +547,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
 
   // Framed "369" Poster on the Left Wall (large red graphic typography)
   const poster369Group = new THREE.Group();
-  poster369Group.position.set(-1.14, 0.52, -0.52);
+  poster369Group.position.set(-1.14, 0.52, -0.42);
   poster369Group.rotation.y = Math.PI / 2;
 
   const poster369Frame = new THREE.Mesh(
@@ -1180,7 +1180,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   // 8. Elevated Laptop Stand with MacBook Pro ("KEEP BUILDING" Display)
   // =========================================================================
   const laptopGroup = new THREE.Group();
-  laptopGroup.position.set(-0.58, deskTopY + 0.002, -0.32);
+  laptopGroup.position.set(-0.54, deskTopY + 0.002, -0.30);
   laptopGroup.rotation.y = 0.25; // Angled inward toward user
 
   // Aluminum Stand (elevated angled tray)
