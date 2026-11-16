@@ -606,93 +606,172 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   });
   const deskSunburst = new THREE.Mesh(sunburstGeo, sunburstMat);
   deskSunburst.rotation.x = -Math.PI / 2;
-  deskSunburst.position.set(0.29, deskTopY + 0.002, 0.01);
+  deskSunburst.position.set(0.32, deskTopY + 0.002, -0.01);
   group.add(deskSunburst);
 
   // =========================================================================
-  // 8. Background Warm Room Architecture (frame_001.jpg)
+  // 8. Background Warm Room Architecture (Exact match to sec_01.jpg & frame_001.jpg)
   // =========================================================================
+  // Deep warm charcoal-taupe plaster wall matching video aesthetic
   const wallMat = new THREE.MeshStandardMaterial({
-    color: 0xd4cbbe,
-    roughness: 0.82,
+    color: 0x26211c,
+    roughness: 0.88,
     metalness: 0.02
   });
 
   const backWall = new THREE.Mesh(
-    new THREE.PlaneGeometry(8.0, 5.0),
+    new THREE.PlaneGeometry(12.0, 6.0),
     wallMat
   );
-  backWall.position.set(0, floorY + 2.5, -1.35);
+  backWall.position.set(0, floorY + 3.0, -1.35);
+  backWall.receiveShadow = true;
   group.add(backWall);
+
+  // Dark walnut baseboard trim along the floor (frame_001.jpg)
+  const baseboardMat = new THREE.MeshStandardMaterial({
+    color: 0x1c140e,
+    roughness: 0.65,
+    metalness: 0.08
+  });
+  const baseboard = new THREE.Mesh(
+    new THREE.BoxGeometry(12.0, 0.16, 0.03),
+    baseboardMat
+  );
+  baseboard.position.set(0, floorY + 0.08, -1.335);
+  group.add(baseboard);
+
+  // Window with tall pleated velvet drapes / curtains on the right (frame_001.jpg & sec_01.jpg)
+  const curtainGroup = new THREE.Group();
+  curtainGroup.position.set(1.35, floorY, -1.25);
+
+  const curtainMat = new THREE.MeshStandardMaterial({
+    color: 0x1f1b17,
+    roughness: 0.92,
+    metalness: 0.02
+  });
+
+  // Vertical pleats of the curtain
+  for (let c = 0; c < 8; c++) {
+    const pleat = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 3.8, 12),
+      curtainMat
+    );
+    pleat.position.set((c - 3.5) * 0.075, 1.9, (c % 2) * 0.03);
+    curtainGroup.add(pleat);
+  }
+
+  // Curtain rod at top
+  const rod = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.015, 0.015, 0.85, 12),
+    aluminumMat
+  );
+  rod.rotation.z = Math.PI / 2;
+  rod.position.set(0, 3.75, 0.02);
+  curtainGroup.add(rod);
+  group.add(curtainGroup);
 
   // Framed Wall Artwork mounted on wall behind monitor (frame_010.jpg)
   const artGroup = new THREE.Group();
-  artGroup.position.set(-0.42, 0.45, -1.34);
+  artGroup.position.set(-0.45, 0.52, -1.34);
 
   const artFrame = new THREE.Mesh(
-    new THREE.BoxGeometry(0.32, 0.44, 0.015),
+    new THREE.BoxGeometry(0.36, 0.48, 0.018),
     matteBlackMat
   );
   artGroup.add(artFrame);
 
   const artCanvas = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.30, 0.42),
-    new THREE.MeshStandardMaterial({ map: artTex, roughness: 0.6 })
+    new THREE.PlaneGeometry(0.33, 0.45),
+    new THREE.MeshStandardMaterial({ map: artTex, roughness: 0.62 })
   );
-  artCanvas.position.z = 0.008;
+  artCanvas.position.z = 0.010;
   artGroup.add(artCanvas);
   group.add(artGroup);
 
-  // Cozy Lounge Sofa on the floor (frame_001.jpg)
+  // Luxury Leather Sofa with plush cushions and armrests (frame_001.jpg)
   const sofaGroup = new THREE.Group();
-  sofaGroup.position.set(0.85, floorY, -1.05);
-  sofaGroup.rotation.y = -0.35;
+  sofaGroup.position.set(0.85, floorY, -1.10);
+  sofaGroup.rotation.y = -0.32;
 
   const sofaMat = new THREE.MeshStandardMaterial({
-    color: 0x3d352e,
-    roughness: 0.85
+    color: 0x32241a,
+    roughness: 0.68,
+    metalness: 0.08
   });
 
-  const sofaSeat = new THREE.Mesh(
-    new THREE.BoxGeometry(0.75, 0.35, 0.65),
+  // Sofa Base Plinth
+  const sofaBase = new THREE.Mesh(
+    new THREE.BoxGeometry(0.95, 0.16, 0.75),
     sofaMat
   );
-  sofaSeat.position.y = 0.175;
-  sofaGroup.add(sofaSeat);
+  sofaBase.position.y = 0.08;
+  sofaGroup.add(sofaBase);
 
+  // Thick Rounded Seat Cushions
+  for (let sc = 0; sc < 2; sc++) {
+    const seatCushion = new THREE.Mesh(
+      new THREE.BoxGeometry(0.44, 0.18, 0.68),
+      sofaMat
+    );
+    seatCushion.position.set((sc - 0.5) * 0.46, 0.25, 0.02);
+    sofaGroup.add(seatCushion);
+  }
+
+  // Padded Backrest
   const sofaBack = new THREE.Mesh(
-    new THREE.BoxGeometry(0.75, 0.55, 0.18),
+    new THREE.BoxGeometry(0.95, 0.52, 0.20),
     sofaMat
   );
-  sofaBack.position.set(0, 0.52, -0.24);
+  sofaBack.position.set(0, 0.52, -0.28);
   sofaGroup.add(sofaBack);
 
-  const pillowMat = new THREE.MeshStandardMaterial({
-    color: 0xd4c8b6,
-    roughness: 0.8
-  });
-
-  const pillow1 = new THREE.Mesh(
-    new THREE.BoxGeometry(0.26, 0.26, 0.09),
-    pillowMat
+  // Padded Roll Armrests (Left & Right)
+  const armLeft = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.09, 0.09, 0.70, 16),
+    sofaMat
   );
-  pillow1.position.set(-0.18, 0.42, -0.12);
-  pillow1.rotation.set(-0.25, 0.2, -0.15);
+  armLeft.rotation.x = Math.PI / 2;
+  armLeft.position.set(-0.50, 0.38, 0.02);
+  sofaGroup.add(armLeft);
+
+  const armRight = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.09, 0.09, 0.70, 16),
+    sofaMat
+  );
+  armRight.rotation.x = Math.PI / 2;
+  armRight.position.set(0.50, 0.38, 0.02);
+  sofaGroup.add(armRight);
+
+  // Cozy Throw Pillows (matching frame_001.jpg)
+  const pillowMat1 = new THREE.MeshStandardMaterial({
+    color: 0xd2c6b4,
+    roughness: 0.82
+  });
+  const pillow1 = new THREE.Mesh(
+    new THREE.BoxGeometry(0.28, 0.28, 0.09),
+    pillowMat1
+  );
+  pillow1.position.set(-0.32, 0.44, -0.16);
+  pillow1.rotation.set(-0.25, 0.22, -0.18);
   sofaGroup.add(pillow1);
 
+  const pillowMat2 = new THREE.MeshStandardMaterial({
+    color: 0xa89986,
+    roughness: 0.85
+  });
   const pillow2 = new THREE.Mesh(
-    new THREE.BoxGeometry(0.24, 0.24, 0.08),
-    new THREE.MeshStandardMaterial({ color: 0xb8ab98, roughness: 0.82 })
+    new THREE.BoxGeometry(0.25, 0.25, 0.08),
+    pillowMat2
   );
-  pillow2.position.set(0.14, 0.40, -0.14);
-  pillow2.rotation.set(-0.2, -0.18, 0.12);
+  pillow2.position.set(0.20, 0.42, -0.18);
+  pillow2.rotation.set(-0.22, -0.20, 0.14);
   sofaGroup.add(pillow2);
 
   group.add(sofaGroup);
 
-  // Ambient Floor Lamp standing on floor (frame_001.jpg)
+  // Ambient Floor Lamp standing on floor (frame_001.jpg & sec_01.jpg)
   const lampGroup = new THREE.Group();
-  lampGroup.position.set(0.80, floorY, -0.92);
+  lampGroup.position.set(0.85, floorY, -0.92);
 
   const lampBasePlate = new THREE.Mesh(
     new THREE.CylinderGeometry(0.14, 0.14, 0.015, 18),
@@ -709,33 +788,33 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   lampGroup.add(lampPole);
 
   const lampShade = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.14, 0.24, 0.22, 18),
+    new THREE.CylinderGeometry(0.14, 0.26, 0.24, 18),
     new THREE.MeshStandardMaterial({
       color: 0x2e1c12,
       emissive: 0xd47e28,
-      emissiveIntensity: 0.95,
-      roughness: 0.55
+      emissiveIntensity: 1.15,
+      roughness: 0.52
     })
   );
-  lampShade.position.y = 1.60;
+  lampShade.position.y = 1.62;
   lampGroup.add(lampShade);
 
-  const deskLampLight = new THREE.PointLight(0xff9e3b, 2.5, 6.0);
+  const deskLampLight = new THREE.PointLight(0xff9e3b, 2.8, 6.5);
   deskLampLight.position.set(0, 1.55, 0);
   lampGroup.add(deskLampLight);
 
   group.add(lampGroup);
 
-  // Wall bias lighting behind monitor
-  const wallBacklight = new THREE.PointLight(0xffe4be, 1.6, 3.8);
-  wallBacklight.position.set(-0.48, 0.20, -1.05);
+  // Wall bias lighting behind monitor (frame_001.jpg)
+  const wallBacklight = new THREE.PointLight(0xffd5a0, 1.8, 4.2);
+  wallBacklight.position.set(-0.48, 0.25, -1.05);
   group.add(wallBacklight);
 
-  // Overall Room Lighting
-  const roomAmbient = new THREE.AmbientLight(0xfff5ea, 1.25);
+  // Atmospheric Room Lighting (Warm, rich, photographic, NOT washed out)
+  const roomAmbient = new THREE.AmbientLight(0xffeedd, 0.65);
   group.add(roomAmbient);
 
-  const ceilingKeyLight = new THREE.DirectionalLight(0xfff8ee, 1.35);
+  const ceilingKeyLight = new THREE.DirectionalLight(0xffeedd, 0.85);
   ceilingKeyLight.position.set(1.2, 3.5, 1.8);
   group.add(ceilingKeyLight);
 
