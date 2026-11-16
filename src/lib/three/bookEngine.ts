@@ -580,13 +580,13 @@ export class BookEngine {
 
     // Phase 1 (0.0s – 0.9s): Levitate up from desk into floating reading position in the room (No camera zoom!)
     tl.to(this.animState, {
-      posX: this.portrait ? 0.04 : 0.06,
-      posY: this.portrait ? 0.08 : 0.12,
-      posZ: this.portrait ? 0.16 : 0.22,
-      scale: this.portrait ? 0.22 : 0.26,
-      rotX: -0.395,
-      rotY: 0.241,
-      rotZ: 0.099,
+      posX: this.portrait ? 0.02 : 0.05,
+      posY: this.portrait ? 0.14 : 0.17,
+      posZ: this.portrait ? 0.06 : 0.08,
+      scale: this.portrait ? 0.18 : 0.21,
+      rotX: -0.22,
+      rotY: 0.04,
+      rotZ: 0.0,
       sunburstOpacity: 1.0,
       duration: 0.9,
       ease: 'power2.out'
@@ -939,17 +939,17 @@ export class BookEngine {
 
       this.group.scale.set(targetScale, targetScale, targetScale);
     } else {
-      // Floating open in the room facing the viewer (full room remains completely visible!)
-      const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.008;
-      const floatSwayX = this.isReducedMotion ? 0 : Math.cos(t * 0.9) * 0.004;
-      const targetFloatX = (this.portrait ? 0.08 : 0.15) + floatSwayX;
-      const targetFloatY = (this.portrait ? 0.08 : 0.10) + floatSwayY;
-      const targetFloatZ = this.portrait ? 0.14 : 0.20;
-      const targetScale = this.portrait ? 0.22 : 0.28;
+      // Floating open in the room facing the viewer (full room remains completely visible, zero obstruction!)
+      const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.006;
+      const floatSwayX = this.isReducedMotion ? 0 : Math.cos(t * 0.9) * 0.003;
+      const targetFloatX = (this.portrait ? 0.02 : 0.05) + floatSwayX;
+      const targetFloatY = (this.portrait ? 0.14 : 0.17) + floatSwayY;
+      const targetFloatZ = this.portrait ? 0.06 : 0.08;
+      const targetScale = this.portrait ? 0.18 : 0.21;
 
-      const targetRotX = -0.395 + (this.isReducedMotion ? 0 : this.py * 0.04);
-      const targetRotY = 0.241 + (this.isReducedMotion ? 0 : this.px * 0.06);
-      const targetRotZ = 0.099;
+      const targetRotX = -0.22 + (this.isReducedMotion ? 0 : this.py * 0.03);
+      const targetRotY = 0.04 + (this.isReducedMotion ? 0 : this.px * 0.04);
+      const targetRotZ = 0.0;
 
       this.group.position.x += (targetFloatX - this.group.position.x) * kPos;
       this.group.position.y += (targetFloatY - this.group.position.y) * kPos;
@@ -965,8 +965,8 @@ export class BookEngine {
     // Dynamic light brightness easing: cozy, warm, moody evening ambience
     const isReadingPages = this.isFloating && (this.target > 0 || this.cur > 0);
     if (this.readingLight && this.readingFillLight) {
-      const targetReadLight = isReadingPages ? 0.75 : this.isFloating ? 0.50 : 0.06;
-      const targetFillLight = isReadingPages ? 0.40 : this.isFloating ? 0.25 : 0.04;
+      const targetReadLight = isReadingPages ? 0.95 : this.isFloating ? 0.55 : 0.06;
+      const targetFillLight = isReadingPages ? 0.55 : this.isFloating ? 0.30 : 0.04;
       this.readingLight.intensity += (targetReadLight - this.readingLight.intensity) * (1 - Math.exp(-dt * 4.0));
       this.readingFillLight.intensity += (targetFillLight - this.readingFillLight.intensity) * (1 - Math.exp(-dt * 4.0));
     }
