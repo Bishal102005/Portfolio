@@ -240,7 +240,7 @@ export class BookEngine {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.25; // Warm, bright, photographic exposure (NOT dark)
+    this.renderer.toneMappingExposure = 0.88; // Balanced cozy filmic exposure
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     this.scene = new THREE.Scene();
@@ -254,12 +254,12 @@ export class BookEngine {
     this.scene.add(this.workspace.group);
 
     // Dedicated Reading Key Light directly illuminating the floating book
-    this.readingLight = new THREE.DirectionalLight(0xfff8ee, this.isFloating ? 1.25 : 0.4);
+    this.readingLight = new THREE.DirectionalLight(0xfff8ee, this.isFloating ? 0.65 : 0.05);
     this.readingLight.position.set(0.5, 1.6, 3.8);
     this.scene.add(this.readingLight);
 
     // Soft warm front fill light directly for book pages
-    this.readingFillLight = new THREE.PointLight(0xffeedd, this.isFloating ? 0.75 : 0.35, 12);
+    this.readingFillLight = new THREE.PointLight(0xffeedd, this.isFloating ? 0.35 : 0.05, 10);
     this.readingFillLight.position.set(0, 0.3, 3.6);
     this.scene.add(this.readingFillLight);
 
@@ -962,11 +962,11 @@ export class BookEngine {
       this.group.scale.set(targetScale, targetScale, targetScale);
     }
 
-    // Dynamic light brightness easing: warm, bright, clear illumination (NOT dark)
+    // Dynamic light brightness easing: cozy, warm, moody evening ambience
     const isReadingPages = this.isFloating && (this.target > 0 || this.cur > 0);
     if (this.readingLight && this.readingFillLight) {
-      const targetReadLight = isReadingPages ? 1.25 : this.isFloating ? 1.1 : 0.55;
-      const targetFillLight = isReadingPages ? 0.75 : this.isFloating ? 0.6 : 0.4;
+      const targetReadLight = isReadingPages ? 0.75 : this.isFloating ? 0.50 : 0.06;
+      const targetFillLight = isReadingPages ? 0.40 : this.isFloating ? 0.25 : 0.04;
       this.readingLight.intensity += (targetReadLight - this.readingLight.intensity) * (1 - Math.exp(-dt * 4.0));
       this.readingFillLight.intensity += (targetFillLight - this.readingFillLight.intensity) * (1 - Math.exp(-dt * 4.0));
     }
@@ -980,10 +980,10 @@ export class BookEngine {
     const hoverMult = this.isBookHovered ? 1.4 : 1.0;
 
     if (this.bookAuraLight) {
-      this.bookAuraLight.intensity = (this.isFloating ? 0.35 : 1.8) * pulse * hoverMult;
+      this.bookAuraLight.intensity = (this.isFloating ? 0.25 : 0.55) * pulse * hoverMult;
     }
     if (this.spineGlowPlane) {
-      (this.spineGlowPlane.material as THREE.MeshBasicMaterial).opacity = 0.7 * pulse * hoverMult;
+      (this.spineGlowPlane.material as THREE.MeshBasicMaterial).opacity = 0.35 * pulse * hoverMult;
     }
 
 
@@ -1026,7 +1026,7 @@ export class BookEngine {
     }
 
     if (this.workspace && this.workspace.deskLampLight) {
-      this.workspace.deskLampLight.intensity = 1.8 + Math.sin(t * 4.2) * 0.06 + Math.cos(t * 7.1) * 0.03;
+      this.workspace.deskLampLight.intensity = 0.75 + Math.sin(t * 4.2) * 0.03 + Math.cos(t * 7.1) * 0.015;
     }
 
 

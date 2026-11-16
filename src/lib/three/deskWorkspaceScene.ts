@@ -411,9 +411,9 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   });
 
   const whiteMetalMat = new THREE.MeshStandardMaterial({
-    color: 0xf2f0ec,
-    roughness: 0.35,
-    metalness: 0.18
+    color: 0xd8d4cb,
+    roughness: 0.45,
+    metalness: 0.12
   });
 
   const matteBlackMat = new THREE.MeshStandardMaterial({
@@ -436,18 +436,18 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
 
   const screenMat = new THREE.MeshStandardMaterial({
     map: screenTex,
-    roughness: 0.22,
+    roughness: 0.28,
     metalness: 0.04,
-    emissive: 0x3a3028,
-    emissiveIntensity: 0.42
+    emissive: 0x1f1912,
+    emissiveIntensity: 0.16
   });
 
   const laptopScreenMat = new THREE.MeshStandardMaterial({
     map: laptopTex,
-    roughness: 0.18,
+    roughness: 0.22,
     metalness: 0.04,
-    emissive: 0x482618,
-    emissiveIntensity: 0.65
+    emissive: 0x24120a,
+    emissiveIntensity: 0.22
   });
 
   const feltMat = new THREE.MeshStandardMaterial({
@@ -463,15 +463,15 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   });
 
   const wallMat = new THREE.MeshStandardMaterial({
-    color: 0xeeeae2,
-    roughness: 0.90,
-    metalness: 0.02
+    color: 0x4a4338,
+    roughness: 0.94,
+    metalness: 0.01
   });
 
   const floorMat = new THREE.MeshStandardMaterial({
-    color: 0x948f86,
-    roughness: 0.74,
-    metalness: 0.04
+    color: 0x34302a,
+    roughness: 0.78,
+    metalness: 0.02
   });
 
   // Scene Proportions
@@ -495,7 +495,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   // Circular Area Rug under chair (plush oat-beige wool felt)
   const rugGeo = new THREE.CylinderGeometry(0.60, 0.60, 0.006, 36);
   const rugMat = new THREE.MeshStandardMaterial({
-    color: 0xc8c1b4,
+    color: 0x7c7568,
     roughness: 0.96,
     metalness: 0.01
   });
@@ -540,7 +540,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   cornerLightStrip.position.set(0.006, 0, 0.006);
   cornerLightGroup.add(cornerLightStrip);
 
-  const cornerLight = new THREE.PointLight(0xff7a18, 2.5, 4.2);
+  const cornerLight = new THREE.PointLight(0xff7010, 1.4, 3.5);
   cornerLight.position.set(0.04, 0, 0.04);
   cornerLightGroup.add(cornerLight);
   group.add(cornerLightGroup);
@@ -703,7 +703,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   mushCap.position.y = 0.12;
   mushroomGroup.add(mushCap);
 
-  const shelfLampLight = new THREE.PointLight(0xff8c20, 1.8, 3.2);
+  const shelfLampLight = new THREE.PointLight(0xff7c16, 1.0, 2.4);
   shelfLampLight.position.set(0, 0.14, 0);
   mushroomGroup.add(shelfLampLight);
   shelfGroup.add(mushroomGroup);
@@ -1067,7 +1067,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   riserLed.position.set(0, riserH - 0.010, -riserD / 2);
   riserGroup.add(riserLed);
 
-  const wallBacklight = new THREE.PointLight(0xff9438, 2.6, 3.8);
+  const wallBacklight = new THREE.PointLight(0xff8424, 1.3, 2.6);
   wallBacklight.position.set(0, riserH + 0.08, -riserD / 2 - 0.08);
   riserGroup.add(wallBacklight);
 
@@ -1133,7 +1133,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   lightStrip.position.set(0, screenbarY - 0.008, 0.048);
   monitorGroup.add(lightStrip);
 
-  const screenbarLight = new THREE.SpotLight(0xffeedd, 2.4, 2.6, Math.PI / 3.4, 0.65);
+  const screenbarLight = new THREE.SpotLight(0xffeedd, 1.3, 2.2, Math.PI / 3.8, 0.72);
   screenbarLight.position.set(0, screenbarY, 0.048);
   screenbarLight.target.position.set(0, 0, 0.32);
   monitorGroup.add(screenbarLight);
@@ -1399,7 +1399,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   filament.position.y = 0.096;
   lanternGroup.add(filament);
 
-  const deskLampLight = new THREE.PointLight(0xffaa40, 1.4, 2.6);
+  const deskLampLight = new THREE.PointLight(0xff9428, 0.75, 2.0);
   deskLampLight.position.set(0, 0.10, 0);
   lanternGroup.add(deskLampLight);
   group.add(lanternGroup);
@@ -1430,10 +1430,10 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   // =========================================================================
   // 12. Atmospheric Room Illumination (Warm, High-CRI Scandinavian Interior)
   // =========================================================================
-  const roomAmbient = new THREE.AmbientLight(0xfff5ea, 0.72);
+  const roomAmbient = new THREE.AmbientLight(0xffeedd, 0.18);
   group.add(roomAmbient);
 
-  const ceilingKeyLight = new THREE.DirectionalLight(0xffeedd, 0.85);
+  const ceilingKeyLight = new THREE.DirectionalLight(0xffe8d6, 0.15);
   ceilingKeyLight.position.set(1.5, 4.0, 2.0);
   group.add(ceilingKeyLight);
 
