@@ -407,26 +407,37 @@ export class BookEngine {
     this.group.add(this.pickHitBox);
 
     // Setup initial state
-    this.cur = initialSpread;
-    this.target = initialSpread;
-    this.side = initialSpread === 8 ? 0 : initialSpread === 0 ? 1 : 0;
-
-    this.sheets.forEach((s, i) => {
-      s.p = s.tp = i < this.cur ? 1 : 0;
-      this.bend(s, i);
-    });
-
     if (!this.isFloating) {
-      // Resting flat on the solid walnut desk on the right side (frame_001.jpg)
-      this.group.position.set(0.18, -0.088, -0.06);
-      this.group.rotation.set(-Math.PI / 2, 0, -0.38);
-      this.group.scale.set(0.22, 0.22, 0.22);
-      this.dist = 0.98;
+      this.cur = 0;
+      this.target = 0;
+      this.side = 1;
+      this.backLeft.visible = false;
+      this.backRight.visible = true;
+      this.sheets.forEach((s, i) => {
+        s.p = 0;
+        s.tp = 0;
+        this.bend(s, i);
+      });
+
+      this.group.position.set(0.28, -0.088, -0.08);
+      this.group.rotation.set(-Math.PI / 2, 0, -0.22);
+      this.group.scale.set(0.20, 0.20, 0.20);
+      this.dist = 1.28;
     } else {
-      this.group.position.set(0.15, 0.10, 0.20);
-      this.group.rotation.set(-0.395, 0.241, 0.099);
-      this.group.scale.set(0.28, 0.28, 0.28);
-      this.dist = 0.98;
+      this.cur = initialSpread;
+      this.target = initialSpread;
+      this.side = initialSpread === 8 ? 0 : initialSpread === 0 ? 1 : 0;
+      this.sheets.forEach((s, i) => {
+        s.p = s.tp = i < this.cur ? 1 : 0;
+        this.bend(s, i);
+      });
+      this.backLeft.visible = this.cur > 0;
+      this.backRight.visible = this.cur < this.S;
+
+      this.group.position.set(this.portrait ? 0.02 : 0.0, this.portrait ? 0.16 : 0.19, this.portrait ? 0.06 : 0.58);
+      this.group.rotation.set(this.portrait ? -0.22 : -0.08, this.portrait ? 0.04 : 0.0, 0);
+      this.group.scale.set(this.portrait ? 0.18 : 0.27, this.portrait ? 0.18 : 0.27, this.portrait ? 0.18 : 0.27);
+      this.dist = 1.28;
     }
 
     this.attachEventListeners();
@@ -547,9 +558,12 @@ export class BookEngine {
     this.cur = 0;
     this.target = 0;
     this.side = 1;
-    this.sheets.forEach((s) => {
+    this.backLeft.visible = false;
+    this.backRight.visible = true;
+    this.sheets.forEach((s, i) => {
       s.p = 0;
       s.tp = 0;
+      this.bend(s, i);
     });
 
     // Initialize animState from resting desk position on light Scandinavian oak desk
@@ -612,10 +626,26 @@ export class BookEngine {
     if (!this.isFloating && !this.animState.isAnimating) return;
 
     if (this.isReducedMotion) {
-      this.go(0, 0);
+      this.target = 0;
+      this.cur = 0;
+      this.side = 1;
       this.isFloating = false;
       this.isBookHovered = false;
-      this.group.scale.set(0.22, 0.22, 0.22);
+      this.backLeft.visible = false;
+      this.backRight.visible = true;
+      this.sheets.forEach((s, i) => {
+        s.p = 0;
+        s.tp = 0;
+        this.bend(s, i);
+      });
+      this.group.position.set(0.28, -0.088, -0.08);
+      this.group.rotation.set(-Math.PI / 2, 0, -0.22);
+      this.group.scale.set(0.20, 0.20, 0.20);
+
+      if (typeof window !== 'undefined' && location.hash.slice(1) !== NAMES[0]) {
+        location.hash = NAMES[0];
+      }
+      this.onSpreadChange(0, 1, this.portrait);
 
       if (this.canvas) this.canvas.style.cursor = 'default';
       this.onFloatingChange?.(false);
@@ -631,38 +661,99 @@ export class BookEngine {
       this.pullTimeline.kill();
     }
 
+    // Set reading target to cover
+    this.target = 0;
+    this.side = 1;
+    if (typeof window !== 'undefined' && location.hash.slice(1) !== NAMES[0]) {
+      location.hash = NAMES[0];
+    }
+    this.onSpreadChange(0, 1, this.portrait);
+
     const tl = gsap.timeline({
       onComplete: () => {
         this.animState.isAnimating = false;
         this.animState.stage = 'desk';
         this.isFloating = false;
-
+        this.cur = 0;
+        this.target = 0;
+        this.side = 1;
+        this.backLeft.visible = false;
+        this.backRight.visible = true;
+        this.sheets.forEach((s, i) => {
+          s.p = 0;
+          s.tp = 0;
+          this.bend(s, i);
+        });
+        this.animState.posX = 0.28;
+        this.animState.posY = -0.088;
+        this.animState.posZ = -0.08;
+        this.animState.rotX = -Math.PI / 2;
+        this.animState.rotY = 0;
+        this.animState.rotZ = -0.22;
+        this.animState.scale = 0.20;
         this.onFloatingChange?.(false);
       }
     });
     this.pullTimeline = tl;
 
-    // Step 1 (0.0s – 0.6s): Cover hinges closed back to front cover
-    this.go(0, 0);
-
-    // Step 2 (0.6s – 1.4s): Tilt book flat and rotate back toward oak desk alignment
-    tl.to(this.animState, {
-      rotX: -Math.PI / 2,
-      rotZ: -0.22,
-      rotY: 0.0,
-      scale: 0.20,
-      duration: 0.8,
-      ease: 'power2.inOut'
+    // Step 1 (0.0s – 0.45s): Close all open sheets cleanly shut to cover (p -> 0)
+    this.sheets.forEach((s, i) => {
+      s.tp = 0;
+      if (s.p > 0) {
+        tl.to(
+          s,
+          {
+            p: 0,
+            duration: 0.45,
+            ease: 'power2.inOut',
+            onUpdate: () => {
+              this.bend(s, i);
+            }
+          },
+          0
+        );
+      } else {
+        s.p = 0;
+        this.bend(s, i);
+      }
     });
 
-    // Step 3 (1.4s – 2.0s): Float back down to resting position on walnut desk (No camera movement!)
-    tl.to(this.animState, {
-      posX: 0.18,
-      posY: -0.088,
-      posZ: -0.06,
-      duration: 0.6,
-      ease: 'power2.inOut'
-    });
+    // Hide backLeft as soon as sheets fold shut
+    tl.call(
+      () => {
+        this.cur = 0;
+        this.backLeft.visible = false;
+      },
+      [],
+      0.4
+    );
+
+    // Step 2 (0.4s – 1.1s): Tilt closed book flat and rotate toward oak desk orientation
+    tl.to(
+      this.animState,
+      {
+        rotX: -Math.PI / 2,
+        rotZ: -0.22,
+        rotY: 0.0,
+        scale: 0.20,
+        duration: 0.7,
+        ease: 'power2.inOut'
+      },
+      0.4
+    );
+
+    // Step 3 (0.7s – 1.3s): Float down smoothly to resting position on oak desk
+    tl.to(
+      this.animState,
+      {
+        posX: 0.28,
+        posY: -0.088,
+        posZ: -0.08,
+        duration: 0.6,
+        ease: 'power2.inOut'
+      },
+      0.7
+    );
   }
 
   private handleResize = () => {
@@ -699,7 +790,6 @@ export class BookEngine {
           this.spine,
           this.sheets[0]?.fm,
           this.backRight,
-          this.backLeft,
           this.sunburstCoverMesh
         ].filter(Boolean);
         const hits = this.raycaster.intersectObjects(targets);
@@ -740,7 +830,6 @@ export class BookEngine {
         this.spine,
         this.sheets[0]?.fm,
         this.backRight,
-        this.backLeft,
         this.sunburstCoverMesh
       ].filter(Boolean);
       const hits = this.raycaster.intersectObjects(targets);
@@ -819,6 +908,12 @@ export class BookEngine {
   private handleHashChange = () => {
     const i = NAMES.indexOf(window.location.hash.slice(1));
     if (i >= 0) {
+      if (!this.isFloating && !this.animState.isAnimating) {
+        if (i === 0) return;
+        this.pullFromShelf();
+        this.go(i, 0);
+        return;
+      }
       this.target = i;
       if (i === 0) this.side = 1;
       if (i === this.S) this.side = 0;
@@ -843,28 +938,30 @@ export class BookEngine {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
 
-    if (this.cur !== this.target) {
-      this.acc += dt;
-      if (this.isReducedMotion || this.acc > 0.085) {
-        this.acc = 0;
-        this.cur += this.isReducedMotion ? this.target - this.cur : Math.sign(this.target - this.cur);
+    if (this.animState.stage !== 'returning') {
+      if (this.cur !== this.target) {
+        this.acc += dt;
+        if (this.isReducedMotion || this.acc > 0.085) {
+          this.acc = 0;
+          this.cur += this.isReducedMotion ? this.target - this.cur : Math.sign(this.target - this.cur);
+        }
       }
+
+      this.sheets.forEach((s, i) => {
+        s.tp = i < this.cur ? 1 : 0;
+        if (this.cur === this.target && !this.isReducedMotion && this.isFloating) {
+          if (this.hov > 0 && i === this.cur) s.tp = 0.07;
+          if (this.hov < 0 && i === this.cur - 1) s.tp = 0.93;
+        }
+        const o = s.p;
+        s.p += (s.tp - s.p) * (1 - Math.exp(-dt * (this.isReducedMotion ? 60 : 6.5)));
+        if (Math.abs(s.tp - s.p) < 0.0005) s.p = s.tp;
+        if (s.p !== o) this.bend(s, i);
+      });
+
+      this.backLeft.visible = this.cur > 0;
+      this.backRight.visible = this.cur < this.S;
     }
-
-    this.sheets.forEach((s, i) => {
-      s.tp = i < this.cur ? 1 : 0;
-      if (this.cur === this.target && !this.isReducedMotion && this.isFloating) {
-        if (this.hov > 0 && i === this.cur) s.tp = 0.07;
-        if (this.hov < 0 && i === this.cur - 1) s.tp = 0.93;
-      }
-      const o = s.p;
-      s.p += (s.tp - s.p) * (1 - Math.exp(-dt * (this.isReducedMotion ? 60 : 6.5)));
-      if (Math.abs(s.tp - s.p) < 0.0005) s.p = s.tp;
-      if (s.p !== o) this.bend(s, i);
-    });
-
-    this.backLeft.visible = this.cur > 0;
-    this.backRight.visible = this.cur < this.S;
 
     const fx = this.portrait
       ? this.target === 0
@@ -919,15 +1016,15 @@ export class BookEngine {
       this.group.rotation.set(this.animState.rotX, this.animState.rotY, this.animState.rotZ);
       this.group.scale.set(this.animState.scale, this.animState.scale, this.animState.scale);
     } else if (!this.isFloating) {
-      // Resting flat on solid walnut desk beside keyboard (full room perspective matching frame_001.jpg)
+      // Resting flat on solid light oak desk beside keyboard
       const hoverLift = this.isBookHovered ? 0.012 : 0;
-      const targetDeskX = 0.18;
+      const targetDeskX = 0.28;
       const targetDeskY = -0.088 + hoverLift;
-      const targetDeskZ = -0.06;
-      const targetRotX = -Math.PI / 2; // Flat on desk - no tilt penetrating desk surface
+      const targetDeskZ = -0.08;
+      const targetRotX = -Math.PI / 2; // Flat on desk
       const targetRotY = 0;
-      const targetRotZ = -0.38;
-      const targetScale = 0.22;
+      const targetRotZ = -0.22;
+      const targetScale = 0.20;
 
       this.group.position.x += (targetDeskX - this.group.position.x) * kPos;
       this.group.position.y += (targetDeskY - this.group.position.y) * kPos;
@@ -938,6 +1035,19 @@ export class BookEngine {
       this.group.rotation.z += (targetRotZ - this.group.rotation.z) * kRot;
 
       this.group.scale.set(targetScale, targetScale, targetScale);
+
+      // Invariant: when resting on desk, book is strictly closed with zero internal pages or backLeft visible
+      if (this.cur !== 0 || this.target !== 0 || this.backLeft.visible) {
+        this.cur = 0;
+        this.target = 0;
+        this.backLeft.visible = false;
+        this.backRight.visible = true;
+        this.sheets.forEach((s, i) => {
+          s.p = 0;
+          s.tp = 0;
+          this.bend(s, i);
+        });
+      }
     } else {
       // Floating open in the room facing the viewer (foreground reading depth: in front of chair & desk, zero occlusion!)
       const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.003;
