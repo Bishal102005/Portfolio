@@ -434,9 +434,9 @@ export class BookEngine {
       this.backLeft.visible = this.cur > 0;
       this.backRight.visible = this.cur < this.S;
 
-      this.group.position.set(this.portrait ? 0.02 : 0.0, this.portrait ? 0.16 : 0.19, this.portrait ? 0.06 : 0.58);
-      this.group.rotation.set(this.portrait ? -0.22 : -0.08, this.portrait ? 0.04 : 0.0, 0);
-      this.group.scale.set(this.portrait ? 0.18 : 0.27, this.portrait ? 0.18 : 0.27, this.portrait ? 0.18 : 0.27);
+      this.group.position.set(this.portrait ? 0.01 : 0.0, this.portrait ? 0.17 : 0.19, this.portrait ? 0.10 : 0.58);
+      this.group.rotation.set(this.portrait ? -0.18 : -0.08, this.portrait ? 0.02 : 0.0, 0);
+      this.group.scale.set(this.portrait ? 0.21 : 0.27, this.portrait ? 0.21 : 0.27, this.portrait ? 0.21 : 0.27);
       this.dist = 1.28;
     }
 
@@ -594,12 +594,12 @@ export class BookEngine {
 
     // Phase 1 (0.0s – 0.9s): Levitate up from desk into floating reading position in the room (No camera zoom!)
     tl.to(this.animState, {
-      posX: this.portrait ? 0.02 : 0.0,
-      posY: this.portrait ? 0.16 : 0.19,
-      posZ: this.portrait ? 0.06 : 0.58,
-      scale: this.portrait ? 0.18 : 0.27,
-      rotX: this.portrait ? -0.22 : -0.08,
-      rotY: this.portrait ? 0.04 : 0.0,
+      posX: this.portrait ? 0.01 : 0.0,
+      posY: this.portrait ? 0.17 : 0.19,
+      posZ: this.portrait ? 0.10 : 0.58,
+      scale: this.portrait ? 0.21 : 0.27,
+      rotX: this.portrait ? -0.18 : -0.08,
+      rotY: this.portrait ? 0.02 : 0.0,
       rotZ: 0.0,
       sunburstOpacity: 1.0,
       duration: 0.9,
@@ -1052,13 +1052,13 @@ export class BookEngine {
       // Floating open in the room facing the viewer (foreground reading depth: in front of chair & desk, zero occlusion!)
       const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.003;
       const floatSwayX = this.isReducedMotion ? 0 : Math.cos(t * 0.9) * 0.002;
-      const targetFloatX = (this.portrait ? 0.02 : 0.0) + floatSwayX;
-      const targetFloatY = (this.portrait ? 0.16 : 0.19) + floatSwayY;
-      const targetFloatZ = this.portrait ? 0.06 : 0.58;
-      const targetScale = this.portrait ? 0.18 : 0.27;
+      const targetFloatX = (this.portrait ? 0.01 : 0.0) + floatSwayX;
+      const targetFloatY = (this.portrait ? 0.17 : 0.19) + floatSwayY;
+      const targetFloatZ = this.portrait ? 0.10 : 0.58;
+      const targetScale = this.portrait ? 0.21 : 0.27;
 
-      const targetRotX = (this.portrait ? -0.22 : -0.08) + (this.isReducedMotion ? 0 : this.py * 0.015);
-      const targetRotY = (this.portrait ? 0.04 : 0.0) + (this.isReducedMotion ? 0 : this.px * 0.02);
+      const targetRotX = (this.portrait ? -0.18 : -0.08) + (this.isReducedMotion ? 0 : this.py * 0.015);
+      const targetRotY = (this.portrait ? 0.02 : 0.0) + (this.isReducedMotion ? 0 : this.px * 0.02);
       const targetRotZ = 0.0;
 
       this.group.position.x += (targetFloatX - this.group.position.x) * kPos;
