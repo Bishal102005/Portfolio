@@ -580,12 +580,12 @@ export class BookEngine {
 
     // Phase 1 (0.0s – 0.9s): Levitate up from desk into floating reading position in the room (No camera zoom!)
     tl.to(this.animState, {
-      posX: this.portrait ? 0.02 : 0.05,
-      posY: this.portrait ? 0.14 : 0.17,
-      posZ: this.portrait ? 0.06 : 0.08,
-      scale: this.portrait ? 0.18 : 0.21,
-      rotX: -0.22,
-      rotY: 0.04,
+      posX: this.portrait ? 0.02 : 0.02,
+      posY: this.portrait ? 0.14 : 0.13,
+      posZ: this.portrait ? 0.06 : 0.18,
+      scale: this.portrait ? 0.18 : 0.31,
+      rotX: this.portrait ? -0.22 : -0.14,
+      rotY: this.portrait ? 0.04 : 0.0,
       rotZ: 0.0,
       sunburstOpacity: 1.0,
       duration: 0.9,
@@ -939,16 +939,16 @@ export class BookEngine {
 
       this.group.scale.set(targetScale, targetScale, targetScale);
     } else {
-      // Floating open in the room facing the viewer (full room remains completely visible, zero obstruction!)
-      const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.006;
+      // Floating open in the room facing the viewer (larger comfortable reading zoom on desktop, compact on mobile!)
+      const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.005;
       const floatSwayX = this.isReducedMotion ? 0 : Math.cos(t * 0.9) * 0.003;
-      const targetFloatX = (this.portrait ? 0.02 : 0.05) + floatSwayX;
-      const targetFloatY = (this.portrait ? 0.14 : 0.17) + floatSwayY;
-      const targetFloatZ = this.portrait ? 0.06 : 0.08;
-      const targetScale = this.portrait ? 0.18 : 0.21;
+      const targetFloatX = (this.portrait ? 0.02 : 0.02) + floatSwayX;
+      const targetFloatY = (this.portrait ? 0.14 : 0.13) + floatSwayY;
+      const targetFloatZ = this.portrait ? 0.06 : 0.18;
+      const targetScale = this.portrait ? 0.18 : 0.31;
 
-      const targetRotX = -0.22 + (this.isReducedMotion ? 0 : this.py * 0.03);
-      const targetRotY = 0.04 + (this.isReducedMotion ? 0 : this.px * 0.04);
+      const targetRotX = (this.portrait ? -0.22 : -0.14) + (this.isReducedMotion ? 0 : this.py * 0.025);
+      const targetRotY = (this.portrait ? 0.04 : 0.0) + (this.isReducedMotion ? 0 : this.px * 0.03);
       const targetRotZ = 0.0;
 
       this.group.position.x += (targetFloatX - this.group.position.x) * kPos;
