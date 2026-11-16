@@ -2,7 +2,12 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { FACES, HIT, TH, TW } from './pageDrawers';
 import { NAMES } from '../constants/portfolioData';
-import { createDeskWorkspaceScene, createSunburstTexture, DeskWorkspaceResult } from './deskWorkspaceScene';
+import {
+  createDeskWorkspaceScene,
+  createSunburstTexture,
+  createSoftParticleTexture,
+  DeskWorkspaceResult
+} from './deskWorkspaceScene';
 
 export interface Sheet {
   geo: THREE.PlaneGeometry;
@@ -182,25 +187,26 @@ export class BookEngine {
   private animState = {
     isAnimating: false,
     stage: 'desk' as 'desk' | 'pulling' | 'reveal_cover' | 'reading' | 'returning',
-    posX: 0.36,
-    posY: -0.46,
+    posX: 0.48,
+    posY: -0.48,
     posZ: 0.05,
+    scale: 0.42,
     rotX: -Math.PI / 2 + 0.12,
     rotY: 0,
     rotZ: -0.22,
-    camDist: 1.28,
+    camDist: 2.35,
     camX: 0.28,
-    camY: 0.32,
-    lookX: 0.04,
-    lookY: -0.28,
-    lookZ: -0.25,
+    camY: 0.52,
+    lookX: 0.0,
+    lookY: -0.30,
+    lookZ: -0.50,
     sunburstOpacity: 0
   };
   private pullTimeline: gsap.core.Timeline | null = null;
 
   private acc = 0;
   private hov = 0;
-  private dist = 1.28;
+  private dist = 2.35;
   private px = 0;
   private py = 0;
   private wheelT = 0;
@@ -409,7 +415,8 @@ export class BookEngine {
     this.bookParticles = new THREE.Points(
       this.bookParticlesGeo,
       new THREE.PointsMaterial({
-        size: 0.034,
+        size: 0.045,
+        map: createSoftParticleTexture(),
         color: 0xffd875,
         transparent: true,
         opacity: 0.9,
@@ -458,7 +465,8 @@ export class BookEngine {
     orbitalRibbonGeo.setAttribute('position', new THREE.BufferAttribute(ribbonPos, 3));
 
     const orbitalRibbonMat = new THREE.PointsMaterial({
-      size: 0.045,
+      size: 0.048,
+      map: createSoftParticleTexture(),
       color: 0xffd875,
       transparent: true,
       opacity: 0.9,
@@ -487,13 +495,15 @@ export class BookEngine {
     });
 
     if (!this.isFloating) {
-      // Resting flat on the solid walnut desk on the right side (matching frame_001.jpg)
-      this.group.position.set(0.36, -0.46, 0.05);
+      // Resting flat on the solid walnut desk on the right side (frame_001.jpg)
+      this.group.position.set(0.48, -0.48, 0.05);
       this.group.rotation.set(-Math.PI / 2 + 0.12, 0, -0.22);
-      this.dist = 1.28;
+      this.group.scale.set(0.42, 0.42, 0.42);
+      this.dist = 2.35;
     } else {
       this.group.position.set(0, 0, 0);
       this.group.rotation.set(-0.08, 0, 0);
+      this.group.scale.set(1.0, 1.0, 1.0);
       this.dist = 4.4;
     }
 
@@ -620,19 +630,20 @@ export class BookEngine {
       s.tp = 0;
     });
 
-    // Initialize animState from resting desk position (matching frame_001.jpg)
-    this.animState.posX = 0.36;
-    this.animState.posY = -0.46;
+    // Initialize animState from resting desk position (frame_001.jpg full room view)
+    this.animState.posX = 0.48;
+    this.animState.posY = -0.48;
     this.animState.posZ = 0.05;
+    this.animState.scale = 0.42;
     this.animState.rotX = -Math.PI / 2 + 0.12;
     this.animState.rotY = 0;
     this.animState.rotZ = -0.22;
-    this.animState.camDist = 1.28;
+    this.animState.camDist = 2.35;
     this.animState.camX = 0.28;
-    this.animState.camY = 0.32;
-    this.animState.lookX = 0.04;
-    this.animState.lookY = -0.28;
-    this.animState.lookZ = -0.25;
+    this.animState.camY = 0.52;
+    this.animState.lookX = 0.0;
+    this.animState.lookY = -0.30;
+    this.animState.lookZ = -0.50;
     this.animState.sunburstOpacity = 0.85;
 
     if (this.orbitalRibbonPoints) this.orbitalRibbonPoints.visible = true;
@@ -647,11 +658,12 @@ export class BookEngine {
     });
     this.pullTimeline = tl;
 
-    // Phase 1 (0.0s – 1.0s): Levitate up from desk & slide slightly toward center (frame_005.jpg)
+    // Phase 1 (0.0s – 1.0s): Levitate up from desk, expand toward reading scale & slide to center (frame_005.jpg)
     tl.to(this.animState, {
-      posX: 0.12,
+      posX: 0.10,
       posY: 0.08,
       posZ: 0.0,
+      scale: 0.85,
       sunburstOpacity: 1.0,
       duration: 1.0,
       ease: 'power2.out',
@@ -668,16 +680,17 @@ export class BookEngine {
       }
     });
 
-    // Phase 2 (1.0s – 2.0s): Tilt upright & align camera to floating reading view (frame_006.jpg)
+    // Phase 2 (1.0s – 2.0s): Tilt upright & reach full reading scale 1.0 (frame_006.jpg)
     tl.to(this.animState, {
       rotX: -0.14,
       rotZ: 0.0,
       rotY: 0.0,
-      camX: 0.10,
-      camY: 0.22,
-      camDist: 1.22,
-      lookX: 0.05,
-      lookY: 0.02,
+      scale: 1.0,
+      camX: 0.0,
+      camY: 0.32,
+      camDist: 2.10,
+      lookX: 0.0,
+      lookY: 0.04,
       lookZ: 0.0,
       sunburstOpacity: 0.4,
       duration: 1.0,
@@ -710,6 +723,7 @@ export class BookEngine {
       this.go(0, 0);
       this.isFloating = false;
       this.isBookHovered = false;
+      this.group.scale.set(0.42, 0.42, 0.42);
       if (this.orbitalRibbonPoints) this.orbitalRibbonPoints.visible = false;
       if (this.canvas) this.canvas.style.cursor = 'default';
       this.onFloatingChange?.(false);
@@ -740,35 +754,36 @@ export class BookEngine {
     this.go(0, 0);
 
     tl.to(this.animState, {
-      camDist: 1.22,
-      camY: 0.22,
-      lookY: 0.02,
-      lookX: 0.05,
+      camDist: 2.10,
+      camY: 0.32,
+      lookY: 0.04,
+      lookX: 0.0,
       lookZ: 0.0,
       duration: 0.8,
       ease: 'power2.inOut'
     });
 
-    // Step 2 (0.8s – 1.6s): Tilt book flat & rotate back toward desk alignment
+    // Step 2 (0.8s – 1.6s): Tilt book flat, scale back down to 0.42 & rotate back toward desk alignment
     tl.to(this.animState, {
       rotX: -Math.PI / 2 + 0.12,
       rotZ: -0.22,
       rotY: 0.0,
+      scale: 0.42,
       duration: 0.8,
       ease: 'power2.inOut'
     });
 
-    // Step 3 (1.6s – 2.4s): Float back down to resting position on walnut desk beside keyboard (frame_001.jpg)
+    // Step 3 (1.6s – 2.4s): Float back down to resting position on walnut desk & camera eases out to full room view
     tl.to(this.animState, {
-      posX: 0.36,
-      posY: -0.46,
+      posX: 0.48,
+      posY: -0.48,
       posZ: 0.05,
       camX: 0.28,
-      camY: 0.32,
-      camDist: 1.28,
-      lookX: 0.04,
-      lookY: -0.28,
-      lookZ: -0.25,
+      camY: 0.52,
+      camDist: 2.35,
+      lookX: 0.0,
+      lookY: -0.30,
+      lookZ: -0.50,
       duration: 0.8,
       ease: 'power2.inOut'
     });
@@ -1010,6 +1025,7 @@ export class BookEngine {
       // Actively running cinematic GSAP transition timeline matching the video
       this.group.position.set(this.animState.posX, this.animState.posY, this.animState.posZ);
       this.group.rotation.set(this.animState.rotX, this.animState.rotY, this.animState.rotZ);
+      this.group.scale.set(this.animState.scale, this.animState.scale, this.animState.scale);
 
       this.dist = this.animState.camDist;
       const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.14;
@@ -1021,14 +1037,15 @@ export class BookEngine {
       );
       this.camera.lookAt(this.animState.lookX, this.animState.lookY, this.animState.lookZ);
     } else if (!this.isFloating) {
-      // Resting flat on solid walnut desk beside keyboard (matching frame_001.jpg exactly)
-      const hoverLift = this.isBookHovered ? 0.025 : 0;
-      const targetDeskX = 0.36;
-      const targetDeskY = -0.46 + hoverLift;
+      // Resting flat on solid walnut desk beside keyboard (full room view, NOT zoomed in!)
+      const hoverLift = this.isBookHovered ? 0.02 : 0;
+      const targetDeskX = 0.48;
+      const targetDeskY = -0.48 + hoverLift;
       const targetDeskZ = 0.05;
       const targetRotX = -Math.PI / 2 + 0.12;
       const targetRotY = 0;
       const targetRotZ = -0.22;
+      const targetScale = 0.42;
 
       this.group.position.x += (targetDeskX - this.group.position.x) * kPos;
       this.group.position.y += (targetDeskY - this.group.position.y) * kPos;
@@ -1038,19 +1055,22 @@ export class BookEngine {
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
       this.group.rotation.z += (targetRotZ - this.group.rotation.z) * kRot;
 
-      // Cinematic developer workstation camera framing (matching frame_001.jpg)
-      const targetCamDist = 1.28;
+      this.group.scale.set(targetScale, targetScale, targetScale);
+
+      // Full room camera framing (pulled back generously so full room is in view)
+      const targetCamDist = 2.35;
       const targetCamX = 0.28;
-      const targetCamY = 0.32;
+      const targetCamY = 0.52;
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
       const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.015;
       const idleDriftY = this.isReducedMotion ? 0 : Math.cos(t * 0.28) * 0.012;
       const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.16 + idleDriftX;
       const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.10 + idleDriftY;
       this.camera.position.set(targetCamX + camParallaxX, targetCamY + camParallaxY, this.dist);
-      this.camera.lookAt(0.04, -0.28, -0.25);
+      this.camera.lookAt(0.0, -0.30, -0.50);
     } else {
       // Floating in reading position facing user
+      this.group.scale.set(1.0, 1.0, 1.0);
       this.group.position.x += (-fx - this.group.position.x) * kPos;
       const targetFloatY = this.isReducedMotion ? 0 : Math.sin(t * 0.8) * 0.025;
       this.group.position.y += (targetFloatY - this.group.position.y) * kPos;

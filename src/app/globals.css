@@ -1,13 +1,19 @@
 :root {
   /* Radiant Gold Atmosphere (Light Mode) */
-  --bg1: #fffdf5; /* luminous champagne pearl */
-  --bg2: #fde68a; /* radiant warm golden glow */
-  --fg: #1c1300;  /* deep rich obsidian */
-  --ac: #d97706;  /* radiant 24k gold */
+  --bg1: #fffdf5;
+  /* luminous champagne pearl */
+  --bg2: #fde68a;
+  /* radiant warm golden glow */
+  --fg: #1c1300;
+  /* deep rich obsidian */
+  --ac: #d97706;
+  /* radiant 24k gold */
   --ac-hover: #b45309;
-  --pn: rgba(255, 255, 255, 0.94); /* high-clarity pure white glass */
+  --pn: rgba(255, 255, 255, 0.94);
+  /* high-clarity pure white glass */
   --pn-border: rgba(217, 119, 6, 0.25);
-  --ribbon-bg: linear-gradient(135deg, #f59e0b, #d97706); /* radiant gold ribbon */
+  --ribbon-bg: linear-gradient(135deg, #f59e0b, #d97706);
+  /* radiant gold ribbon */
   --shadow-hud: 0 12px 32px rgba(80, 50, 0, 0.08);
   color-scheme: light dark;
   box-sizing: border-box;
@@ -18,12 +24,17 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     /* Imperial Gold Noir (Dark Mode) */
-    --bg1: #523604; /* radiant deep golden ambient aura */
-    --bg2: #1a0f00; /* midnight golden obsidian */
-    --fg: #fffbeb;  /* champagne gold text */
-    --ac: #fbbf24;  /* glowing 24k gold */
+    --bg1: #523604;
+    /* radiant deep golden ambient aura */
+    --bg2: #1a0f00;
+    /* midnight golden obsidian */
+    --fg: #fffbeb;
+    /* champagne gold text */
+    --ac: #fbbf24;
+    /* glowing 24k gold */
     --ac-hover: #f59e0b;
-    --pn: rgba(35, 22, 2, 0.82); /* frosted dark amber glass */
+    --pn: rgba(35, 22, 2, 0.82);
+    /* frosted dark amber glass */
     --pn-border: rgba(251, 191, 36, 0.28);
     --ribbon-bg: linear-gradient(135deg, #fbbf24, #d97706);
     --shadow-hud: 0 12px 32px rgba(0, 0, 0, 0.65);
@@ -54,11 +65,14 @@
   --shadow-hud: 0 12px 32px rgba(80, 50, 0, 0.08);
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: inherit;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -88,7 +102,8 @@ body {
   position: fixed;
   top: calc(14px + env(safe-area-inset-top, 0px));
   left: 24px;
-  right: 124px; /* Generous clearance for the ribbon bookmark at right: 24px */
+  right: 124px;
+  /* Generous clearance for the ribbon bookmark at right: 24px */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -97,7 +112,7 @@ body {
   z-index: 2;
 }
 
-.top > * {
+.top>* {
   pointer-events: auto;
 }
 
@@ -291,14 +306,20 @@ nav button[aria-current="true"] {
   clip-path: inset(50%);
 }
 
-.nogl, .nogl body {
+.nogl,
+.nogl body {
   overflow: auto;
   height: auto;
   user-select: auto;
   -webkit-user-select: auto;
 }
 
-.nogl #c, .nogl .hud, .nogl .rib, .nogl nav, .nogl #load, .nogl .hint {
+.nogl #c,
+.nogl .hud,
+.nogl .rib,
+.nogl nav,
+.nogl #load,
+.nogl .hint {
   display: none !important;
 }
 
@@ -318,9 +339,11 @@ nav button[aria-current="true"] {
     right: 110px;
     gap: 8px;
   }
+
   nav {
     gap: 6px;
   }
+
   nav button {
     padding: 7px 12px;
     font-size: 13.5px;
@@ -429,7 +452,12 @@ nav button[aria-current="true"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #load, .hint, body, button, .rib {
+
+  #load,
+  .hint,
+  body,
+  button,
+  .rib {
     transition: none !important;
   }
 }
@@ -488,10 +516,13 @@ nav button[aria-current="true"] {
 }
 
 @keyframes pulseGold {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 16px rgba(229, 169, 88, 0.2);
     border-color: rgba(229, 169, 88, 0.45);
   }
+
   50% {
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 28px rgba(229, 169, 88, 0.45);
     border-color: rgba(245, 180, 100, 0.8);

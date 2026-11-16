@@ -140,6 +140,28 @@ export function createMonitorWallpaperTexture(): THREE.CanvasTexture {
 }
 
 // ============================================================================
+// Procedural Soft Circular Particle Texture (prevents square pixel particles)
+// ============================================================================
+export function createSoftParticleTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+
+  const rad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  rad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+  rad.addColorStop(0.35, 'rgba(255, 248, 225, 0.65)');
+  rad.addColorStop(0.7, 'rgba(255, 235, 180, 0.2)');
+  rad.addColorStop(1, 'rgba(255, 220, 150, 0)');
+  ctx.fillStyle = rad;
+  ctx.fillRect(0, 0, 64, 64);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// ============================================================================
 // Procedural Sunburst Rays Texture Generator (Matching frame_003 & frame_005)
 // ============================================================================
 export function createSunburstTexture(): THREE.CanvasTexture {
@@ -233,7 +255,7 @@ export function createWallArtTexture(): THREE.CanvasTexture {
 }
 
 // ============================================================================
-// Complete 3D Developer Workspace Scene (Warm, Bright, Matching Video Exactly)
+// Complete 3D Developer Workspace Scene (Full Room View, Warm & Grounded)
 // ============================================================================
 export interface DeskWorkspaceResult {
   group: THREE.Group;
@@ -252,6 +274,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   const screenTex = createMonitorWallpaperTexture();
   const sunburstTex = createSunburstTexture();
   const artTex = createWallArtTexture();
+  const particleTex = createSoftParticleTexture();
 
   // Core Warm Photographic Materials
   const walnutMat = new THREE.MeshStandardMaterial({
@@ -280,14 +303,30 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
     emissiveIntensity: 0.65
   });
 
-  // =========================================================================
-  // 1. Solid Walnut Wooden Desk (Warm, rich, medium-amber wood tone)
-  // =========================================================================
+  const floorY = -1.24;
   const deskY = -0.52;
   const deskWidth = 4.2;
   const deskDepth = 2.4;
   const deskThick = 0.08;
 
+  // =========================================================================
+  // 1. Room Floor (Grounded hardwood floor across entire room)
+  // =========================================================================
+  const floorGeo = new THREE.PlaneGeometry(14.0, 10.0);
+  const floorMat = new THREE.MeshStandardMaterial({
+    color: 0x221710, // Warm dark oak hardwood
+    roughness: 0.72,
+    metalness: 0.04
+  });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(0, floorY, -0.6);
+  floor.receiveShadow = true;
+  group.add(floor);
+
+  // =========================================================================
+  // 2. Solid Walnut Wooden Desk
+  // =========================================================================
   const deskTop = new THREE.Mesh(
     new THREE.BoxGeometry(deskWidth, deskThick, deskDepth),
     walnutMat
@@ -306,30 +345,31 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   frontLip.receiveShadow = true;
   group.add(frontLip);
 
-  // Matte black steel desk legs
+  // Matte black steel desk legs extending down to the floor
   const legPositions = [
-    { x: -deskWidth / 2 + 0.18, z: -0.40 - deskDepth / 2 + 0.18 },
-    { x: deskWidth / 2 - 0.18, z: -0.40 - deskDepth / 2 + 0.18 },
-    { x: -deskWidth / 2 + 0.18, z: -0.40 + deskDepth / 2 - 0.18 },
-    { x: deskWidth / 2 - 0.18, z: -0.40 + deskDepth / 2 - 0.18 }
+    { x: -deskWidth / 2 + 0.22, z: -0.40 - deskDepth / 2 + 0.22 },
+    { x: deskWidth / 2 - 0.22, z: -0.40 - deskDepth / 2 + 0.22 },
+    { x: -deskWidth / 2 + 0.22, z: -0.40 + deskDepth / 2 - 0.22 },
+    { x: deskWidth / 2 - 0.22, z: -0.40 + deskDepth / 2 - 0.22 }
   ];
+  const legHeight = Math.abs(deskY - floorY);
   legPositions.forEach((lp) => {
     const leg = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.038, 0.038, 2.5, 14),
+      new THREE.CylinderGeometry(0.038, 0.038, legHeight, 14),
       matteBlackMat
     );
-    leg.position.set(lp.x, deskY - 1.25, lp.z);
+    leg.position.set(lp.x, floorY + legHeight / 2, lp.z);
     group.add(leg);
   });
 
   // =========================================================================
-  // 2. Desktop Widescreen Monitor & Screenbar (Left side, matching frame_001.jpg)
+  // 3. Desktop Widescreen Monitor & Screenbar (Left side, frame_001.jpg)
   // =========================================================================
   const monitorGroup = new THREE.Group();
   monitorGroup.position.set(-0.78, deskY + deskThick / 2 + 0.005, -0.62);
-  monitorGroup.rotation.y = 0.28; // Angled ~16° toward center desk
+  monitorGroup.rotation.y = 0.28;
 
-  // Aluminum Stand Base on desk (Clean curved rectangular plate)
+  // Aluminum Stand Base on desk
   const standBase = new THREE.Mesh(
     new THREE.BoxGeometry(0.34, 0.012, 0.24),
     aluminumMat
@@ -338,7 +378,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   standBase.receiveShadow = true;
   monitorGroup.add(standBase);
 
-  // Aluminum Stand Upright Arm / Column
+  // Aluminum Stand Column
   const standNeck = new THREE.Mesh(
     new THREE.BoxGeometry(0.08, 0.48, 0.045),
     aluminumMat
@@ -365,7 +405,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   screenFace.position.set(0, 0.49, 0.052);
   monitorGroup.add(screenFace);
 
-  // Monitor Light Bar (Screenbar) mounted on top of monitor (frame_001.jpg)
+  // Screenbar mounted on top of monitor
   const screenbarY = 0.49 + screenH / 2 + 0.02;
   const screenbar = new THREE.Mesh(
     new THREE.CylinderGeometry(0.015, 0.015, 0.65, 16),
@@ -375,7 +415,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   screenbar.position.set(0, screenbarY, 0.075);
   monitorGroup.add(screenbar);
 
-  // Light strip on screenbar casting warm wash downward onto desk
+  // Downward warm light strip on screenbar
   const lightStrip = new THREE.Mesh(
     new THREE.BoxGeometry(0.60, 0.005, 0.01),
     new THREE.MeshBasicMaterial({ color: 0xfff2e0 })
@@ -392,11 +432,11 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   group.add(monitorGroup);
 
   // =========================================================================
-  // 3. Mechanical Keyboard (Center-left, angled ~14° matching frame_001.jpg)
+  // 4. Mechanical Keyboard (Center-left, angled naturally)
   // =========================================================================
   const keyboardGroup = new THREE.Group();
   keyboardGroup.position.set(-0.32, deskY + deskThick / 2 + 0.004, -0.12);
-  keyboardGroup.rotation.y = 0.22; // Angled naturally
+  keyboardGroup.rotation.y = 0.22;
 
   // Keyboard body
   const kbBody = new THREE.Mesh(
@@ -406,7 +446,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   kbBody.position.y = 0.01;
   keyboardGroup.add(kbBody);
 
-  // Sculpted keycaps (rows)
+  // Keycap rows
   const keycapRowMat = new THREE.MeshStandardMaterial({
     color: 0x242830,
     roughness: 0.52,
@@ -439,7 +479,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   group.add(keyboardGroup);
 
   // =========================================================================
-  // 4. Ergonomic Wireless Mouse (Beside / behind book, matching frame_001.jpg)
+  // 5. Ergonomic Wireless Mouse (Beside / behind book, frame_001.jpg)
   // =========================================================================
   const mouseGroup = new THREE.Group();
   mouseGroup.position.set(0.12, deskY + deskThick / 2 + 0.004, -0.28);
@@ -452,7 +492,6 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   mouseBody.position.y = 0.0175;
   mouseGroup.add(mouseBody);
 
-  // Metallic scroll wheel
   const wheel = new THREE.Mesh(
     new THREE.CylinderGeometry(0.009, 0.009, 0.016, 14),
     aluminumMat
@@ -464,7 +503,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   group.add(mouseGroup);
 
   // =========================================================================
-  // 5. Steaming Coffee Mug & Artist Pen Cup (Upper-center, matching frame_001.jpg)
+  // 6. Steaming Coffee Mug & Artist Pen Cup (Upper-center, frame_001.jpg)
   // =========================================================================
   const coffeeGroup = new THREE.Group();
   coffeeGroup.position.set(0.02, deskY + deskThick / 2 + 0.004, -0.62);
@@ -477,7 +516,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   coaster.position.y = 0.007;
   coffeeGroup.add(coaster);
 
-  // Glass / Ceramic Mug
+  // Ceramic Mug
   const mug = new THREE.Mesh(
     new THREE.CylinderGeometry(0.066, 0.052, 0.13, 22),
     new THREE.MeshStandardMaterial({
@@ -511,7 +550,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   handle.rotation.z = Math.PI / 4;
   coffeeGroup.add(handle);
 
-  // Animated Steam Particles rising gently
+  // Animated Steam Particles (Soft circular puffs)
   const steamCount = 14;
   const steamGeo = new THREE.BufferGeometry();
   const steamPos = new Float32Array(steamCount * 3);
@@ -523,10 +562,11 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   steamGeo.setAttribute('position', new THREE.BufferAttribute(steamPos, 3));
 
   const steamMat = new THREE.PointsMaterial({
-    size: 0.05,
+    size: 0.065,
+    map: particleTex,
     color: 0xffeedd,
     transparent: true,
-    opacity: 0.28,
+    opacity: 0.32,
     blending: THREE.AdditiveBlending,
     depthWrite: false
   });
@@ -558,41 +598,41 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   group.add(coffeeGroup);
 
   // =========================================================================
-  // 6. Radiant Sunburst Caustic Light on Desk (Below Book, frame_005.jpg)
+  // 7. Radiant Sunburst Caustic Light on Desk (Below Book, frame_005.jpg)
   // =========================================================================
-  const sunburstGeo = new THREE.PlaneGeometry(1.5, 1.5);
+  const sunburstGeo = new THREE.PlaneGeometry(1.2, 1.2);
   const sunburstMat = new THREE.MeshBasicMaterial({
     map: sunburstTex,
     transparent: true,
-    opacity: 0.0, // Ramped up on hover and levitation!
+    opacity: 0.0,
     blending: THREE.AdditiveBlending,
     depthWrite: false
   });
   const deskSunburst = new THREE.Mesh(sunburstGeo, sunburstMat);
   deskSunburst.rotation.x = -Math.PI / 2;
-  deskSunburst.position.set(0.36, deskY + deskThick / 2 + 0.002, 0.05);
+  deskSunburst.position.set(0.48, deskY + deskThick / 2 + 0.002, 0.05);
   group.add(deskSunburst);
 
   // =========================================================================
-  // 7. Background Warm Room Architecture (NOT dark! Warm cream wall & sofa)
+  // 8. Background Warm Room Architecture (Cream wall, framed art, sofa on floor)
   // =========================================================================
   // Warm plaster cream back wall (matching frame_001.jpg, frame_007.jpg)
   const wallMat = new THREE.MeshStandardMaterial({
-    color: 0xd2c7b8, // Warm light cream/taupe plaster wall
+    color: 0xd2c7b8,
     roughness: 0.82,
     metalness: 0.02
   });
 
   const backWall = new THREE.Mesh(
-    new THREE.PlaneGeometry(10.0, 6.0),
+    new THREE.PlaneGeometry(12.0, 7.0),
     wallMat
   );
-  backWall.position.set(0, 0.9, -1.95);
+  backWall.position.set(0, floorY + 3.5, -2.1);
   group.add(backWall);
 
   // Framed Wall Artwork mounted on wall behind monitor (frame_010.jpg)
   const artGroup = new THREE.Group();
-  artGroup.position.set(-0.65, 0.95, -1.93);
+  artGroup.position.set(-0.65, 0.95, -2.08);
 
   const artFrame = new THREE.Mesh(
     new THREE.BoxGeometry(0.56, 0.74, 0.02),
@@ -608,79 +648,88 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   artGroup.add(artCanvas);
   group.add(artGroup);
 
-  // Cozy Lounge Sofa in background right (warm charcoal fabric + cream cushions)
+  // Cozy Lounge Sofa sitting naturally on the floor (frame_001.jpg)
   const sofaGroup = new THREE.Group();
-  sofaGroup.position.set(1.45, deskY - 0.15, -1.55);
-  sofaGroup.rotation.y = -0.32;
+  sofaGroup.position.set(1.55, floorY, -1.65);
+  sofaGroup.rotation.y = -0.36;
 
   const sofaMat = new THREE.MeshStandardMaterial({
     color: 0x3d352e, // Warm charcoal fabric
     roughness: 0.85
   });
 
+  // Seat
   const sofaSeat = new THREE.Mesh(
-    new THREE.BoxGeometry(0.95, 0.38, 0.82),
+    new THREE.BoxGeometry(1.05, 0.44, 0.85),
     sofaMat
   );
-  sofaSeat.position.y = 0.25;
+  sofaSeat.position.y = 0.22;
   sofaGroup.add(sofaSeat);
 
+  // Backrest
   const sofaBack = new THREE.Mesh(
-    new THREE.BoxGeometry(0.95, 0.62, 0.24),
+    new THREE.BoxGeometry(1.05, 0.72, 0.24),
     sofaMat
   );
-  sofaBack.position.set(0, 0.68, -0.31);
+  sofaBack.position.set(0, 0.68, -0.32);
   sofaGroup.add(sofaBack);
 
-  // Soft light-cream cushions/pillows leaning against sofa (frame_001.jpg)
+  // Soft light-cream cushions/pillows leaning against sofa
   const pillowMat = new THREE.MeshStandardMaterial({
-    color: 0xd4c8b6, // Light cream cushion
+    color: 0xd4c8b6,
     roughness: 0.8
   });
 
   const pillow1 = new THREE.Mesh(
-    new THREE.BoxGeometry(0.34, 0.34, 0.12),
+    new THREE.BoxGeometry(0.36, 0.36, 0.12),
     pillowMat
   );
-  pillow1.position.set(-0.24, 0.48, -0.16);
+  pillow1.position.set(-0.25, 0.52, -0.16);
   pillow1.rotation.set(-0.25, 0.2, -0.15);
   sofaGroup.add(pillow1);
 
   const pillow2 = new THREE.Mesh(
-    new THREE.BoxGeometry(0.32, 0.32, 0.11),
-    new THREE.MeshStandardMaterial({ color: 0xb5a896, roughness: 0.82 })
+    new THREE.BoxGeometry(0.34, 0.34, 0.11),
+    new THREE.MeshStandardMaterial({ color: 0xb8ab98, roughness: 0.82 })
   );
-  pillow2.position.set(0.18, 0.46, -0.18);
+  pillow2.position.set(0.20, 0.50, -0.18);
   pillow2.rotation.set(-0.2, -0.18, 0.12);
   sofaGroup.add(pillow2);
 
   group.add(sofaGroup);
 
-  // Cozy Window Curtains on far right (frame_001.jpg)
+  // Window Curtains on far right
   const curtainMat = new THREE.MeshStandardMaterial({
     color: 0x2e2723,
     roughness: 0.92
   });
   const curtain = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.24, 0.28, 3.8, 14),
+    new THREE.CylinderGeometry(0.26, 0.32, 4.2, 16),
     curtainMat
   );
-  curtain.position.set(2.45, 0.8, -1.8);
+  curtain.position.set(2.65, floorY + 2.1, -1.9);
   group.add(curtain);
 
-  // Ambient Floor / Pendant Lamp (Right side, casting warm amber glow, frame_001.jpg)
+  // Ambient Floor Lamp standing on floor (Right side, casting warm amber glow)
   const lampGroup = new THREE.Group();
-  lampGroup.position.set(1.55, deskY, -1.35);
+  lampGroup.position.set(1.68, floorY, -1.42);
 
-  const lampPole = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.015, 0.015, 2.2, 10),
+  const lampBasePlate = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.18, 0.18, 0.02, 18),
     aluminumMat
   );
-  lampPole.position.y = 1.1;
+  lampBasePlate.position.y = 0.01;
+  lampGroup.add(lampBasePlate);
+
+  const lampPole = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.015, 0.015, 2.3, 12),
+    aluminumMat
+  );
+  lampPole.position.y = 1.15;
   lampGroup.add(lampPole);
 
   const lampShade = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.16, 0.28, 0.26, 16),
+    new THREE.CylinderGeometry(0.18, 0.32, 0.28, 18),
     new THREE.MeshStandardMaterial({
       color: 0x2e1c12,
       emissive: 0xd47e28,
@@ -688,28 +737,28 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
       roughness: 0.55
     })
   );
-  lampShade.position.y = 1.95;
+  lampShade.position.y = 2.15;
   lampGroup.add(lampShade);
 
-  const deskLampLight = new THREE.PointLight(0xff9e3b, 2.4, 7.5);
-  deskLampLight.position.set(0, 1.90, 0);
+  const deskLampLight = new THREE.PointLight(0xff9e3b, 2.6, 8.0);
+  deskLampLight.position.set(0, 2.10, 0);
   lampGroup.add(deskLampLight);
 
   group.add(lampGroup);
 
   // Soft warm wall wash behind monitor (bias lighting)
-  const wallBacklight = new THREE.PointLight(0xffe4be, 1.6, 4.5);
-  wallBacklight.position.set(-0.78, 0.28, -1.35);
+  const wallBacklight = new THREE.PointLight(0xffe4be, 1.8, 5.0);
+  wallBacklight.position.set(-0.78, 0.32, -1.45);
   group.add(wallBacklight);
 
   // =========================================================================
-  // 8. Overall Bright, Warm Room Lighting (NOT dark!)
+  // 9. Overall Bright, Warm Room Lighting
   // =========================================================================
-  const roomAmbient = new THREE.AmbientLight(0xfff5ea, 1.15); // Bright, luminous ambient light
+  const roomAmbient = new THREE.AmbientLight(0xfff5ea, 1.2);
   group.add(roomAmbient);
 
-  const ceilingKeyLight = new THREE.DirectionalLight(0xfff8ee, 1.25);
-  ceilingKeyLight.position.set(1.5, 3.8, 2.0);
+  const ceilingKeyLight = new THREE.DirectionalLight(0xfff8ee, 1.35);
+  ceilingKeyLight.position.set(1.5, 4.2, 2.2);
   group.add(ceilingKeyLight);
 
   return {
