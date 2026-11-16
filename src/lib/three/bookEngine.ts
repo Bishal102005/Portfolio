@@ -521,7 +521,7 @@ export class BookEngine {
       this.isBookHovered = false;
       if (this.canvas) this.canvas.style.cursor = 'default';
       this.go(1, 1);
-      
+
       this.onFloatingChange?.(true);
       this.onHintHide?.();
       return;
@@ -581,7 +581,7 @@ export class BookEngine {
     // Phase 1 (0.0s – 0.9s): Levitate up from desk into floating reading position in the room (No camera zoom!)
     tl.to(this.animState, {
       posX: this.portrait ? 0.02 : 0.0,
-      posY: this.portrait ? 0.14 : 0.06,
+      posY: this.portrait ? 0.16 : 0.19,
       posZ: this.portrait ? 0.06 : 0.58,
       scale: this.portrait ? 0.18 : 0.27,
       rotX: this.portrait ? -0.22 : -0.08,
@@ -616,7 +616,7 @@ export class BookEngine {
       this.isFloating = false;
       this.isBookHovered = false;
       this.group.scale.set(0.22, 0.22, 0.22);
-      
+
       if (this.canvas) this.canvas.style.cursor = 'default';
       this.onFloatingChange?.(false);
       return;
@@ -636,7 +636,7 @@ export class BookEngine {
         this.animState.isAnimating = false;
         this.animState.stage = 'desk';
         this.isFloating = false;
-        
+
         this.onFloatingChange?.(false);
       }
     });
@@ -943,7 +943,7 @@ export class BookEngine {
       const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.003;
       const floatSwayX = this.isReducedMotion ? 0 : Math.cos(t * 0.9) * 0.002;
       const targetFloatX = (this.portrait ? 0.02 : 0.0) + floatSwayX;
-      const targetFloatY = (this.portrait ? 0.14 : 0.06) + floatSwayY;
+      const targetFloatY = (this.portrait ? 0.16 : 0.19) + floatSwayY;
       const targetFloatZ = this.portrait ? 0.06 : 0.58;
       const targetScale = this.portrait ? 0.18 : 0.27;
 
@@ -1057,7 +1057,7 @@ export class BookEngine {
       (s.fm.material as THREE.Material).dispose();
       (s.bm.material as THREE.Material).dispose();
     });
-        this.sunburstCoverMesh?.geometry.dispose();
-        this.renderer?.dispose();
+    this.sunburstCoverMesh?.geometry.dispose();
+    this.renderer?.dispose();
   }
 }
