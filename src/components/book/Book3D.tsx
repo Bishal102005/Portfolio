@@ -68,7 +68,7 @@ export const Book3D: React.FC = () => {
       const hashIdx = NAMES.indexOf(initialHash);
       const startSpread = hashIdx >= 0 ? hashIdx : 0;
 
-      const initialFloating = startSpread > 0;
+      const initialFloating = initialHash !== '' && hashIdx >= 0;
       if (initialFloating) setIsFloating(true);
 
       const engine = new BookEngine({
@@ -121,7 +121,7 @@ export const Book3D: React.FC = () => {
 
   const handleNavigate = (spreadIdx: number) => {
     if (engineRef.current) {
-      engineRef.current.go(spreadIdx, 0);
+      engineRef.current.go(spreadIdx, spreadIdx === 0 ? 1 : 0);
     }
   };
 
@@ -145,7 +145,7 @@ export const Book3D: React.FC = () => {
 
   const handlePullFromShelf = () => {
     if (engineRef.current) {
-      engineRef.current.pullFromShelf();
+      engineRef.current.pullFromShelf(0);
     }
   };
 

@@ -434,9 +434,15 @@ export class BookEngine {
       this.backLeft.visible = this.cur > 0;
       this.backRight.visible = this.cur < this.S;
 
-      this.group.position.set(this.portrait ? -0.04 : 0.0, this.portrait ? 0.20 : 0.19, this.portrait ? 0.88 : 0.58);
+      const initScale = this.portrait ? 0.20 : 0.27;
+      const initCoverOffsetX = initialSpread === 0 ? (this.W / 2) * initScale : (initialSpread === this.S ? -(this.W / 2) * initScale : 0);
+      const initFloatX = (this.portrait ? -0.04 : 0.0) - initCoverOffsetX;
+      const initFloatY = this.portrait ? 0.20 : 0.19;
+      const initFloatZ = this.portrait ? 0.88 : 0.58;
+
+      this.group.position.set(initFloatX, initFloatY, initFloatZ);
       this.group.rotation.set(this.portrait ? -0.14 : -0.08, this.portrait ? 0.01 : 0.0, 0);
-      this.group.scale.set(this.portrait ? 0.20 : 0.27, this.portrait ? 0.20 : 0.27, this.portrait ? 0.20 : 0.27);
+      this.group.scale.set(initScale, initScale, initScale);
       this.dist = this.portrait ? 1.78 : 1.28;
     }
 
@@ -524,14 +530,14 @@ export class BookEngine {
     this.go(n, s);
   }
 
-  public pullFromShelf() {
+  public pullFromShelf(targetSpread: number = 0) {
     if (this.isFloating || this.animState.isAnimating) return;
 
     if (this.isReducedMotion) {
       this.isFloating = true;
       this.isBookHovered = false;
       if (this.canvas) this.canvas.style.cursor = 'default';
-      this.go(1, 1);
+      this.go(targetSpread, targetSpread === 0 ? 1 : 0);
 
       this.onFloatingChange?.(true);
       this.onHintHide?.();
@@ -582,6 +588,12 @@ export class BookEngine {
     this.animState.lookZ = this.portrait ? -0.28 : -0.36;
     this.animState.sunburstOpacity = 0.85;
 
+    const targetScale = this.portrait ? 0.20 : 0.27;
+    const coverOffsetX = targetSpread === 0 ? (this.W / 2) * targetScale : (targetSpread === this.S ? -(this.W / 2) * targetScale : 0);
+    const endFloatX = (this.portrait ? -0.04 : 0.0) - coverOffsetX;
+    const endFloatY = this.portrait ? 0.20 : 0.19;
+    const endFloatZ = this.portrait ? 0.88 : 0.58;
+
     const tl = gsap.timeline({
       onComplete: () => {
         this.animState.isAnimating = false;
@@ -594,10 +606,10 @@ export class BookEngine {
 
     // Phase 1 (0.0s – 0.9s): Levitate up from desk into floating reading position in the room (No camera zoom!)
     tl.to(this.animState, {
-      posX: this.portrait ? -0.04 : 0.0,
-      posY: this.portrait ? 0.20 : 0.19,
-      posZ: this.portrait ? 0.88 : 0.58,
-      scale: this.portrait ? 0.20 : 0.27,
+      posX: endFloatX,
+      posY: endFloatY,
+      posZ: endFloatZ,
+      scale: targetScale,
       rotX: this.portrait ? -0.14 : -0.08,
       rotY: this.portrait ? 0.01 : 0.0,
       rotZ: 0.0,
@@ -606,20 +618,35 @@ export class BookEngine {
       ease: 'power2.out'
     });
 
-    // Phase 2 (0.9s – 2.0s): Front cover hinges open while floating in mid-air in the room (frame_008 – frame_010)
-    tl.call(() => {
-      this.go(1, 1); // target = 1! Cover opens smoothly to Spread 1
-    });
-
-    tl.to(
-      this.animState,
-      {
-        sunburstOpacity: 0.0,
-        duration: 1.1,
-        ease: 'power2.inOut'
-      },
-      '<'
-    );
+    if (targetSpread === 0) {
+      // Open directly on #cover: stays closed on the front cover, glowing in mid-air
+      tl.call(() => {
+        this.go(0, 1);
+      });
+      tl.to(
+        this.animState,
+        {
+          sunburstOpacity: 0.0,
+          duration: 0.6,
+          ease: 'power2.inOut'
+        },
+        '<'
+      );
+    } else {
+      // Opening to a specific inner spread (e.g. from direct link / hash)
+      tl.call(() => {
+        this.go(targetSpread, 0);
+      });
+      tl.to(
+        this.animState,
+        {
+          sunburstOpacity: 0.0,
+          duration: 1.1,
+          ease: 'power2.inOut'
+        },
+        '<'
+      );
+    }
   }
 
   public returnToShelf() {
@@ -642,8 +669,8 @@ export class BookEngine {
       this.group.rotation.set(-Math.PI / 2, 0, -0.22);
       this.group.scale.set(0.20, 0.20, 0.20);
 
-      if (typeof window !== 'undefined' && location.hash.slice(1) !== NAMES[0]) {
-        location.hash = NAMES[0];
+      if (typeof window !== 'undefined' && location.hash) {
+        history.pushState(null, '', window.location.pathname + window.location.search);
       }
       this.onSpreadChange(0, 1, this.portrait);
 
@@ -664,8 +691,8 @@ export class BookEngine {
     // Set reading target to cover
     this.target = 0;
     this.side = 1;
-    if (typeof window !== 'undefined' && location.hash.slice(1) !== NAMES[0]) {
-      location.hash = NAMES[0];
+    if (typeof window !== 'undefined' && location.hash) {
+      history.pushState(null, '', window.location.pathname + window.location.search);
     }
     this.onSpreadChange(0, 1, this.portrait);
 
@@ -845,7 +872,7 @@ export class BookEngine {
       ].filter(Boolean);
       const hits = this.raycaster.intersectObjects(targets);
       if (hits.length > 0 || Math.abs(this.px) < 0.35) {
-        this.pullFromShelf();
+        this.pullFromShelf(0);
       }
       return;
     }
@@ -902,7 +929,7 @@ export class BookEngine {
   private handleKeyDown = (e: KeyboardEvent) => {
     if (!this.isFloating && !this.animState.isAnimating) {
       if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight' || e.key === 'ArrowUp') {
-        this.pullFromShelf();
+        this.pullFromShelf(0);
         return;
       }
     }
@@ -917,18 +944,23 @@ export class BookEngine {
   };
 
   private handleHashChange = () => {
-    const i = NAMES.indexOf(window.location.hash.slice(1));
+    const rawHash = window.location.hash.slice(1);
+    if (!rawHash) {
+      if (this.isFloating && !this.animState.isAnimating) {
+        this.returnToShelf();
+      }
+      return;
+    }
+    const i = NAMES.indexOf(rawHash);
     if (i >= 0) {
       if (!this.isFloating && !this.animState.isAnimating) {
-        if (i === 0) return;
-        this.pullFromShelf();
-        this.go(i, 0);
+        this.pullFromShelf(i);
         return;
       }
       this.target = i;
       if (i === 0) this.side = 1;
       if (i === this.S) this.side = 0;
-      this.onSpreadChange(i);
+      this.onSpreadChange(i, this.side, this.portrait);
     }
   };
 
@@ -1061,12 +1093,13 @@ export class BookEngine {
       }
     } else {
       // Floating open in the room facing the viewer (foreground reading depth: in front of chair & desk, zero occlusion!)
+      const targetScale = this.portrait ? 0.20 : 0.27;
+      const coverOffsetX = this.target === 0 ? (this.W / 2) * targetScale : (this.target === this.S ? -(this.W / 2) * targetScale : 0);
       const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.003;
       const floatSwayX = this.isReducedMotion ? 0 : Math.cos(t * 0.9) * 0.002;
-      const targetFloatX = (this.portrait ? -0.04 : 0.0) + floatSwayX;
+      const targetFloatX = (this.portrait ? -0.04 : 0.0) - coverOffsetX + floatSwayX;
       const targetFloatY = (this.portrait ? 0.20 : 0.19) + floatSwayY;
       const targetFloatZ = this.portrait ? 0.88 : 0.58;
-      const targetScale = this.portrait ? 0.20 : 0.27;
 
       const targetRotX = (this.portrait ? -0.14 : -0.08) + (this.isReducedMotion ? 0 : this.py * 0.015);
       const targetRotY = (this.portrait ? 0.01 : 0.0) + (this.isReducedMotion ? 0 : this.px * 0.02);
