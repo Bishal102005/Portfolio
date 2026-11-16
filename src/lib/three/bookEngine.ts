@@ -658,20 +658,23 @@ export class BookEngine {
     });
     this.pullTimeline = tl;
 
-    // Phase 1 (0.0s – 1.0s): Levitate up from desk, expand toward reading scale & slide to center (frame_005.jpg)
+    // Phase 1 (0.0s – 0.9s): Levitate up from desk into floating position above workspace (No camera zoom!)
     tl.to(this.animState, {
-      posX: 0.08,
-      posY: 0.08,
-      posZ: 0.0,
-      scale: 0.75,
+      posX: this.portrait ? 0.05 : 0.08,
+      posY: this.portrait ? 0.04 : 0.08,
+      posZ: this.portrait ? 0.08 : 0.12,
+      scale: this.portrait ? 0.20 : 0.24,
+      rotX: -0.46,
+      rotY: 0.32,
+      rotZ: 0.15,
       sunburstOpacity: 1.0,
-      duration: 1.0,
+      duration: 0.9,
       ease: 'power2.out',
       onStart: () => {
         if (this.bookParticlesGeo && this.bookParticleAngles) {
           const pos = this.bookParticlesGeo.attributes.position.array as Float32Array;
           for (let i = 0; i < this.bookParticleAngles.length; i++) {
-            this.bookParticleRadii[i] = 0.45 + Math.random() * 0.65;
+            this.bookParticleRadii[i] = 0.35 + Math.random() * 0.45;
             pos[i * 3] = Math.cos(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
             pos[i * 3 + 2] = Math.sin(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
           }
@@ -680,36 +683,16 @@ export class BookEngine {
       }
     });
 
-    // Phase 2 (1.0s – 2.0s): Tilt upright & reach full reading scale 1.0 (frame_006.jpg)
-    tl.to(this.animState, {
-      rotX: -0.14,
-      rotZ: 0.0,
-      rotY: 0.0,
-      scale: 1.0,
-      camX: 0.0,
-      camY: 0.32,
-      camDist: 2.10,
-      lookX: 0.0,
-      lookY: 0.04,
-      lookZ: 0.0,
-      sunburstOpacity: 0.4,
-      duration: 1.0,
-      ease: 'power2.inOut'
-    });
-
-    // Phase 3 (2.0s – 3.4s): Front cover hinges open (-150° on left edge, revealing Spread 1) (frame_007.jpg – frame_010.jpg)
+    // Phase 2 (0.9s – 2.0s): Front cover hinges open while floating in mid-air in the room (frame_008 – frame_010)
     tl.call(() => {
-      this.go(1, 1); // target = 1! Cover opens smoothly to Foreword & Contents!
+      this.go(1, 1); // target = 1! Cover opens smoothly to Spread 1
     });
 
     tl.to(
       this.animState,
       {
-        camDist: dd,
-        camY: this.portrait ? 0.08 : 0.32,
-        lookY: this.portrait ? 0.02 : 0.0,
         sunburstOpacity: 0.0,
-        duration: 1.4,
+        duration: 1.1,
         ease: 'power2.inOut'
       },
       '<'
@@ -750,20 +733,10 @@ export class BookEngine {
     });
     this.pullTimeline = tl;
 
-    // Step 1 (0.0s – 0.8s): Cover hinges closed back to front cover
+    // Step 1 (0.0s – 0.6s): Cover hinges closed back to front cover
     this.go(0, 0);
 
-    tl.to(this.animState, {
-      camDist: 2.10,
-      camY: 0.32,
-      lookY: 0.04,
-      lookX: 0.0,
-      lookZ: 0.0,
-      duration: 0.8,
-      ease: 'power2.inOut'
-    });
-
-    // Step 2 (0.8s – 1.6s): Tilt book flat, scale back down to 0.20 & rotate back toward desk alignment
+    // Step 2 (0.6s – 1.4s): Tilt book flat and rotate back toward desk alignment
     tl.to(this.animState, {
       rotX: -Math.PI / 2,
       rotZ: -0.36,
@@ -773,18 +746,12 @@ export class BookEngine {
       ease: 'power2.inOut'
     });
 
-    // Step 3 (1.6s – 2.4s): Float back down to resting position on walnut desk & camera eases out to 3/4 seated perspective
+    // Step 3 (1.4s – 2.0s): Float back down to resting position on walnut desk (No camera movement!)
     tl.to(this.animState, {
       posX: 0.16,
       posY: -0.088,
       posZ: -0.04,
-      camX: this.portrait ? 0.14 : 0.32,
-      camY: this.portrait ? 0.30 : 0.35,
-      camDist: this.portrait ? 0.95 : 0.76,
-      lookX: this.portrait ? 0.08 : -0.04,
-      lookY: -0.14,
-      lookZ: -0.22,
-      duration: 0.8,
+      duration: 0.6,
       ease: 'power2.inOut'
     });
   }
@@ -1021,21 +988,27 @@ export class BookEngine {
     const kPos = 1 - Math.exp(-dt * 4.5);
     const kRot = 1 - Math.exp(-dt * 4.5);
 
+    // The camera maintains the exact seated room perspective at ALL times (no zoom in, no zoom out!)
+    const targetCamDist = this.portrait ? 0.95 : 0.76;
+    const targetCamX = this.portrait ? 0.14 : 0.32;
+    const targetCamY = this.portrait ? 0.30 : 0.35;
+    const targetLookX = this.portrait ? 0.08 : -0.04;
+    const targetLookY = -0.14;
+    const targetLookZ = -0.22;
+
+    this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
+    const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.008;
+    const idleDriftY = this.isReducedMotion ? 0 : Math.cos(t * 0.28) * 0.006;
+    const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.04 + idleDriftX;
+    const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.03 + idleDriftY;
+    this.camera.position.set(targetCamX + camParallaxX, targetCamY + camParallaxY, this.dist);
+    this.camera.lookAt(targetLookX, targetLookY, targetLookZ);
+
     if (this.animState.isAnimating) {
-      // Actively running cinematic GSAP transition timeline matching the video
+      // Actively running GSAP transition timeline
       this.group.position.set(this.animState.posX, this.animState.posY, this.animState.posZ);
       this.group.rotation.set(this.animState.rotX, this.animState.rotY, this.animState.rotZ);
       this.group.scale.set(this.animState.scale, this.animState.scale, this.animState.scale);
-
-      this.dist = this.animState.camDist;
-      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.14;
-      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.08;
-      this.camera.position.set(
-        this.animState.camX + camParallaxX,
-        this.animState.camY + camParallaxY,
-        this.dist
-      );
-      this.camera.lookAt(this.animState.lookX, this.animState.lookY, this.animState.lookZ);
     } else if (!this.isFloating) {
       // Resting flat on solid walnut desk beside keyboard (exact 3/4 diagonal perspective matching frame_001.jpg)
       const hoverLift = this.isBookHovered ? 0.012 : 0;
@@ -1056,41 +1029,28 @@ export class BookEngine {
       this.group.rotation.z += (targetRotZ - this.group.rotation.z) * kRot;
 
       this.group.scale.set(targetScale, targetScale, targetScale);
-
-      // Natural 3/4 diagonal seated perspective matching frame_001.jpg
-      const targetCamDist = this.portrait ? 0.95 : 0.76;
-      const targetCamX = this.portrait ? 0.14 : 0.32;
-      const targetCamY = this.portrait ? 0.30 : 0.35;
-      const targetLookX = this.portrait ? 0.08 : -0.04;
-      const targetLookY = -0.14;
-      const targetLookZ = -0.22;
-
-      this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
-      const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.008;
-      const idleDriftY = this.isReducedMotion ? 0 : Math.cos(t * 0.28) * 0.006;
-      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.04 + idleDriftX;
-      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.03 + idleDriftY;
-      this.camera.position.set(targetCamX + camParallaxX, targetCamY + camParallaxY, this.dist);
-      this.camera.lookAt(targetLookX, targetLookY, targetLookZ);
     } else {
-      // Floating in reading position facing user
-      this.group.scale.set(1.0, 1.0, 1.0);
-      this.group.position.x += (-fx - this.group.position.x) * kPos;
-      const targetFloatY = this.isReducedMotion ? 0 : Math.sin(t * 0.8) * 0.025;
-      this.group.position.y += (targetFloatY - this.group.position.y) * kPos;
-      this.group.position.z += (0 - this.group.position.z) * kPos;
+      // Floating open in the room facing the viewer (full room remains completely visible!)
+      const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.008;
+      const floatSwayX = this.isReducedMotion ? 0 : Math.cos(t * 0.9) * 0.004;
+      const targetFloatX = (this.portrait ? 0.05 : 0.08) + floatSwayX;
+      const targetFloatY = (this.portrait ? 0.04 : 0.08) + floatSwayY;
+      const targetFloatZ = this.portrait ? 0.08 : 0.12;
+      const targetScale = this.portrait ? 0.20 : 0.24;
 
-      const targetRotX = this.isReducedMotion ? -0.08 : -0.08 + this.py * 0.1;
-      const targetRotY = this.isReducedMotion ? 0 : this.px * 0.18;
+      const targetRotX = -0.46 + (this.isReducedMotion ? 0 : this.py * 0.04);
+      const targetRotY = 0.32 + (this.isReducedMotion ? 0 : this.px * 0.06);
+      const targetRotZ = 0.15;
+
+      this.group.position.x += (targetFloatX - this.group.position.x) * kPos;
+      this.group.position.y += (targetFloatY - this.group.position.y) * kPos;
+      this.group.position.z += (targetFloatZ - this.group.position.z) * kPos;
+
       this.group.rotation.x += (targetRotX - this.group.rotation.x) * kRot;
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
-      this.group.rotation.z += (0 - this.group.rotation.z) * kRot;
+      this.group.rotation.z += (targetRotZ - this.group.rotation.z) * kRot;
 
-      this.dist += (dd - this.dist) * (1 - Math.exp(-dt * 3.5));
-      const targetCamY = this.portrait ? 0.08 : 0.35;
-      const targetLookY = this.portrait ? 0.02 : 0.0;
-      this.camera.position.set(0, targetCamY, this.dist);
-      this.camera.lookAt(0, targetLookY, 0);
+      this.group.scale.set(targetScale, targetScale, targetScale);
     }
 
     // Dynamic light brightness easing: warm, bright, clear illumination (NOT dark)
