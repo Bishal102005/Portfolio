@@ -538,12 +538,10 @@ nav button[aria-current="true"] {
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  background: radial-gradient(
-    ellipse 90% 80% at 50% 50%,
-    transparent 65%,
-    rgba(35, 22, 12, 0.08) 85%,
-    rgba(20, 12, 6, 0.16) 100%
-  );
+  background: radial-gradient(ellipse 90% 80% at 50% 50%,
+      transparent 65%,
+      rgba(35, 22, 12, 0.08) 85%,
+      rgba(20, 12, 6, 0.16) 100%);
   box-shadow: none;
   transition: opacity 0.8s ease;
 }
