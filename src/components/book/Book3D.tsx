@@ -45,12 +45,12 @@ export const Book3D: React.FC = () => {
       const fontPromises =
         typeof document !== 'undefined' && 'fonts' in document
           ? [
-              '700 40px "Playfair Display"',
-              '500 20px "Playfair Display"',
-              'italic 500 20px "Playfair Display"',
-              '400 16px Inter',
-              '600 16px Inter'
-            ].map((f) => document.fonts.load(f))
+            '700 40px "Playfair Display"',
+            '500 20px "Playfair Display"',
+            'italic 500 20px "Playfair Display"',
+            '400 16px Inter',
+            '600 16px Inter'
+          ].map((f) => document.fonts.load(f))
           : [];
 
       try {

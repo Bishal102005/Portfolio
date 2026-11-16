@@ -182,25 +182,25 @@ export class BookEngine {
   private animState = {
     isAnimating: false,
     stage: 'desk' as 'desk' | 'pulling' | 'reveal_cover' | 'reading' | 'returning',
-    posX: 0.48,
-    posY: -0.49,
-    posZ: -0.05,
-    rotX: -Math.PI / 2,
+    posX: 0.36,
+    posY: -0.46,
+    posZ: 0.05,
+    rotX: -Math.PI / 2 + 0.12,
     rotY: 0,
-    rotZ: -0.06,
-    camDist: 1.35,
-    camX: 0.18,
-    camY: 0.38,
-    lookX: 0.18,
-    lookY: -0.44,
-    lookZ: -0.15,
+    rotZ: -0.22,
+    camDist: 1.28,
+    camX: 0.28,
+    camY: 0.32,
+    lookX: 0.04,
+    lookY: -0.28,
+    lookZ: -0.25,
     sunburstOpacity: 0
   };
   private pullTimeline: gsap.core.Timeline | null = null;
 
   private acc = 0;
   private hov = 0;
-  private dist = 1.35;
+  private dist = 1.28;
   private px = 0;
   private py = 0;
   private wheelT = 0;
@@ -243,12 +243,12 @@ export class BookEngine {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.0;
+    this.renderer.toneMappingExposure = 1.25; // Warm, bright, photographic exposure (NOT dark)
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x0e0b12, 0.06);
-    this.camera = new THREE.PerspectiveCamera(48, 1, 0.1, 60);
+    this.scene.fog = null; // No dark fog obscuring the room
+    this.camera = new THREE.PerspectiveCamera(46, 1, 0.1, 60);
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
@@ -256,14 +256,14 @@ export class BookEngine {
     this.workspace = createDeskWorkspaceScene();
     this.scene.add(this.workspace.group);
 
-    // Dedicated Reading Key Light directly illuminating the floating book (soft, glare-free, restful reading light)
-    this.readingLight = new THREE.DirectionalLight(0xfff6ed, this.isFloating ? (this.target > 0 ? 1.05 : 0.95) : 0.2);
-    this.readingLight.position.set(0, 1.2, 4.0);
+    // Dedicated Reading Key Light directly illuminating the floating book
+    this.readingLight = new THREE.DirectionalLight(0xfff8ee, this.isFloating ? 1.25 : 0.4);
+    this.readingLight.position.set(0.5, 1.6, 3.8);
     this.scene.add(this.readingLight);
 
     // Soft warm front fill light directly for book pages
-    this.readingFillLight = new THREE.PointLight(0xffeedd, this.isFloating ? (this.target > 0 ? 0.55 : 0.45) : 0.15, 12);
-    this.readingFillLight.position.set(0, 0.2, 3.8);
+    this.readingFillLight = new THREE.PointLight(0xffeedd, this.isFloating ? 0.75 : 0.35, 12);
+    this.readingFillLight.position.set(0, 0.3, 3.6);
     this.scene.add(this.readingFillLight);
 
     // Canvas textures for book pages
@@ -436,19 +436,21 @@ export class BookEngine {
     this.group.add(this.sunburstCoverMesh);
 
     // =========================================================================
-    // Swirling Orbital Ribbon Particles (Matching frame_005.jpg – frame_010.jpg)
+    // Swirling Dual-Strand Orbital Ribbon Particles (frame_005.jpg – frame_010.jpg)
     // =========================================================================
-    const ribbonCount = 54;
+    const ribbonCount = 84;
     const orbitalRibbonGeo = new THREE.BufferGeometry();
     const ribbonPos = new Float32Array(ribbonCount * 3);
     this.orbitalRibbonAngles = new Float32Array(ribbonCount);
     this.orbitalRibbonSpeeds = new Float32Array(ribbonCount);
 
     for (let i = 0; i < ribbonCount; i++) {
-      this.orbitalRibbonAngles[i] = (i / ribbonCount) * Math.PI * 4;
-      this.orbitalRibbonSpeeds[i] = 0.75 + Math.random() * 0.75;
-      const radius = 0.45 + (i % 3) * 0.15;
-      const y = (i / ribbonCount - 0.5) * 1.1;
+      const strand = i % 2 === 0 ? 0 : Math.PI;
+      const progress = i / ribbonCount;
+      this.orbitalRibbonAngles[i] = progress * Math.PI * 4 + strand;
+      this.orbitalRibbonSpeeds[i] = 1.1 + Math.random() * 0.6;
+      const radius = 0.52 + (i % 3) * 0.14;
+      const y = (progress - 0.5) * 1.25;
       ribbonPos[i * 3] = Math.cos(this.orbitalRibbonAngles[i]) * radius;
       ribbonPos[i * 3 + 1] = y;
       ribbonPos[i * 3 + 2] = Math.sin(this.orbitalRibbonAngles[i]) * radius;
@@ -456,10 +458,10 @@ export class BookEngine {
     orbitalRibbonGeo.setAttribute('position', new THREE.BufferAttribute(ribbonPos, 3));
 
     const orbitalRibbonMat = new THREE.PointsMaterial({
-      size: 0.036,
-      color: 0xffd266,
+      size: 0.045,
+      color: 0xffd875,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.9,
       blending: THREE.AdditiveBlending,
       depthWrite: false
     });
@@ -485,10 +487,10 @@ export class BookEngine {
     });
 
     if (!this.isFloating) {
-      // Resting flat on the solid walnut desk on the right side
-      this.group.position.set(0.48, -0.49, -0.05);
-      this.group.rotation.set(-Math.PI / 2, 0, -0.06);
-      this.dist = 1.35;
+      // Resting flat on the solid walnut desk on the right side (matching frame_001.jpg)
+      this.group.position.set(0.36, -0.46, 0.05);
+      this.group.rotation.set(-Math.PI / 2 + 0.12, 0, -0.22);
+      this.dist = 1.28;
     } else {
       this.group.position.set(0, 0, 0);
       this.group.rotation.set(-0.08, 0, 0);
@@ -618,20 +620,20 @@ export class BookEngine {
       s.tp = 0;
     });
 
-    // Initialize animState from resting desk position
-    this.animState.posX = 0.48;
-    this.animState.posY = -0.49;
-    this.animState.posZ = -0.05;
-    this.animState.rotX = -Math.PI / 2;
+    // Initialize animState from resting desk position (matching frame_001.jpg)
+    this.animState.posX = 0.36;
+    this.animState.posY = -0.46;
+    this.animState.posZ = 0.05;
+    this.animState.rotX = -Math.PI / 2 + 0.12;
     this.animState.rotY = 0;
-    this.animState.rotZ = -0.06;
-    this.animState.camDist = 1.35;
-    this.animState.camX = 0.18;
-    this.animState.camY = 0.38;
-    this.animState.lookX = 0.18;
-    this.animState.lookY = -0.44;
-    this.animState.lookZ = -0.15;
-    this.animState.sunburstOpacity = 0.8;
+    this.animState.rotZ = -0.22;
+    this.animState.camDist = 1.28;
+    this.animState.camX = 0.28;
+    this.animState.camY = 0.32;
+    this.animState.lookX = 0.04;
+    this.animState.lookY = -0.28;
+    this.animState.lookZ = -0.25;
+    this.animState.sunburstOpacity = 0.85;
 
     if (this.orbitalRibbonPoints) this.orbitalRibbonPoints.visible = true;
 
@@ -645,10 +647,10 @@ export class BookEngine {
     });
     this.pullTimeline = tl;
 
-    // Phase 1 (0.0s – 1.0s): Levitate up from desk & slide to center screen (matching frame_005.jpg)
+    // Phase 1 (0.0s – 1.0s): Levitate up from desk & slide slightly toward center (frame_005.jpg)
     tl.to(this.animState, {
-      posX: 0.0,
-      posY: 0.06,
+      posX: 0.12,
+      posY: 0.08,
       posZ: 0.0,
       sunburstOpacity: 1.0,
       duration: 1.0,
@@ -666,23 +668,23 @@ export class BookEngine {
       }
     });
 
-    // Phase 2 (1.0s – 2.0s): Tilt upright & align camera to floating reading view (matching frame_006.jpg)
+    // Phase 2 (1.0s – 2.0s): Tilt upright & align camera to floating reading view (frame_006.jpg)
     tl.to(this.animState, {
       rotX: -0.14,
       rotZ: 0.0,
       rotY: 0.0,
-      camX: 0.0,
-      camY: 0.35,
-      camDist: 2.30,
-      lookX: 0.0,
-      lookY: 0.08,
+      camX: 0.10,
+      camY: 0.22,
+      camDist: 1.22,
+      lookX: 0.05,
+      lookY: 0.02,
       lookZ: 0.0,
       sunburstOpacity: 0.4,
       duration: 1.0,
       ease: 'power2.inOut'
     });
 
-    // Phase 3 (2.0s – 3.4s): Front cover hinges open (-150° on left edge, revealing Spread 1) (matching frame_007.jpg – frame_010.jpg)
+    // Phase 3 (2.0s – 3.4s): Front cover hinges open (-150° on left edge, revealing Spread 1) (frame_007.jpg – frame_010.jpg)
     tl.call(() => {
       this.go(1, 1); // target = 1! Cover opens smoothly to Foreword & Contents!
     });
@@ -691,7 +693,7 @@ export class BookEngine {
       this.animState,
       {
         camDist: dd,
-        camY: this.portrait ? 0.08 : 0.35,
+        camY: this.portrait ? 0.08 : 0.32,
         lookY: this.portrait ? 0.02 : 0.0,
         sunburstOpacity: 0.0,
         duration: 1.4,
@@ -738,10 +740,10 @@ export class BookEngine {
     this.go(0, 0);
 
     tl.to(this.animState, {
-      camDist: 2.3,
-      camY: 0.35,
-      lookY: 0.08,
-      lookX: 0.0,
+      camDist: 1.22,
+      camY: 0.22,
+      lookY: 0.02,
+      lookX: 0.05,
       lookZ: 0.0,
       duration: 0.8,
       ease: 'power2.inOut'
@@ -749,24 +751,24 @@ export class BookEngine {
 
     // Step 2 (0.8s – 1.6s): Tilt book flat & rotate back toward desk alignment
     tl.to(this.animState, {
-      rotX: -Math.PI / 2,
-      rotZ: -0.06,
+      rotX: -Math.PI / 2 + 0.12,
+      rotZ: -0.22,
       rotY: 0.0,
       duration: 0.8,
       ease: 'power2.inOut'
     });
 
-    // Step 3 (1.6s – 2.4s): Float back down to resting position on walnut desk beside keyboard
+    // Step 3 (1.6s – 2.4s): Float back down to resting position on walnut desk beside keyboard (frame_001.jpg)
     tl.to(this.animState, {
-      posX: 0.48,
-      posY: -0.49,
-      posZ: -0.05,
-      camX: 0.18,
-      camY: 0.38,
-      camDist: 1.35,
-      lookX: 0.18,
-      lookY: -0.44,
-      lookZ: -0.15,
+      posX: 0.36,
+      posY: -0.46,
+      posZ: 0.05,
+      camX: 0.28,
+      camY: 0.32,
+      camDist: 1.28,
+      lookX: 0.04,
+      lookY: -0.28,
+      lookZ: -0.25,
       duration: 0.8,
       ease: 'power2.inOut'
     });
@@ -1019,14 +1021,14 @@ export class BookEngine {
       );
       this.camera.lookAt(this.animState.lookX, this.animState.lookY, this.animState.lookZ);
     } else if (!this.isFloating) {
-      // Resting flat on solid walnut desk beside keyboard
+      // Resting flat on solid walnut desk beside keyboard (matching frame_001.jpg exactly)
       const hoverLift = this.isBookHovered ? 0.025 : 0;
-      const targetDeskX = 0.48;
-      const targetDeskY = -0.49 + hoverLift;
-      const targetDeskZ = -0.05;
-      const targetRotX = -Math.PI / 2;
+      const targetDeskX = 0.36;
+      const targetDeskY = -0.46 + hoverLift;
+      const targetDeskZ = 0.05;
+      const targetRotX = -Math.PI / 2 + 0.12;
       const targetRotY = 0;
-      const targetRotZ = -0.06;
+      const targetRotZ = -0.22;
 
       this.group.position.x += (targetDeskX - this.group.position.x) * kPos;
       this.group.position.y += (targetDeskY - this.group.position.y) * kPos;
@@ -1036,17 +1038,17 @@ export class BookEngine {
       this.group.rotation.y += (targetRotY - this.group.rotation.y) * kRot;
       this.group.rotation.z += (targetRotZ - this.group.rotation.z) * kRot;
 
-      // Cinematic developer workstation camera framing
-      const targetCamDist = 1.35;
-      const targetCamX = 0.18;
-      const targetCamY = 0.38;
+      // Cinematic developer workstation camera framing (matching frame_001.jpg)
+      const targetCamDist = 1.28;
+      const targetCamX = 0.28;
+      const targetCamY = 0.32;
       this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
-      const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.02;
-      const idleDriftY = this.isReducedMotion ? 0 : Math.cos(t * 0.28) * 0.015;
-      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.22 + idleDriftX;
-      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.12 + idleDriftY;
+      const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.015;
+      const idleDriftY = this.isReducedMotion ? 0 : Math.cos(t * 0.28) * 0.012;
+      const camParallaxX = this.isReducedMotion ? 0 : this.px * 0.16 + idleDriftX;
+      const camParallaxY = this.isReducedMotion ? 0 : -this.py * 0.10 + idleDriftY;
       this.camera.position.set(targetCamX + camParallaxX, targetCamY + camParallaxY, this.dist);
-      this.camera.lookAt(0.18, -0.44, -0.15);
+      this.camera.lookAt(0.04, -0.28, -0.25);
     } else {
       // Floating in reading position facing user
       this.group.position.x += (-fx - this.group.position.x) * kPos;
@@ -1067,11 +1069,11 @@ export class BookEngine {
       this.camera.lookAt(0, targetLookY, 0);
     }
 
-    // Dynamic light brightness easing: gentle, glare-free reading light
+    // Dynamic light brightness easing: warm, bright, clear illumination (NOT dark)
     const isReadingPages = this.isFloating && (this.target > 0 || this.cur > 0);
     if (this.readingLight && this.readingFillLight) {
-      const targetReadLight = isReadingPages ? 1.05 : this.isFloating ? 0.95 : 0.2;
-      const targetFillLight = isReadingPages ? 0.55 : this.isFloating ? 0.45 : 0.15;
+      const targetReadLight = isReadingPages ? 1.25 : this.isFloating ? 1.1 : 0.55;
+      const targetFillLight = isReadingPages ? 0.75 : this.isFloating ? 0.6 : 0.4;
       this.readingLight.intensity += (targetReadLight - this.readingLight.intensity) * (1 - Math.exp(-dt * 4.0));
       this.readingFillLight.intensity += (targetFillLight - this.readingFillLight.intensity) * (1 - Math.exp(-dt * 4.0));
     }
@@ -1153,18 +1155,18 @@ export class BookEngine {
     }
 
     // =========================================================================
-    // Animate Swirling Orbital Ribbon Particles (frame_005.jpg – frame_010.jpg)
+    // Animate Swirling Dual-Strand Ribbon Particles (frame_005.jpg – frame_010.jpg)
     // =========================================================================
     if (this.orbitalRibbonPoints && this.orbitalRibbonPoints.visible) {
       const pos = this.orbitalRibbonPoints.geometry.attributes.position.array as Float32Array;
       const count = pos.length / 3;
       for (let i = 0; i < count; i++) {
         this.orbitalRibbonAngles[i] += dt * this.orbitalRibbonSpeeds[i];
-        const r = 0.48 + Math.sin(t * 1.5 + i * 0.3) * 0.1;
+        const r = 0.52 + Math.sin(t * 2.0 + i * 0.25) * 0.12;
         pos[i * 3] = Math.cos(this.orbitalRibbonAngles[i]) * r;
         pos[i * 3 + 2] = Math.sin(this.orbitalRibbonAngles[i]) * r;
-        pos[i * 3 + 1] += dt * 0.16;
-        if (pos[i * 3 + 1] > 0.6) pos[i * 3 + 1] = -0.6;
+        pos[i * 3 + 1] += dt * 0.22;
+        if (pos[i * 3 + 1] > 0.65) pos[i * 3 + 1] = -0.65;
       }
       this.orbitalRibbonPoints.geometry.attributes.position.needsUpdate = true;
     }
