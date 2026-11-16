@@ -500,7 +500,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
     metalness: 0.01
   });
   const rug = new THREE.Mesh(rugGeo, rugMat);
-  rug.position.set(-0.45, floorY + 0.003, 0.12);
+  rug.position.set(-0.54, floorY + 0.003, 0.04);
   rug.receiveShadow = true;
   group.add(rug);
 
@@ -896,7 +896,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   // 4. Ergonomic Mesh Task Chair (Foreground Left on Circular Rug)
   // =========================================================================
   const chairGroup = new THREE.Group();
-  chairGroup.position.set(-0.45, floorY, 0.12);
+  chairGroup.position.set(-0.54, floorY, 0.04);
   chairGroup.rotation.y = 0.35; // Naturally tucked at desk matching reference photo
 
   // 5-Star Polished Chrome Base
