@@ -69,10 +69,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             className="return-library-btn"
             onClick={onReturnToShelf}
-            title="Put book back onto the bookshelf"
+            title="Put book back onto the desk"
           >
-            <span className="shelf-btn-text-full">↩ Put back on shelf</span>
-            <span className="shelf-btn-text-mobile">↩ Shelf</span>
+            <span className="shelf-btn-text-full">↩ Return to desk</span>
+            <span className="shelf-btn-text-mobile">↩ Desk</span>
           </button>
         )}
       </div>

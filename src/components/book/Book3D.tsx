@@ -164,7 +164,7 @@ export const Book3D: React.FC = () => {
       <canvas id="c" ref={canvasRef} aria-hidden="true" />
       <div className="film-vignette" aria-hidden="true" />
 
-      {/* Virtual library subtle hint */}
+      {/* Interactive desk book hint */}
       {!isFloating && (
         <div
           className="shelf-pill-hint"
@@ -175,7 +175,7 @@ export const Book3D: React.FC = () => {
             pointerEvents: 'auto',
             transition: 'opacity 0.6s ease'
           }}
-          title="Click to take out the glowing book"
+          title="Click to open glowing portfolio book"
         >
           <span style={{ color: '#e5a958' }}>✦</span>
           <span className="shelf-hint-desktop">Click the glowing book to open portfolio</span>
