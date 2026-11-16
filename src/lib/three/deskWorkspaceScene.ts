@@ -1501,11 +1501,13 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
     transparent: true,
     opacity: 0.0,
     blending: THREE.AdditiveBlending,
-    depthWrite: false
+    depthWrite: false,
+    visible: false
   });
   const deskSunburst = new THREE.Mesh(sunburstGeo, sunburstMat);
   deskSunburst.rotation.x = -Math.PI / 2;
   deskSunburst.position.set(0.28, deskTopY + 0.003, -0.08);
+  deskSunburst.visible = false;
   group.add(deskSunburst);
 
   // Steam particles placeholder to satisfy DeskWorkspaceResult interface

@@ -363,40 +363,21 @@ export class BookEngine {
     // =========================================================================
     const glowTex = createGlowTexture();
 
-    // 1. PointLight attached inside the spine that softly pulses and casts warm golden backlight
-    this.bookAuraLight = new THREE.PointLight(0xffbe3b, 1.8, 3.5);
-    this.bookAuraLight.position.set(-0.06, 0, -0.05);
+    // Clean natural book structure (no fluctuating aura/flares under book)
+    this.bookAuraLight = new THREE.PointLight(0xffbe3b, 0, 1.0);
+    this.bookAuraLight.visible = false;
     this.group.add(this.bookAuraLight);
 
-    // 2. Soft radial spine glow flare
     const spineGlowGeo = new THREE.PlaneGeometry(0.36, this.H + 0.22);
-    const spineGlowMat = new THREE.MeshBasicMaterial({
-      map: glowTex,
-      transparent: true,
-      opacity: 0.7,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.DoubleSide
-    });
+    const spineGlowMat = new THREE.MeshBasicMaterial({ visible: false, transparent: true, opacity: 0 });
     this.spineGlowPlane = new THREE.Mesh(spineGlowGeo, spineGlowMat);
-    this.spineGlowPlane.rotation.y = -Math.PI / 2;
-    this.spineGlowPlane.position.set(-0.065, 0, -0.02);
+    this.spineGlowPlane.visible = false;
     this.group.add(this.spineGlowPlane);
 
-    // =========================================================================
-    // Radiant Golden Sunburst Rays on Book Cover (Matching frame_003 & frame_005)
-    // =========================================================================
     const sunburstCoverGeo = new THREE.PlaneGeometry(1.3, 1.3);
-    const sunburstCoverMat = new THREE.MeshBasicMaterial({
-      map: createSunburstTexture(),
-      transparent: true,
-      opacity: 0,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.DoubleSide
-    });
+    const sunburstCoverMat = new THREE.MeshBasicMaterial({ visible: false, transparent: true, opacity: 0 });
     this.sunburstCoverMesh = new THREE.Mesh(sunburstCoverGeo, sunburstCoverMat);
-    this.sunburstCoverMesh.position.set(this.W / 2, 0, 0.025);
+    this.sunburstCoverMesh.visible = false;
     this.group.add(this.sunburstCoverMesh);
 
     // Invisible pick hit box for responsive hover and clicking
@@ -871,7 +852,7 @@ export class BookEngine {
         this.sunburstCoverMesh
       ].filter(Boolean);
       const hits = this.raycaster.intersectObjects(targets);
-      if (hits.length > 0 || Math.abs(this.px) < 0.35) {
+      if (hits.length > 0 || (this.portrait && Math.abs(this.px) < 0.35)) {
         this.pullFromShelf(0);
       }
       return;
@@ -1059,10 +1040,9 @@ export class BookEngine {
       this.group.rotation.set(this.animState.rotX, this.animState.rotY, this.animState.rotZ);
       this.group.scale.set(this.animState.scale, this.animState.scale, this.animState.scale);
     } else if (!this.isFloating) {
-      // Resting flat on solid light oak desk beside keyboard
-      const hoverLift = this.isBookHovered ? 0.012 : 0;
+      // Resting flat on solid light oak desk beside keyboard (stable, rock-solid, zero lift)
       const targetDeskX = 0.28;
-      const targetDeskY = -0.088 + hoverLift;
+      const targetDeskY = -0.088;
       const targetDeskZ = -0.08;
       const targetRotX = -Math.PI / 2; // Flat on desk
       const targetRotY = 0;
@@ -1127,40 +1107,19 @@ export class BookEngine {
 
 
 
-    // =========================================================================
-    // Animate Soft Golden Glow & Clean Embers for Bishal's Book
-    // =========================================================================
-    const pulse = Math.sin(t * 2.5) * 0.22 + 0.78; // Gentle breathing cycle
-    const hoverMult = this.isBookHovered ? 1.4 : 1.0;
-
+    // Aura and sunburst effects remain disabled - clean, solid book with zero fluctuating lights
     if (this.bookAuraLight) {
-      this.bookAuraLight.intensity = (this.isFloating ? 0.25 : 0.55) * pulse * hoverMult;
+      this.bookAuraLight.intensity = 0;
+      this.bookAuraLight.visible = false;
     }
     if (this.spineGlowPlane) {
-      (this.spineGlowPlane.material as THREE.MeshBasicMaterial).opacity = 0.35 * pulse * hoverMult;
+      this.spineGlowPlane.visible = false;
     }
-
-
-
-    // =========================================================================
-    // Animate Sunburst Caustics & Cover Ray Flare (Matching frame_003 & frame_005)
-    // =========================================================================
-    const targetSunburst = this.animState.isAnimating
-      ? this.animState.sunburstOpacity
-      : this.isBookHovered && !this.isFloating
-        ? 0.75
-        : 0.0;
-
     if (this.sunburstCoverMesh) {
-      const mat = this.sunburstCoverMesh.material as THREE.MeshBasicMaterial;
-      mat.opacity += (targetSunburst - mat.opacity) * (1 - Math.exp(-dt * 6.0));
-      this.sunburstCoverMesh.rotation.z += dt * 0.35;
+      this.sunburstCoverMesh.visible = false;
     }
-
     if (this.workspace && this.workspace.deskSunburst) {
-      const mat = this.workspace.deskSunburst.material as THREE.MeshBasicMaterial;
-      mat.opacity += (targetSunburst * 0.65 - mat.opacity) * (1 - Math.exp(-dt * 6.0));
-      this.workspace.deskSunburst.rotation.z += dt * 0.25;
+      this.workspace.deskSunburst.visible = false;
     }
 
     // =========================================================================
