@@ -176,28 +176,28 @@ export class BookEngine {
   private isBookHovered = false;
 
   private animState = {
-    isAnimating: false,
     stage: 'desk' as 'desk' | 'pulling' | 'reveal_cover' | 'reading' | 'returning',
-    posX: 0.18,
+    posX: 0.28,
     posY: -0.088,
-    posZ: -0.06,
-    scale: 0.22, // Real-world book proportion matching frame_001.jpg
-    rotX: -Math.PI / 2, // Strictly flat on desk - zero tilt/clipping into wood!
+    posZ: -0.08,
+    scale: 0.20,
+    rotX: -Math.PI / 2,
     rotY: 0,
-    rotZ: -0.38, // Exact diagonal angle in frame_001.jpg
-    camDist: 0.98,
-    camX: 0.42,
-    camY: 0.38,
-    lookX: 0.10,
-    lookY: -0.12,
-    lookZ: -0.22,
-    sunburstOpacity: 0
+    rotZ: -0.22,
+    camDist: 1.28,
+    camX: 0.04,
+    camY: 0.42,
+    lookX: 0.00,
+    lookY: -0.08,
+    lookZ: -0.36,
+    sunburstOpacity: 0,
+    isAnimating: false
   };
   private pullTimeline: gsap.core.Timeline | null = null;
 
   private acc = 0;
   private hov = 0;
-  private dist = 0.98;
+  private dist = 1.28;
   private px = 0;
   private py = 0;
   private wheelT = 0;
@@ -245,7 +245,7 @@ export class BookEngine {
 
     this.scene = new THREE.Scene();
     this.scene.fog = null; // No dark fog obscuring the room
-    this.camera = new THREE.PerspectiveCamera(56, 1, 0.1, 60); // Wide cinematic FOV revealing the full room (frame_001.jpg)
+    this.camera = new THREE.PerspectiveCamera(52, 1, 0.1, 60); // Wide cinematic FOV revealing the full room (frame_001.jpg)
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
@@ -521,7 +521,7 @@ export class BookEngine {
       this.isBookHovered = false;
       if (this.canvas) this.canvas.style.cursor = 'default';
       this.go(1, 1);
-      if (this.orbitalRibbonPoints) this.orbitalRibbonPoints.visible = true;
+      
       this.onFloatingChange?.(true);
       this.onHintHide?.();
       return;
@@ -552,23 +552,21 @@ export class BookEngine {
       s.tp = 0;
     });
 
-    // Initialize animState from resting desk position (frame_001.jpg full room perspective)
-    this.animState.posX = 0.18;
+    // Initialize animState from resting desk position on light Scandinavian oak desk
+    this.animState.posX = 0.28;
     this.animState.posY = -0.088;
-    this.animState.posZ = -0.06;
-    this.animState.scale = 0.22;
+    this.animState.posZ = -0.08;
+    this.animState.scale = 0.20;
     this.animState.rotX = -Math.PI / 2;
     this.animState.rotY = 0;
-    this.animState.rotZ = -0.38;
-    this.animState.camDist = this.portrait ? 1.18 : 0.98;
-    this.animState.camX = this.portrait ? 0.20 : 0.42;
-    this.animState.camY = this.portrait ? 0.36 : 0.38;
-    this.animState.lookX = this.portrait ? 0.08 : 0.10;
-    this.animState.lookY = -0.12;
-    this.animState.lookZ = -0.22;
+    this.animState.rotZ = -0.22;
+    this.animState.camDist = this.portrait ? 1.45 : 1.28;
+    this.animState.camX = this.portrait ? 0.08 : 0.04;
+    this.animState.camY = this.portrait ? 0.40 : 0.42;
+    this.animState.lookX = 0.00;
+    this.animState.lookY = -0.08;
+    this.animState.lookZ = -0.36;
     this.animState.sunburstOpacity = 0.85;
-
-    if (this.orbitalRibbonPoints) this.orbitalRibbonPoints.visible = true;
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -580,29 +578,18 @@ export class BookEngine {
     });
     this.pullTimeline = tl;
 
-    // Phase 1 (0.0s – 0.9s): Levitate up from desk into floating position in the room (No camera zoom!)
+    // Phase 1 (0.0s – 0.9s): Levitate up from desk into floating reading position in the room (No camera zoom!)
     tl.to(this.animState, {
-      posX: this.portrait ? 0.08 : 0.15,
-      posY: this.portrait ? 0.08 : 0.10,
-      posZ: this.portrait ? 0.14 : 0.20,
-      scale: this.portrait ? 0.22 : 0.28,
+      posX: this.portrait ? 0.04 : 0.06,
+      posY: this.portrait ? 0.08 : 0.12,
+      posZ: this.portrait ? 0.16 : 0.22,
+      scale: this.portrait ? 0.22 : 0.26,
       rotX: -0.395,
       rotY: 0.241,
       rotZ: 0.099,
       sunburstOpacity: 1.0,
       duration: 0.9,
-      ease: 'power2.out',
-      onStart: () => {
-        if (this.bookParticlesGeo && this.bookParticleAngles) {
-          const pos = this.bookParticlesGeo.attributes.position.array as Float32Array;
-          for (let i = 0; i < this.bookParticleAngles.length; i++) {
-            this.bookParticleRadii[i] = 0.35 + Math.random() * 0.45;
-            pos[i * 3] = Math.cos(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
-            pos[i * 3 + 2] = Math.sin(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
-          }
-          this.bookParticlesGeo.attributes.position.needsUpdate = true;
-        }
-      }
+      ease: 'power2.out'
     });
 
     // Phase 2 (0.9s – 2.0s): Front cover hinges open while floating in mid-air in the room (frame_008 – frame_010)
@@ -629,7 +616,7 @@ export class BookEngine {
       this.isFloating = false;
       this.isBookHovered = false;
       this.group.scale.set(0.22, 0.22, 0.22);
-      if (this.orbitalRibbonPoints) this.orbitalRibbonPoints.visible = false;
+      
       if (this.canvas) this.canvas.style.cursor = 'default';
       this.onFloatingChange?.(false);
       return;
@@ -649,7 +636,7 @@ export class BookEngine {
         this.animState.isAnimating = false;
         this.animState.stage = 'desk';
         this.isFloating = false;
-        if (this.orbitalRibbonPoints) this.orbitalRibbonPoints.visible = false;
+        
         this.onFloatingChange?.(false);
       }
     });
@@ -658,12 +645,12 @@ export class BookEngine {
     // Step 1 (0.0s – 0.6s): Cover hinges closed back to front cover
     this.go(0, 0);
 
-    // Step 2 (0.6s – 1.4s): Tilt book flat and rotate back toward desk alignment
+    // Step 2 (0.6s – 1.4s): Tilt book flat and rotate back toward oak desk alignment
     tl.to(this.animState, {
       rotX: -Math.PI / 2,
-      rotZ: -0.38,
+      rotZ: -0.22,
       rotY: 0.0,
-      scale: 0.22,
+      scale: 0.20,
       duration: 0.8,
       ease: 'power2.inOut'
     });
@@ -910,13 +897,13 @@ export class BookEngine {
     const kPos = 1 - Math.exp(-dt * 4.5);
     const kRot = 1 - Math.exp(-dt * 4.5);
 
-    // The camera maintains the wide cinematic full room perspective at ALL times (no zoom in, no zoom out!)
-    const targetCamDist = this.portrait ? 1.18 : 0.98;
-    const targetCamX = this.portrait ? 0.20 : 0.42;
-    const targetCamY = this.portrait ? 0.36 : 0.38;
-    const targetLookX = this.portrait ? 0.08 : 0.10;
-    const targetLookY = -0.12;
-    const targetLookZ = -0.22;
+    // The camera maintains the wide Scandinavian cozy room perspective at ALL times (no zoom in, no zoom out!)
+    const targetCamDist = this.portrait ? 1.45 : 1.28;
+    const targetCamX = this.portrait ? 0.08 : 0.04;
+    const targetCamY = this.portrait ? 0.40 : 0.42;
+    const targetLookX = 0.00;
+    const targetLookY = -0.08;
+    const targetLookZ = -0.36;
 
     this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
     const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.008;
@@ -984,10 +971,7 @@ export class BookEngine {
       this.readingFillLight.intensity += (targetFillLight - this.readingFillLight.intensity) * (1 - Math.exp(-dt * 4.0));
     }
 
-    // Hide book embers when reading internal pages so they do NOT obstruct text
-    if (this.bookParticles) {
-      this.bookParticles.visible = !isReadingPages;
-    }
+
 
     // =========================================================================
     // Animate Soft Golden Glow & Clean Embers for Bishal's Book
@@ -1002,22 +986,7 @@ export class BookEngine {
       (this.spineGlowPlane.material as THREE.MeshBasicMaterial).opacity = 0.7 * pulse * hoverMult;
     }
 
-    // Swirl delicate golden embers around Bishal's glowing book
-    if (this.bookParticlesGeo && this.bookParticleAngles) {
-      const bPos = this.bookParticlesGeo.attributes.position.array as Float32Array;
-      const speedMult = this.isBookHovered ? 1.8 : 1.0;
-      for (let i = 0; i < 24; i++) {
-        this.bookParticleAngles[i] += dt * this.bookParticleSpeeds[i] * speedMult;
-        this.bookParticleHeights[i] += dt * 0.16;
-        if (this.bookParticleHeights[i] > (this.H + 0.15) / 2) {
-          this.bookParticleHeights[i] = -(this.H + 0.15) / 2;
-        }
-        bPos[i * 3] = -0.03 + Math.cos(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
-        bPos[i * 3 + 1] = this.bookParticleHeights[i];
-        bPos[i * 3 + 2] = -0.02 + Math.sin(this.bookParticleAngles[i]) * this.bookParticleRadii[i];
-      }
-      this.bookParticlesGeo.attributes.position.needsUpdate = true;
-    }
+
 
     // =========================================================================
     // Animate Sunburst Caustics & Cover Ray Flare (Matching frame_003 & frame_005)
@@ -1060,22 +1029,7 @@ export class BookEngine {
       this.workspace.deskLampLight.intensity = 1.8 + Math.sin(t * 4.2) * 0.06 + Math.cos(t * 7.1) * 0.03;
     }
 
-    // =========================================================================
-    // Animate Swirling Dual-Strand Ribbon Particles (frame_005.jpg – frame_010.jpg)
-    // =========================================================================
-    if (this.orbitalRibbonPoints && this.orbitalRibbonPoints.visible) {
-      const pos = this.orbitalRibbonPoints.geometry.attributes.position.array as Float32Array;
-      const count = pos.length / 3;
-      for (let i = 0; i < count; i++) {
-        this.orbitalRibbonAngles[i] += dt * this.orbitalRibbonSpeeds[i];
-        const r = 0.52 + Math.sin(t * 2.0 + i * 0.25) * 0.12;
-        pos[i * 3] = Math.cos(this.orbitalRibbonAngles[i]) * r;
-        pos[i * 3 + 2] = Math.sin(this.orbitalRibbonAngles[i]) * r;
-        pos[i * 3 + 1] += dt * 0.22;
-        if (pos[i * 3 + 1] > 0.65) pos[i * 3 + 1] = -0.65;
-      }
-      this.orbitalRibbonPoints.geometry.attributes.position.needsUpdate = true;
-    }
+
 
     this.renderer.render(this.scene, this.camera);
     this.animId = requestAnimationFrame(this.animate);
@@ -1103,9 +1057,7 @@ export class BookEngine {
       (s.fm.material as THREE.Material).dispose();
       (s.bm.material as THREE.Material).dispose();
     });
-    this.bookParticlesGeo?.dispose();
-    this.sunburstCoverMesh?.geometry.dispose();
-    this.orbitalRibbonPoints?.geometry.dispose();
-    this.renderer?.dispose();
+        this.sunburstCoverMesh?.geometry.dispose();
+        this.renderer?.dispose();
   }
 }
