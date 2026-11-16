@@ -463,15 +463,15 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   });
 
   const wallMat = new THREE.MeshStandardMaterial({
-    color: 0x4a4338,
-    roughness: 0.94,
+    color: 0xe5dfd5, // Warm Scandinavian cream / linen plaster matching reference photo
+    roughness: 0.92,
     metalness: 0.01
   });
 
   const floorMat = new THREE.MeshStandardMaterial({
-    color: 0x34302a,
-    roughness: 0.78,
-    metalness: 0.02
+    color: 0x9e988e, // Warm light concrete tile
+    roughness: 0.72,
+    metalness: 0.04
   });
 
   // Scene Proportions
@@ -495,8 +495,8 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   // Circular Area Rug under chair (plush oat-beige wool felt)
   const rugGeo = new THREE.CylinderGeometry(0.60, 0.60, 0.006, 36);
   const rugMat = new THREE.MeshStandardMaterial({
-    color: 0x7c7568,
-    roughness: 0.96,
+    color: 0x827b6e,
+    roughness: 0.94,
     metalness: 0.01
   });
   const rug = new THREE.Mesh(rugGeo, rugMat);
@@ -523,6 +523,26 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   leftWall.receiveShadow = true;
   group.add(leftWall);
 
+  // Architectural White Wooden Baseboards (Skirting Boards along floor)
+  const baseboardMat = new THREE.MeshStandardMaterial({
+    color: 0xf3efe8,
+    roughness: 0.65,
+    metalness: 0.02
+  });
+  const backBaseboard = new THREE.Mesh(
+    new THREE.BoxGeometry(10.0, 0.085, 0.016),
+    baseboardMat
+  );
+  backBaseboard.position.set(0, floorY + 0.0425, -1.242);
+  group.add(backBaseboard);
+
+  const leftBaseboard = new THREE.Mesh(
+    new THREE.BoxGeometry(0.016, 0.085, 6.0),
+    baseboardMat
+  );
+  leftBaseboard.position.set(-1.142, floorY + 0.0425, 0.5);
+  group.add(leftBaseboard);
+
   // Slim Vertical Amber Light Bar in the corner (as seen in photo)
   const cornerLightGroup = new THREE.Group();
   cornerLightGroup.position.set(-1.12, floorY + 0.9, -1.22);
@@ -540,8 +560,8 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   cornerLightStrip.position.set(0.006, 0, 0.006);
   cornerLightGroup.add(cornerLightStrip);
 
-  const cornerLight = new THREE.PointLight(0xff7010, 1.4, 3.5);
-  cornerLight.position.set(0.04, 0, 0.04);
+  const cornerLight = new THREE.PointLight(0xff9428, 2.2, 4.5);
+  cornerLight.position.set(0.06, 0.20, 0.06);
   cornerLightGroup.add(cornerLight);
   group.add(cornerLightGroup);
 
@@ -595,64 +615,103 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
     shelfGroup.add(bracketH);
   });
 
-  // Hanging Trailing Ivy / Pothos Houseplant on the Left of Shelf
+  // Hanging Trailing Ivy / Pothos Houseplant on the Left of Shelf (Lush & Cascading)
   const plantGroup = new THREE.Group();
   plantGroup.position.set(-0.45, 0.011, 0);
 
-  // Matte Black Pot
+  // Matte Black Ceramic Pot with Saucer Rim
   const plantPot = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.065, 0.052, 0.11, 20),
+    new THREE.CylinderGeometry(0.068, 0.052, 0.12, 24),
     matteBlackMat
   );
-  plantPot.position.y = 0.055;
+  plantPot.position.y = 0.06;
   plantGroup.add(plantPot);
 
-  // Soil
+  const potRim = new THREE.Mesh(
+    new THREE.TorusGeometry(0.068, 0.008, 10, 24),
+    matteBlackMat
+  );
+  potRim.rotation.x = Math.PI / 2;
+  potRim.position.y = 0.12;
+  plantGroup.add(potRim);
+
+  // Potting Soil
   const soil = new THREE.Mesh(
-    new THREE.CircleGeometry(0.062, 16),
-    new THREE.MeshStandardMaterial({ color: 0x241710, roughness: 0.9 })
+    new THREE.CircleGeometry(0.064, 18),
+    new THREE.MeshStandardMaterial({ color: 0x1f140e, roughness: 0.95 })
   );
   soil.rotation.x = -Math.PI / 2;
-  soil.position.y = 0.108;
+  soil.position.y = 0.116;
   plantGroup.add(soil);
 
-  // Foliage Crown
-  const leafMat = new THREE.MeshStandardMaterial({
-    color: 0x2d5a27,
-    roughness: 0.55,
-    metalness: 0.05
+  // Multi-tone Natural Foliage Materials
+  const leafMatDark = new THREE.MeshStandardMaterial({
+    color: 0x244c1d,
+    roughness: 0.52,
+    metalness: 0.04,
+    side: THREE.DoubleSide
   });
+  const leafMatMid = new THREE.MeshStandardMaterial({
+    color: 0x346b2b,
+    roughness: 0.48,
+    metalness: 0.04,
+    side: THREE.DoubleSide
+  });
+  const leafMatLight = new THREE.MeshStandardMaterial({
+    color: 0x488a3a,
+    roughness: 0.45,
+    metalness: 0.03,
+    side: THREE.DoubleSide
+  });
+  const leafMats = [leafMatDark, leafMatMid, leafMatLight];
 
-  for (let l = 0; l < 16; l++) {
-    const angle = (l / 16) * Math.PI * 2;
-    const r = 0.035 + Math.random() * 0.035;
+  // Dense Bushy Foliage Crown on top of pot
+  for (let l = 0; l < 28; l++) {
+    const angle = (l / 28) * Math.PI * 2 + Math.random() * 0.2;
+    const r = 0.025 + Math.random() * 0.045;
+    const lMat = leafMats[l % 3];
     const leaf = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.038, 0.048),
-      leafMat
+      new THREE.PlaneGeometry(0.042, 0.052),
+      lMat
     );
-    leaf.position.set(Math.cos(angle) * r, 0.12 + Math.random() * 0.02, Math.sin(angle) * r);
-    leaf.rotation.set(-0.4, angle, 0);
+    leaf.position.set(Math.cos(angle) * r, 0.125 + Math.random() * 0.03, Math.sin(angle) * r);
+    leaf.rotation.set(-0.35 + Math.random() * 0.3, angle + 0.2, (Math.random() - 0.5) * 0.4);
     plantGroup.add(leaf);
   }
 
-  // Drooping Trailing Vines hanging down over the shelf edge
-  for (let v = 0; v < 6; v++) {
-    const vineAngle = -Math.PI / 2 + (v - 2.5) * 0.35;
-    const vineLen = 0.22 + (v % 3) * 0.10;
-    const vx = Math.cos(vineAngle) * 0.065;
-    const vz = 0.06 + Math.sin(vineAngle) * 0.02;
+  // 8 Drooping Trailing Vines cascading gracefully over the shelf edge
+  const vineOffsets = [
+    { angle: -Math.PI * 0.55, len: 0.44, sway: -0.02 },
+    { angle: -Math.PI * 0.45, len: 0.38, sway: 0.02 },
+    { angle: -Math.PI * 0.65, len: 0.32, sway: -0.04 },
+    { angle: -Math.PI * 0.35, len: 0.46, sway: 0.03 },
+    { angle: -Math.PI * 0.50, len: 0.40, sway: 0.00 },
+    { angle: -Math.PI * 0.72, len: 0.26, sway: -0.03 },
+    { angle: -Math.PI * 0.28, len: 0.28, sway: 0.04 },
+    { angle: -Math.PI * 0.48, len: 0.42, sway: -0.01 }
+  ];
 
-    for (let seg = 0; seg < 6; seg++) {
-      const segY = 0.09 - (seg / 5) * vineLen;
+  vineOffsets.forEach((v, vi) => {
+    const vx = Math.cos(v.angle) * 0.068 + v.sway;
+    const vz = 0.065 + Math.sin(v.angle) * 0.02;
+    const nodeCount = 8;
+
+    for (let seg = 0; seg < nodeCount; seg++) {
+      const progress = seg / (nodeCount - 1);
+      const segY = 0.10 - progress * v.len;
+      const waveX = Math.sin(progress * Math.PI * 2.5) * 0.018;
+      const lMat = leafMats[(vi + seg) % 3];
+      const leafScale = 1.0 - progress * 0.25;
+
       const vineLeaf = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.034, 0.044),
-        leafMat
+        new THREE.PlaneGeometry(0.040 * leafScale, 0.050 * leafScale),
+        lMat
       );
-      vineLeaf.position.set(vx + (seg % 2 === 0 ? 0.014 : -0.014), segY, vz + seg * 0.008);
-      vineLeaf.rotation.set(0.3, (seg * 0.5), 0);
+      vineLeaf.position.set(vx + waveX + (seg % 2 === 0 ? 0.016 : -0.016), segY, vz + progress * 0.035);
+      vineLeaf.rotation.set(0.35 + progress * 0.2, (seg * 0.6) + vi, (seg % 2 === 0 ? 0.2 : -0.2));
       plantGroup.add(vineLeaf);
     }
-  }
+  });
   shelfGroup.add(plantGroup);
 
   // Framed "dieter rams" Art leaning on shelf
@@ -703,8 +762,8 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   mushCap.position.y = 0.12;
   mushroomGroup.add(mushCap);
 
-  const shelfLampLight = new THREE.PointLight(0xff7c16, 1.0, 2.4);
-  shelfLampLight.position.set(0, 0.14, 0);
+  const shelfLampLight = new THREE.PointLight(0xff9824, 1.8, 3.2);
+  shelfLampLight.position.set(0, 0.16, 0.04);
   mushroomGroup.add(shelfLampLight);
   shelfGroup.add(mushroomGroup);
 
@@ -945,25 +1004,54 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   seatCushion.position.set(0, 0.34, -0.02);
   chairGroup.add(seatCushion);
 
-  // Curved Ergonomic White Backrest Frame
+  // Curved Ergonomic White Backrest Frame (Herman Miller / Scandinavian Style)
   const backFrame = new THREE.Mesh(
-    new THREE.BoxGeometry(0.42, 0.48, 0.028),
+    new THREE.BoxGeometry(0.44, 0.52, 0.024),
     whiteMetalMat
   );
-  backFrame.position.set(0, 0.60, 0.18);
+  backFrame.position.set(0, 0.62, 0.18);
   backFrame.rotation.x = -0.14;
   chairGroup.add(backFrame);
 
-  // Light Gray Breathable Mesh Panel with Lumbar Curve
+  // Ergonomic Wishbone / Y-Spine Lumbar Architecture on the Back
+  const spineVertical = new THREE.Mesh(
+    new THREE.BoxGeometry(0.038, 0.46, 0.022),
+    whiteMetalMat
+  );
+  spineVertical.position.set(0, 0.62, 0.198);
+  spineVertical.rotation.x = -0.14;
+  chairGroup.add(spineVertical);
+
+  // Horizontal Lumbar Support Bar across lower back
+  const lumbarBar = new THREE.Mesh(
+    new THREE.BoxGeometry(0.38, 0.065, 0.026),
+    whiteMetalMat
+  );
+  lumbarBar.position.set(0, 0.53, 0.188);
+  lumbarBar.rotation.x = -0.14;
+  chairGroup.add(lumbarBar);
+
+  // Upper Y-Rib Supports branching to shoulders
+  [-0.12, 0.12].forEach((rx) => {
+    const yRib = new THREE.Mesh(
+      new THREE.BoxGeometry(0.024, 0.22, 0.018),
+      whiteMetalMat
+    );
+    yRib.position.set(rx, 0.72, 0.21);
+    yRib.rotation.set(-0.14, 0, rx > 0 ? -0.32 : 0.32);
+    chairGroup.add(yRib);
+  });
+
+  // Light Gray Breathable Woven Mesh Panel
   const meshPanel = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.38, 0.44),
+    new THREE.PlaneGeometry(0.40, 0.48),
     new THREE.MeshStandardMaterial({
-      color: 0xc8c5be,
-      roughness: 0.88,
+      color: 0xd2cec7,
+      roughness: 0.82,
       side: THREE.DoubleSide
     })
   );
-  meshPanel.position.set(0, 0.60, 0.165);
+  meshPanel.position.set(0, 0.62, 0.165);
   meshPanel.rotation.x = -0.14;
   chairGroup.add(meshPanel);
 
@@ -1067,8 +1155,8 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   riserLed.position.set(0, riserH - 0.010, -riserD / 2);
   riserGroup.add(riserLed);
 
-  const wallBacklight = new THREE.PointLight(0xff8424, 1.3, 2.6);
-  wallBacklight.position.set(0, riserH + 0.08, -riserD / 2 - 0.08);
+  const wallBacklight = new THREE.PointLight(0xff8c20, 1.8, 3.2);
+  wallBacklight.position.set(0, riserH + 0.10, -riserD / 2 - 0.08);
   riserGroup.add(wallBacklight);
 
   group.add(riserGroup);
@@ -1399,7 +1487,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   filament.position.y = 0.096;
   lanternGroup.add(filament);
 
-  const deskLampLight = new THREE.PointLight(0xff9428, 0.75, 2.0);
+  const deskLampLight = new THREE.PointLight(0xffa238, 1.25, 2.8);
   deskLampLight.position.set(0, 0.10, 0);
   lanternGroup.add(deskLampLight);
   group.add(lanternGroup);
@@ -1430,11 +1518,12 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   // =========================================================================
   // 12. Atmospheric Room Illumination (Warm, High-CRI Scandinavian Interior)
   // =========================================================================
-  const roomAmbient = new THREE.AmbientLight(0xffeedd, 0.18);
+  const roomAmbient = new THREE.AmbientLight(0xfff2e4, 0.48);
   group.add(roomAmbient);
 
-  const ceilingKeyLight = new THREE.DirectionalLight(0xffe8d6, 0.15);
+  const ceilingKeyLight = new THREE.DirectionalLight(0xfff4ea, 0.42);
   ceilingKeyLight.position.set(1.5, 4.0, 2.0);
+  ceilingKeyLight.castShadow = true;
   group.add(ceilingKeyLight);
 
   return {

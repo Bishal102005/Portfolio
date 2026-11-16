@@ -240,7 +240,7 @@ export class BookEngine {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 0.88; // Balanced cozy filmic exposure
+    this.renderer.toneMappingExposure = 1.04; // Rich cozy filmic exposure with luminous ambient lighting
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     this.scene = new THREE.Scene();
@@ -422,7 +422,7 @@ export class BookEngine {
       this.group.position.set(0.28, -0.088, -0.08);
       this.group.rotation.set(-Math.PI / 2, 0, -0.22);
       this.group.scale.set(0.20, 0.20, 0.20);
-      this.dist = this.portrait ? 2.45 : 1.28;
+      this.dist = this.portrait ? 1.78 : 1.28;
     } else {
       this.cur = initialSpread;
       this.target = initialSpread;
@@ -434,10 +434,10 @@ export class BookEngine {
       this.backLeft.visible = this.cur > 0;
       this.backRight.visible = this.cur < this.S;
 
-      this.group.position.set(this.portrait ? -0.12 : 0.0, this.portrait ? 0.22 : 0.19, this.portrait ? 1.35 : 0.58);
+      this.group.position.set(this.portrait ? -0.04 : 0.0, this.portrait ? 0.20 : 0.19, this.portrait ? 0.88 : 0.58);
       this.group.rotation.set(this.portrait ? -0.14 : -0.08, this.portrait ? 0.01 : 0.0, 0);
-      this.group.scale.set(this.portrait ? 0.25 : 0.27, this.portrait ? 0.25 : 0.27, this.portrait ? 0.25 : 0.27);
-      this.dist = this.portrait ? 2.45 : 1.28;
+      this.group.scale.set(this.portrait ? 0.20 : 0.27, this.portrait ? 0.20 : 0.27, this.portrait ? 0.20 : 0.27);
+      this.dist = this.portrait ? 1.78 : 1.28;
     }
 
     this.attachEventListeners();
@@ -574,12 +574,12 @@ export class BookEngine {
     this.animState.rotX = -Math.PI / 2;
     this.animState.rotY = 0;
     this.animState.rotZ = -0.22;
-    this.animState.camDist = this.portrait ? 2.45 : 1.28;
-    this.animState.camX = this.portrait ? -0.15 : 0.04;
-    this.animState.camY = this.portrait ? 0.22 : 0.42;
-    this.animState.lookX = this.portrait ? -0.12 : 0.00;
-    this.animState.lookY = this.portrait ? 0.02 : -0.08;
-    this.animState.lookZ = this.portrait ? -0.30 : -0.36;
+    this.animState.camDist = this.portrait ? 1.78 : 1.28;
+    this.animState.camX = this.portrait ? -0.06 : 0.04;
+    this.animState.camY = this.portrait ? 0.28 : 0.42;
+    this.animState.lookX = this.portrait ? -0.04 : 0.00;
+    this.animState.lookY = this.portrait ? 0.06 : -0.08;
+    this.animState.lookZ = this.portrait ? -0.28 : -0.36;
     this.animState.sunburstOpacity = 0.85;
 
     const tl = gsap.timeline({
@@ -594,10 +594,10 @@ export class BookEngine {
 
     // Phase 1 (0.0s – 0.9s): Levitate up from desk into floating reading position in the room (No camera zoom!)
     tl.to(this.animState, {
-      posX: this.portrait ? -0.12 : 0.0,
-      posY: this.portrait ? 0.22 : 0.19,
-      posZ: this.portrait ? 1.35 : 0.58,
-      scale: this.portrait ? 0.25 : 0.27,
+      posX: this.portrait ? -0.04 : 0.0,
+      posY: this.portrait ? 0.20 : 0.19,
+      posZ: this.portrait ? 0.88 : 0.58,
+      scale: this.portrait ? 0.20 : 0.27,
       rotX: this.portrait ? -0.14 : -0.08,
       rotY: this.portrait ? 0.01 : 0.0,
       rotZ: 0.0,
@@ -767,10 +767,10 @@ export class BookEngine {
     this.portrait = w / h < 0.95;
 
     if (this.portrait) {
-      // In mobile portrait, calculate vertical FOV dynamically to frame the entire Scandinavian room
+      // In mobile portrait, calculate vertical FOV dynamically to frame the cozy Scandinavian room
       const aspect = Math.max(0.35, Math.min(0.95, this.camera.aspect));
-      const vFovRad = 2 * Math.atan(0.40 / aspect);
-      this.camera.fov = THREE.MathUtils.clamp((vFovRad * 180) / Math.PI, 56, 76);
+      const vFovRad = 2 * Math.atan(0.46 / aspect);
+      this.camera.fov = THREE.MathUtils.clamp((vFovRad * 180) / Math.PI, 54, 72);
     } else {
       this.camera.fov = 52;
     }
@@ -1006,12 +1006,12 @@ export class BookEngine {
     const kRot = 1 - Math.exp(-dt * 4.5);
 
     // The camera maintains the wide Scandinavian cozy room perspective at ALL times (no zoom in, no zoom out!)
-    const targetCamDist = this.portrait ? 2.45 : 1.28;
-    const targetCamX = this.portrait ? -0.15 : 0.04;
-    const targetCamY = this.portrait ? 0.22 : 0.42;
-    const targetLookX = this.portrait ? -0.12 : 0.00;
-    const targetLookY = this.portrait ? 0.02 : -0.08;
-    const targetLookZ = this.portrait ? -0.30 : -0.36;
+    const targetCamDist = this.portrait ? 1.78 : 1.28;
+    const targetCamX = this.portrait ? -0.06 : 0.04;
+    const targetCamY = this.portrait ? 0.28 : 0.42;
+    const targetLookX = this.portrait ? -0.04 : 0.00;
+    const targetLookY = this.portrait ? 0.06 : -0.08;
+    const targetLookZ = this.portrait ? -0.28 : -0.36;
 
     this.dist += (targetCamDist - this.dist) * (1 - Math.exp(-dt * 3.5));
     const idleDriftX = this.isReducedMotion ? 0 : Math.sin(t * 0.35) * 0.008;
@@ -1063,10 +1063,10 @@ export class BookEngine {
       // Floating open in the room facing the viewer (foreground reading depth: in front of chair & desk, zero occlusion!)
       const floatSwayY = this.isReducedMotion ? 0 : Math.sin(t * 1.1) * 0.003;
       const floatSwayX = this.isReducedMotion ? 0 : Math.cos(t * 0.9) * 0.002;
-      const targetFloatX = (this.portrait ? -0.12 : 0.0) + floatSwayX;
-      const targetFloatY = (this.portrait ? 0.22 : 0.19) + floatSwayY;
-      const targetFloatZ = this.portrait ? 1.35 : 0.58;
-      const targetScale = this.portrait ? 0.25 : 0.27;
+      const targetFloatX = (this.portrait ? -0.04 : 0.0) + floatSwayX;
+      const targetFloatY = (this.portrait ? 0.20 : 0.19) + floatSwayY;
+      const targetFloatZ = this.portrait ? 0.88 : 0.58;
+      const targetScale = this.portrait ? 0.20 : 0.27;
 
       const targetRotX = (this.portrait ? -0.14 : -0.08) + (this.isReducedMotion ? 0 : this.py * 0.015);
       const targetRotY = (this.portrait ? 0.01 : 0.0) + (this.isReducedMotion ? 0 : this.px * 0.02);
