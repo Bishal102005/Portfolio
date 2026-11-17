@@ -61,21 +61,44 @@ export function createWalnutDeskTexture(): THREE.CanvasTexture {
 }
 
 // ============================================================================
-// Procedural Monitor Wallpaper Texture: "FOCUS - PLAN • EXECUTE • SUCCEED"
+// Wallpaper Utilities & Dynamic Image Loader
 // ============================================================================
-export function createFocusWallpaperTexture(): THREE.CanvasTexture {
-  const canvas = document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 576; // 16:9 widescreen
-  const ctx = canvas.getContext('2d')!;
+function drawImageAspectFill(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  targetWidth: number,
+  targetHeight: number,
+  verticalFocus = 0.06 // 0 = top, 0.5 = center, 1 = bottom
+) {
+  const targetRatio = targetWidth / targetHeight;
+  const imgRatio = img.width / img.height;
 
+  let sWidth = img.width;
+  let sHeight = img.height;
+  let sx = 0;
+  let sy = 0;
+
+  if (imgRatio > targetRatio) {
+    sWidth = img.height * targetRatio;
+    sx = (img.width - sWidth) / 2;
+  } else {
+    sHeight = img.width / targetRatio;
+    // Position crop with top-bias so hair, heads, and faces have proper headroom
+    sy = Math.max(0, (img.height - sHeight) * verticalFocus);
+  }
+
+  ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+}
+
+// Procedural Monitor Wallpaper: "FOCUS - PLAN • EXECUTE • SUCCEED"
+export function drawFocusWallpaper(ctx: CanvasRenderingContext2D, width = 1024, height = 576): void {
   // Warm minimalist off-white / light cream background
-  const bgGrad = ctx.createLinearGradient(0, 0, 0, 576);
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
   bgGrad.addColorStop(0, '#f7f5f0');
   bgGrad.addColorStop(0.5, '#f2eee6');
   bgGrad.addColorStop(1, '#ece7dd');
   ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, 1024, 576);
+  ctx.fillRect(0, 0, width, height);
 
   // Flowing soft contour wave lines matching the user's photo
   ctx.lineWidth = 1.6;
@@ -85,7 +108,7 @@ export function createFocusWallpaperTexture(): THREE.CanvasTexture {
     const yOffset = 310 + i * 22;
     ctx.moveTo(0, yOffset + 30);
     ctx.bezierCurveTo(240, yOffset - 40, 480, yOffset + 45, 720, yOffset - 35);
-    ctx.bezierCurveTo(860, yOffset - 75, 960, yOffset - 10, 1024, yOffset);
+    ctx.bezierCurveTo(860, yOffset - 75, 960, yOffset - 10, width, yOffset);
     ctx.stroke();
   }
 
@@ -94,46 +117,325 @@ export function createFocusWallpaperTexture(): THREE.CanvasTexture {
   ctx.font = '700 52px system-ui, -apple-system, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('FOCUS', 512, 250);
+  ctx.fillText('FOCUS', width / 2, 250);
 
   // Subtitle: "PLAN • EXECUTE • SUCCEED"
   ctx.fillStyle = '#7a7266';
   ctx.font = '600 13px system-ui, -apple-system, sans-serif';
-  ctx.fillText('PLAN • EXECUTE • SUCCEED', 512, 292);
+  ctx.fillText('PLAN • EXECUTE • SUCCEED', width / 2, 292);
+}
 
+export function createFocusWallpaperTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 576; // 16:9 widescreen
+  const ctx = canvas.getContext('2d')!;
+  drawFocusWallpaper(ctx, 1024, 576);
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
 
 export function createMonitorWallpaperTexture(): THREE.CanvasTexture {
-  return createFocusWallpaperTexture();
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 576; // 16:9 widescreen
+  const ctx = canvas.getContext('2d')!;
+
+  // 1. Immediately draw default "FOCUS" wallpaper (instant render, no flicker)
+  drawFocusWallpaper(ctx, 1024, 576);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+
+  // 2. Automatically load custom wallpaper image if placed in public/ folder
+  if (typeof window !== 'undefined') {
+    const candidatePaths = [
+      '/pc-wallpaper.png',
+      '/pc-wallpaper.jpg',
+      '/pc-wallpaper.jpeg',
+      '/pc-wallpaper.webp',
+      '/pc-screen.png',
+      '/pc-screen.jpg',
+      '/pc-screen.jpeg',
+      '/pc-screen.webp',
+      '/monitor-wallpaper.png',
+      '/monitor-wallpaper.jpg',
+      '/wallpaper.png',
+      '/wallpaper.jpg'
+    ];
+
+    let candidateIdx = 0;
+    const tryNext = () => {
+      if (candidateIdx >= candidatePaths.length) return;
+      const src = candidatePaths[candidateIdx++];
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.clearRect(0, 0, 1024, 576);
+        drawImageAspectFill(ctx, img, 1024, 576);
+        tex.needsUpdate = true;
+      };
+      img.onerror = () => {
+        tryNext();
+      };
+      img.src = src;
+    };
+
+    tryNext();
+  }
+
+  return tex;
 }
 
 // ============================================================================
-// Procedural Laptop Wallpaper Texture: "KEEP BUILDING"
+// Procedural Laptop Wallpaper Texture: macOS Developer Studio (VS Code & Terminal)
 // ============================================================================
+export function drawDeveloperIDEWallpaper(ctx: CanvasRenderingContext2D, width = 1024, height = 656): void {
+  // 1. Desktop Background: Cyberpunk / Nordic Indigo & Amber Aurora
+  const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+  bgGrad.addColorStop(0, '#0a0d16');
+  bgGrad.addColorStop(0.5, '#121522');
+  bgGrad.addColorStop(1, '#1b1428');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, width, height);
+
+  // Soft ambient glowing light orbs
+  const glow1 = ctx.createRadialGradient(850, 480, 20, 850, 480, 340);
+  glow1.addColorStop(0, 'rgba(245, 158, 11, 0.16)');
+  glow1.addColorStop(0.6, 'rgba(217, 119, 6, 0.04)');
+  glow1.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow1;
+  ctx.fillRect(0, 0, width, height);
+
+  const glow2 = ctx.createRadialGradient(160, 140, 20, 160, 140, 320);
+  glow2.addColorStop(0, 'rgba(99, 102, 241, 0.18)');
+  glow2.addColorStop(0.6, 'rgba(139, 92, 246, 0.05)');
+  glow2.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow2;
+  ctx.fillRect(0, 0, width, height);
+
+  // 2. macOS Top Menu Bar
+  ctx.fillStyle = 'rgba(16, 18, 24, 0.88)';
+  ctx.fillRect(0, 0, width, 24);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.fillRect(0, 23.5, width, 0.8);
+
+  ctx.fillStyle = 'rgba(235, 240, 250, 0.88)';
+  ctx.font = '600 11px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('', 16, 12);
+
+  ctx.font = '500 10.5px system-ui, -apple-system, sans-serif';
+  const menus = ['Code', 'File', 'Edit', 'Selection', 'View', 'Go', 'Run', 'Terminal', 'Window', 'Help'];
+  let menuX = 36;
+  for (const m of menus) {
+    ctx.fillText(m, menuX, 12);
+    menuX += ctx.measureText(m).width + 14;
+  }
+
+  // Right status bar items
+  ctx.textAlign = 'right';
+  ctx.fillText('100% ⚡   Wi-Fi   10:30 AM', width - 18, 12);
+
+  // 3. VS Code Application Window
+  const winX = 32;
+  const winY = 38;
+  const winW = width - 64;
+  const winH = height - 90;
+  const winRadius = 8;
+
+  // Window shadow
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+  ctx.shadowBlur = 28;
+  ctx.shadowOffsetY = 12;
+
+  ctx.fillStyle = '#181a22';
+  ctx.beginPath();
+  ctx.roundRect(winX, winY, winW, winH, winRadius);
+  ctx.fill();
+
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Window border
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Window Titlebar
+  ctx.fillStyle = '#1e2029';
+  ctx.beginPath();
+  ctx.roundRect(winX, winY, winW, 30, [winRadius, winRadius, 0, 0]);
+  ctx.fill();
+
+  // macOS Traffic Light dots (Close, Minimize, Expand)
+  const dotY = winY + 15;
+  ctx.fillStyle = '#ff5f56';
+  ctx.beginPath();
+  ctx.arc(winX + 16, dotY, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#ffbd2e';
+  ctx.beginPath();
+  ctx.arc(winX + 30, dotY, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#27c93f';
+  ctx.beginPath();
+  ctx.arc(winX + 44, dotY, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Window Title
+  ctx.fillStyle = 'rgba(195, 205, 220, 0.65)';
+  ctx.font = '500 11px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Bishal Saha — portfolio.tsx — Visual Studio Code', winX + winW / 2, dotY);
+
+  // Tabs Bar
+  const tabY = winY + 30;
+  ctx.fillStyle = '#14161d';
+  ctx.fillRect(winX, tabY, winW, 26);
+
+  // Active Tab
+  ctx.fillStyle = '#1b1d26';
+  ctx.fillRect(winX + 48, tabY, 140, 26);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(winX + 48, tabY, 140, 2); // blue active top bar
+
+  ctx.font = '500 10.5px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#67e8f9';
+  ctx.fillText('⚛  portfolio.tsx', winX + 58, tabY + 13);
+
+  // Inactive Tab
+  ctx.fillStyle = 'rgba(160, 175, 195, 0.45)';
+  ctx.fillText('threeEngine.ts', winX + 204, tabY + 13);
+  ctx.fillText('studioScene.ts', winX + 310, tabY + 13);
+
+  // Left Activity Bar
+  ctx.fillStyle = '#12141a';
+  ctx.fillRect(winX, tabY + 26, 44, winH - 56);
+
+  ctx.fillStyle = 'rgba(235, 240, 255, 0.85)';
+  ctx.font = '13px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('📁', winX + 22, tabY + 48);
+  ctx.fillText('🔍', winX + 22, tabY + 80);
+  ctx.fillText('🌿', winX + 22, tabY + 112);
+  ctx.fillText('⚙', winX + 22, winY + winH - 22);
+
+  // Code Editor Area
+  const editorX = winX + 44;
+  const editorY = tabY + 26;
+  const editorW = winW - 44;
+  const codeLines = [
+    { num: '1', tokens: [{ text: '// ✦ Bishal Saha — Creative Full-Stack Engineer', color: '#6a9955' }] },
+    { num: '2', tokens: [{ text: 'import', color: '#c586c0' }, { text: ' { Studio, ThreeWorld } ', color: '#9cdcfe' }, { text: 'from', color: '#c586c0' }, { text: " '@bishal/portfolio';", color: '#ce9178' }] },
+    { num: '3', tokens: [] },
+    { num: '4', tokens: [{ text: 'export const', color: '#569cd6' }, { text: ' Developer', color: '#4ec9b0' }, { text: ' = {', color: '#d4d4d4' }] },
+    { num: '5', tokens: [{ text: '  name: ', color: '#9cdcfe' }, { text: "'Bishal Saha'", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
+    { num: '6', tokens: [{ text: '  role: ', color: '#9cdcfe' }, { text: "'Full-Stack 3D & UI/UX Engineer'", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
+    { num: '7', tokens: [{ text: '  stack: ', color: '#9cdcfe' }, { text: "['Next.js 16', 'TypeScript', 'Three.js', 'React 19']", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
+    { num: '8', tokens: [{ text: '  mission: ', color: '#9cdcfe' }, { text: "'Crafting tactility, depth & cinematic web'", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
+    { num: '9', tokens: [{ text: '  status: ', color: '#9cdcfe' }, { text: "'Building extraordinary software 🚀'", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
+    { num: '10', tokens: [{ text: '};', color: '#d4d4d4' }] },
+    { num: '11', tokens: [] },
+    { num: '12', tokens: [{ text: 'export default', color: '#c586c0' }, { text: ' Studio.', color: '#9cdcfe' }, { text: 'launch', color: '#dcdcaa' }, { text: '(Developer);', color: '#d4d4d4' }] }
+  ];
+
+  ctx.font = '12px "Consolas", "Fira Code", monospace';
+  ctx.textBaseline = 'middle';
+  let lineY = editorY + 18;
+  for (const line of codeLines) {
+    // Line number
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(130, 145, 170, 0.45)';
+    ctx.fillText(line.num, editorX + 32, lineY);
+
+    // Code tokens
+    ctx.textAlign = 'left';
+    let tokenX = editorX + 46;
+    for (const tok of line.tokens) {
+      ctx.fillStyle = tok.color;
+      ctx.fillText(tok.text, tokenX, lineY);
+      tokenX += ctx.measureText(tok.text).width;
+    }
+    lineY += 19;
+  }
+
+  // Integrated Terminal Panel at Bottom of Editor
+  const termY = editorY + 238;
+  const termH = winH - 264;
+  ctx.fillStyle = '#12141a';
+  ctx.fillRect(editorX, termY, editorW, termH);
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(editorX, termY);
+  ctx.lineTo(editorX + editorW, termY);
+  ctx.stroke();
+
+  // Terminal Tabs
+  ctx.font = '600 9.5px system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('TERMINAL', editorX + 16, termY + 12);
+  ctx.fillStyle = 'rgba(150, 165, 185, 0.5)';
+  ctx.fillText('OUTPUT', editorX + 80, termY + 12);
+  ctx.fillText('DEBUG CONSOLE', editorX + 140, termY + 12);
+  ctx.fillText('PORTS', editorX + 235, termY + 12);
+
+  // Terminal Lines
+  ctx.font = '11px "Consolas", "Fira Code", monospace';
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillText('▲ Next.js 16.4.5 (Turbopack) — Local: http://localhost:3000', editorX + 16, termY + 34);
+
+  ctx.fillStyle = '#4ade80';
+  ctx.fillText('✓ Compiled successfully in 140ms (6 static, 2 dynamic routes)', editorX + 16, termY + 52);
+  ctx.fillText('✓ Three.js 3D Studio active • 60 FPS • ACES Filmic Tone Mapping', editorX + 16, termY + 70);
+
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillText('bishal@macbook:~/portfolio$ ', editorX + 16, termY + 92);
+  const promptW = ctx.measureText('bishal@macbook:~/portfolio$ ').width;
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(editorX + 16 + promptW, termY + 84, 7, 13); // Glowing terminal block cursor
+
+  // 4. macOS Floating Frosted Dock at Bottom
+  const dockW = 280;
+  const dockH = 34;
+  const dockX = (width - dockW) / 2;
+  const dockY = height - 42;
+
+  ctx.fillStyle = 'rgba(30, 34, 46, 0.72)';
+  ctx.beginPath();
+  ctx.roundRect(dockX, dockY, dockW, dockH, 10);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Dock App Icons
+  const dockIcons = ['💻', '📁', '⚛', '🌐', '🎨', '🐙', '🎵', '⚙'];
+  const iconSpacing = dockW / dockIcons.length;
+  ctx.font = '14px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  dockIcons.forEach((icon, idx) => {
+    ctx.fillText(icon, dockX + iconSpacing * idx + iconSpacing / 2, dockY + dockH / 2);
+  });
+}
+
 export function createLaptopWallpaperTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 340;
+  canvas.width = 1024;
+  canvas.height = 656; // 16:10 MacBook Retina aspect
   const ctx = canvas.getContext('2d')!;
 
-  // Warm sunset orange-to-dark gradient
-  const grad = ctx.createRadialGradient(256, 170, 40, 256, 170, 260);
-  grad.addColorStop(0, '#e85d26');
-  grad.addColorStop(0.45, '#bd3f16');
-  grad.addColorStop(0.85, '#40180e');
-  grad.addColorStop(1, '#1a0c08');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 512, 340);
-
-  // Bold typography: "KEEP BUILDING"
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '800 24px system-ui, -apple-system, sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText('KEEP', 48, 155);
-  ctx.fillText('BUILDING', 48, 185);
+  drawDeveloperIDEWallpaper(ctx, 1024, 656);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -393,7 +695,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
 
   // Textures
   const oakTex = createNaturalOakTexture();
-  const screenTex = createFocusWallpaperTexture();
+  const screenTex = createMonitorWallpaperTexture();
   const laptopTex = createLaptopWallpaperTexture();
   const poster369Tex = createPoster369Texture();
   const dieterTex = createDieterRamsArtTexture();
@@ -436,17 +738,19 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
 
   const screenMat = new THREE.MeshStandardMaterial({
     map: screenTex,
-    roughness: 0.28,
+    roughness: 0.24,
     metalness: 0.04,
-    emissive: 0x1f1912,
-    emissiveIntensity: 0.16
+    emissive: 0xffffff,
+    emissiveMap: screenTex,
+    emissiveIntensity: 0.22
   });
 
   const laptopScreenMat = new THREE.MeshStandardMaterial({
     map: laptopTex,
     roughness: 0.22,
     metalness: 0.04,
-    emissive: 0x24120a,
+    emissive: 0xffffff,
+    emissiveMap: laptopTex,
     emissiveIntensity: 0.22
   });
 

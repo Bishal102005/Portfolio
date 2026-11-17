@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { FACES, HIT, TH, TW } from './pageDrawers';
+import { registerForewordTexture } from '@/components/About';
 import { NAMES } from '../constants/portfolioData';
 import {
   createDeskWorkspaceScene,
@@ -238,7 +239,7 @@ export class BookEngine {
     // Modern color space, ACES Filmic Tone Mapping, & Soft Shadows for cinematic realism
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.04; // Rich cozy filmic exposure with luminous ambient lighting
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -274,6 +275,9 @@ export class BookEngine {
       const t = new THREE.CanvasTexture(c);
       t.colorSpace = THREE.SRGBColorSpace;
       t.anisotropy = maxAniso;
+      if (i === 1) {
+        registerForewordTexture(t, c);
+      }
       if (i % 2) {
         t.wrapS = THREE.RepeatWrapping;
         t.repeat.x = -1;

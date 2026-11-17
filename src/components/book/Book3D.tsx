@@ -5,6 +5,7 @@ import { BookEngine } from '@/lib/three/bookEngine';
 import { NAMES } from '@/lib/constants/portfolioData';
 import { Navbar } from '../Navbar';
 import { preloadCoverImage } from '../Hero';
+import { preloadAuthorImage } from '../About';
 import { Ribbon } from './Ribbon';
 import { BookHUD } from './BookHUD';
 import { LoadingOverlay } from './LoadingOverlay';
@@ -55,7 +56,7 @@ export const Book3D: React.FC = () => {
 
       try {
         await Promise.race([
-          Promise.all([...fontPromises, preloadCoverImage()]),
+          Promise.all([...fontPromises, preloadCoverImage(), preloadAuthorImage()]),
           new Promise((r) => setTimeout(r, 2500))
         ]);
       } catch {
@@ -102,10 +103,10 @@ export const Book3D: React.FC = () => {
         setCurrentSpread(startSpread);
       }
 
-      // Smooth fadeout of loading screen
+      // Smooth fadeout of welcome screen
       setTimeout(() => {
         if (mounted) setIsLoading(false);
-      }, 400);
+      }, 1100);
     };
 
     setup();
