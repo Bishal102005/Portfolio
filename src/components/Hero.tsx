@@ -146,6 +146,11 @@ function drawEnso(g: CanvasRenderingContext2D, cx: number, cy: number, r: number
 }
 
 export function drawCover(g: CanvasRenderingContext2D) {
+  const scale = g.canvas ? g.canvas.width / TW : 1;
+  g.setTransform(scale, 0, 0, scale, 0, 0);
+  g.imageSmoothingEnabled = true;
+  g.imageSmoothingQuality = 'high';
+
   // 1. Draw double-exposure background image or rich obsidian dusk fallback
   if (cachedCoverImg && cachedCoverImg.complete && cachedCoverImg.naturalWidth > 0) {
     g.drawImage(cachedCoverImg, 0, 0, TW, TH);

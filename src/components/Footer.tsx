@@ -56,6 +56,11 @@ function drawEnso(g: CanvasRenderingContext2D, cx: number, cy: number, r: number
 }
 
 export function drawBackCover(g: CanvasRenderingContext2D) {
+  const scale = g.canvas ? g.canvas.width / TW : 1;
+  g.setTransform(scale, 0, 0, scale, 0, 0);
+  g.imageSmoothingEnabled = true;
+  g.imageSmoothingQuality = 'high';
+
   // Midnight Obsidian & Atmospheric Charcoal
   const gr = g.createLinearGradient(0, 0, TW, TH);
   gr.addColorStop(0, '#06070a');

@@ -2,7 +2,7 @@ import { Project } from '../types/portfolio';
 
 export const TW = 700;
 export const TH = 990;
-export const INK = '#0e0712';
+export const INK = '#0a050e';
 export const GOLD = '#c85a20';
 export const SERIF = '"Playfair Display", Georgia, serif';
 export const SANS = 'Inter, system-ui, sans-serif';
@@ -49,6 +49,11 @@ export function wrap(
 }
 
 export function paper(g: CanvasRenderingContext2D, f: number) {
+  const scale = g.canvas ? g.canvas.width / TW : 1;
+  g.setTransform(scale, 0, 0, scale, 0, 0);
+  g.imageSmoothingEnabled = true;
+  g.imageSmoothingQuality = 'high';
+
   // Gentle Warm Parchment Vellum (Restful, Zero Glare, High Legibility)
   g.fillStyle = '#ece3d2';
   g.fillRect(0, 0, TW, TH);
@@ -62,7 +67,7 @@ export function paper(g: CanvasRenderingContext2D, f: number) {
   g.fillRect(r ? 0 : TW - 85, 0, 85, TH);
 
   // High-contrast page number
-  T(g, String(f), r ? TW - 60 : 60, TH - 50, '700 18px ' + SANS, '#2e1836', r ? 'right' : 'left');
+  T(g, String(f), r ? TW - 60 : 60, TH - 50, '700 18px ' + SANS, '#1e0e24', r ? 'right' : 'left');
 }
 
 export const mx = (f: number) => (f % 2 === 0 ? 90 : 60);

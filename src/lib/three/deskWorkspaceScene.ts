@@ -136,6 +136,33 @@ export function createFocusWallpaperTexture(): THREE.CanvasTexture {
   return tex;
 }
 
+// ============================================================================
+// Cinematic Warm Amber & Gold Color Grading (Matches Studio Portfolio Theme)
+// ============================================================================
+export function applyThemeColorGrading(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+  ctx.save();
+
+  // 1. Subtle Golden Radiance (boosts luminous highlights and rich warm darks)
+  ctx.globalCompositeOperation = 'soft-light';
+  const goldGrad = ctx.createLinearGradient(0, 0, width, height);
+  goldGrad.addColorStop(0, 'rgba(251, 191, 36, 0.14)'); // 24k Gold
+  goldGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.10)');
+  goldGrad.addColorStop(1, 'rgba(180, 83, 9, 0.16)'); // Warm Honey Bronze
+  ctx.fillStyle = goldGrad;
+  ctx.fillRect(0, 0, width, height);
+
+  // 2. Cinematic Studio Vignette (edges blend seamlessly into dark curved monitor bezel)
+  ctx.globalCompositeOperation = 'multiply';
+  const vigGrad = ctx.createRadialGradient(width / 2, height / 2, width * 0.35, width / 2, height / 2, width * 0.70);
+  vigGrad.addColorStop(0, 'rgba(255, 252, 248, 1)');
+  vigGrad.addColorStop(0.72, 'rgba(245, 235, 220, 0.96)');
+  vigGrad.addColorStop(1, 'rgba(32, 20, 10, 0.78)');
+  ctx.fillStyle = vigGrad;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.restore();
+}
+
 export function createMonitorWallpaperTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
@@ -174,6 +201,7 @@ export function createMonitorWallpaperTexture(): THREE.CanvasTexture {
       img.onload = () => {
         ctx.clearRect(0, 0, 1024, 576);
         drawImageAspectFill(ctx, img, 1024, 576);
+        applyThemeColorGrading(ctx, 1024, 576);
         tex.needsUpdate = true;
       };
       img.onerror = () => {
@@ -192,241 +220,445 @@ export function createMonitorWallpaperTexture(): THREE.CanvasTexture {
 // Procedural Laptop Wallpaper Texture: macOS Developer Studio (VS Code & Terminal)
 // ============================================================================
 export function drawDeveloperIDEWallpaper(ctx: CanvasRenderingContext2D, width = 1024, height = 656): void {
-  // 1. Desktop Background: Cyberpunk / Nordic Indigo & Amber Aurora
+  // 1. Wallpaper Background (Deep obsidian / dark violet aurora glow)
   const bgGrad = ctx.createLinearGradient(0, 0, width, height);
   bgGrad.addColorStop(0, '#0a0d16');
-  bgGrad.addColorStop(0.5, '#121522');
-  bgGrad.addColorStop(1, '#1b1428');
+  bgGrad.addColorStop(0.5, '#141724');
+  bgGrad.addColorStop(1, '#1e162a');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
 
   // Soft ambient glowing light orbs
   const glow1 = ctx.createRadialGradient(850, 480, 20, 850, 480, 340);
-  glow1.addColorStop(0, 'rgba(245, 158, 11, 0.16)');
-  glow1.addColorStop(0.6, 'rgba(217, 119, 6, 0.04)');
+  glow1.addColorStop(0, 'rgba(245, 158, 11, 0.18)');
   glow1.addColorStop(1, 'transparent');
   ctx.fillStyle = glow1;
   ctx.fillRect(0, 0, width, height);
 
-  const glow2 = ctx.createRadialGradient(160, 140, 20, 160, 140, 320);
-  glow2.addColorStop(0, 'rgba(99, 102, 241, 0.18)');
-  glow2.addColorStop(0.6, 'rgba(139, 92, 246, 0.05)');
-  glow2.addColorStop(1, 'transparent');
-  ctx.fillStyle = glow2;
-  ctx.fillRect(0, 0, width, height);
-
   // 2. macOS Top Menu Bar
-  ctx.fillStyle = 'rgba(16, 18, 24, 0.88)';
-  ctx.fillRect(0, 0, width, 24);
+  ctx.fillStyle = 'rgba(18, 20, 26, 0.94)';
+  ctx.fillRect(0, 0, width, 26);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-  ctx.fillRect(0, 23.5, width, 0.8);
+  ctx.fillRect(0, 25, width, 1);
 
-  ctx.fillStyle = 'rgba(235, 240, 250, 0.88)';
-  ctx.font = '600 11px system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '700 13px system-ui, -apple-system, sans-serif';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText('', 16, 12);
+  ctx.fillText('', 16, 13);
 
-  ctx.font = '500 10.5px system-ui, -apple-system, sans-serif';
-  const menus = ['Code', 'File', 'Edit', 'Selection', 'View', 'Go', 'Run', 'Terminal', 'Window', 'Help'];
-  let menuX = 36;
-  for (const m of menus) {
-    ctx.fillText(m, menuX, 12);
-    menuX += ctx.measureText(m).width + 14;
-  }
+  ctx.fillStyle = 'rgba(220, 230, 245, 0.85)';
+  ctx.font = '600 11px system-ui, -apple-system, sans-serif';
+  ctx.fillText('Code   File   Edit   Selection   View   Terminal   Window', 42, 13);
 
-  // Right status bar items
   ctx.textAlign = 'right';
-  ctx.fillText('100% ⚡   Wi-Fi   10:30 AM', width - 18, 12);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('100% ⚡   10:30 AM', width - 16, 13);
 
-  // 3. VS Code Application Window
-  const winX = 32;
-  const winY = 38;
-  const winW = width - 64;
-  const winH = height - 90;
+  // 3. VS Code Window Frame
+  const winX = 12;
+  const winY = 34;
+  const winW = width - 24;
+  const winH = height - 76;
   const winRadius = 8;
 
-  // Window shadow
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
-  ctx.shadowBlur = 28;
-  ctx.shadowOffsetY = 12;
-
-  ctx.fillStyle = '#181a22';
+  // Window body
+  ctx.fillStyle = '#161822';
   ctx.beginPath();
   ctx.roundRect(winX, winY, winW, winH, winRadius);
   ctx.fill();
-
-  ctx.shadowColor = 'transparent';
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
-
-  // Window border
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
   // Window Titlebar
-  ctx.fillStyle = '#1e2029';
+  ctx.fillStyle = '#1c1e28';
   ctx.beginPath();
-  ctx.roundRect(winX, winY, winW, 30, [winRadius, winRadius, 0, 0]);
+  ctx.roundRect(winX, winY, winW, 34, [winRadius, winRadius, 0, 0]);
   ctx.fill();
 
-  // macOS Traffic Light dots (Close, Minimize, Expand)
-  const dotY = winY + 15;
+  // Traffic light dots
+  const dotY = winY + 17;
   ctx.fillStyle = '#ff5f56';
   ctx.beginPath();
-  ctx.arc(winX + 16, dotY, 4.5, 0, Math.PI * 2);
+  ctx.arc(winX + 18, dotY, 5.5, 0, Math.PI * 2);
   ctx.fill();
-
   ctx.fillStyle = '#ffbd2e';
   ctx.beginPath();
-  ctx.arc(winX + 30, dotY, 4.5, 0, Math.PI * 2);
+  ctx.arc(winX + 36, dotY, 5.5, 0, Math.PI * 2);
   ctx.fill();
-
   ctx.fillStyle = '#27c93f';
   ctx.beginPath();
-  ctx.arc(winX + 44, dotY, 4.5, 0, Math.PI * 2);
+  ctx.arc(winX + 54, dotY, 5.5, 0, Math.PI * 2);
   ctx.fill();
 
   // Window Title
-  ctx.fillStyle = 'rgba(195, 205, 220, 0.65)';
-  ctx.font = '500 11px system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = 'rgba(220, 230, 245, 0.85)';
+  ctx.font = '700 12px system-ui, -apple-system, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('Bishal Saha — portfolio.tsx — Visual Studio Code', winX + winW / 2, dotY);
+  ctx.fillText('portfolio.tsx — Bishal Saha (Studio Workspace)', winX + winW / 2, dotY);
 
   // Tabs Bar
-  const tabY = winY + 30;
-  ctx.fillStyle = '#14161d';
-  ctx.fillRect(winX, tabY, winW, 26);
+  const tabY = winY + 34;
+  ctx.fillStyle = '#12141a';
+  ctx.fillRect(winX, tabY, winW, 32);
 
   // Active Tab
-  ctx.fillStyle = '#1b1d26';
-  ctx.fillRect(winX + 48, tabY, 140, 26);
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillRect(winX + 48, tabY, 140, 2); // blue active top bar
+  ctx.fillStyle = '#181a24';
+  ctx.fillRect(winX + 48, tabY, 180, 32);
+  ctx.fillStyle = '#fbbf24'; // Radiant Gold tab indicator
+  ctx.fillRect(winX + 48, tabY, 180, 3);
 
-  ctx.font = '500 10.5px system-ui, -apple-system, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#67e8f9';
-  ctx.fillText('⚛  portfolio.tsx', winX + 58, tabY + 13);
+  ctx.font = '700 12px system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('⚛  portfolio.tsx', winX + 62, tabY + 16);
 
-  // Inactive Tab
-  ctx.fillStyle = 'rgba(160, 175, 195, 0.45)';
-  ctx.fillText('threeEngine.ts', winX + 204, tabY + 13);
-  ctx.fillText('studioScene.ts', winX + 310, tabY + 13);
+  // Inactive Tabs
+  ctx.fillStyle = 'rgba(150, 165, 185, 0.55)';
+  ctx.font = '600 11.5px system-ui, -apple-system, sans-serif';
+  ctx.fillText('studioScene.ts', winX + 246, tabY + 16);
+  ctx.fillText('bookEngine.ts', winX + 370, tabY + 16);
 
   // Left Activity Bar
-  ctx.fillStyle = '#12141a';
-  ctx.fillRect(winX, tabY + 26, 44, winH - 56);
+  const sideW = 46;
+  const sideH = winH - 66;
+  ctx.fillStyle = '#101217';
+  ctx.fillRect(winX, tabY + 32, sideW, sideH);
 
-  ctx.fillStyle = 'rgba(235, 240, 255, 0.85)';
-  ctx.font = '13px system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(240, 245, 255, 0.9)';
+  ctx.font = '16px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('📁', winX + 22, tabY + 48);
-  ctx.fillText('🔍', winX + 22, tabY + 80);
-  ctx.fillText('🌿', winX + 22, tabY + 112);
-  ctx.fillText('⚙', winX + 22, winY + winH - 22);
+  ctx.fillText('📁', winX + 23, tabY + 54);
+  ctx.fillText('🔍', winX + 23, tabY + 92);
+  ctx.fillText('🌿', winX + 23, tabY + 130);
+  ctx.fillText('⚙', winX + 23, winY + winH - 24);
 
-  // Code Editor Area
-  const editorX = winX + 44;
-  const editorY = tabY + 26;
-  const editorW = winW - 44;
-  const codeLines = [
-    { num: '1', tokens: [{ text: '// ✦ Bishal Saha — Creative Full-Stack Engineer', color: '#6a9955' }] },
-    { num: '2', tokens: [{ text: 'import', color: '#c586c0' }, { text: ' { Studio, ThreeWorld } ', color: '#9cdcfe' }, { text: 'from', color: '#c586c0' }, { text: " '@bishal/portfolio';", color: '#ce9178' }] },
-    { num: '3', tokens: [] },
-    { num: '4', tokens: [{ text: 'export const', color: '#569cd6' }, { text: ' Developer', color: '#4ec9b0' }, { text: ' = {', color: '#d4d4d4' }] },
-    { num: '5', tokens: [{ text: '  name: ', color: '#9cdcfe' }, { text: "'Bishal Saha'", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
-    { num: '6', tokens: [{ text: '  role: ', color: '#9cdcfe' }, { text: "'Full-Stack 3D & UI/UX Engineer'", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
-    { num: '7', tokens: [{ text: '  stack: ', color: '#9cdcfe' }, { text: "['Next.js 16', 'TypeScript', 'Three.js', 'React 19']", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
-    { num: '8', tokens: [{ text: '  mission: ', color: '#9cdcfe' }, { text: "'Crafting tactility, depth & cinematic web'", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
-    { num: '9', tokens: [{ text: '  status: ', color: '#9cdcfe' }, { text: "'Building extraordinary software 🚀'", color: '#ce9178' }, { text: ',', color: '#d4d4d4' }] },
-    { num: '10', tokens: [{ text: '};', color: '#d4d4d4' }] },
-    { num: '11', tokens: [] },
-    { num: '12', tokens: [{ text: 'export default', color: '#c586c0' }, { text: ' Studio.', color: '#9cdcfe' }, { text: 'launch', color: '#dcdcaa' }, { text: '(Developer);', color: '#d4d4d4' }] }
-  ];
+  // Explorer Sidebar
+  const treeW = 150;
+  ctx.fillStyle = '#14161f';
+  ctx.fillRect(winX + sideW, tabY + 32, treeW, sideH);
 
-  ctx.font = '12px "Consolas", "Fira Code", monospace';
-  ctx.textBaseline = 'middle';
-  let lineY = editorY + 18;
-  for (const line of codeLines) {
-    // Line number
-    ctx.textAlign = 'right';
-    ctx.fillStyle = 'rgba(130, 145, 170, 0.45)';
-    ctx.fillText(line.num, editorX + 32, lineY);
+  ctx.textAlign = 'left';
+  ctx.font = '800 10.5px system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(160, 175, 195, 0.75)';
+  ctx.fillText('EXPLORER', winX + sideW + 14, tabY + 50);
 
-    // Code tokens
-    ctx.textAlign = 'left';
-    let tokenX = editorX + 46;
-    for (const tok of line.tokens) {
-      ctx.fillStyle = tok.color;
-      ctx.fillText(tok.text, tokenX, lineY);
-      tokenX += ctx.measureText(tok.text).width;
-    }
-    lineY += 19;
-  }
+  ctx.font = '600 12px "Consolas", monospace';
+  ctx.fillStyle = 'rgba(230, 235, 245, 0.9)';
+  ctx.fillText('▼ PORTFOLIO', winX + sideW + 14, tabY + 72);
+  ctx.fillText('  ▼ src', winX + sideW + 14, tabY + 92);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('    ⚛ portfolio.tsx', winX + sideW + 14, tabY + 112);
+  ctx.fillStyle = 'rgba(160, 175, 195, 0.65)';
+  ctx.fillText('    ⚡ studio.ts', winX + sideW + 14, tabY + 132);
+  ctx.fillText('    🎨 theme.css', winX + sideW + 14, tabY + 152);
 
-  // Integrated Terminal Panel at Bottom of Editor
-  const termY = editorY + 238;
-  const termH = winH - 264;
-  ctx.fillStyle = '#12141a';
-  ctx.fillRect(editorX, termY, editorW, termH);
+  // Editor Area (BOLD HIGH-VISIBILITY CODE)
+  const editX = winX + sideW + treeW;
+  const editY = tabY + 32;
+  const editW = winW - sideW - treeW;
+  const editH = sideH;
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.font = '700 18px "Consolas", "Fira Code", monospace';
+  let ly = editY + 24;
+  const lh = 28;
+
+  // Line 1: Comment
+  ctx.fillStyle = 'rgba(120, 135, 155, 0.6)';
+  ctx.fillText('1', editX + 14, ly);
+  ctx.fillStyle = '#6a9955';
+  ctx.fillText('// ✦ BISHAL SAHA — CREATIVE 3D & FULL-STACK', editX + 46, ly);
+  ly += lh;
+
+  // Line 2: export const Developer = {
+  ctx.fillStyle = 'rgba(120, 135, 155, 0.6)';
+  ctx.fillText('2', editX + 14, ly);
+  ctx.fillStyle = '#c586c0';
+  ctx.fillText('export const ', editX + 46, ly);
+  let kwW = ctx.measureText('export const ').width;
+  ctx.fillStyle = '#fbbf24'; // Radiant Gold
+  ctx.fillText('Developer', editX + 46 + kwW, ly);
+  let vW = ctx.measureText('Developer').width;
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillText(' = {', editX + 46 + kwW + vW, ly);
+  ly += lh;
+
+  // Line 3: name: "Bishal Saha",
+  ctx.fillStyle = 'rgba(120, 135, 155, 0.6)';
+  ctx.fillText('3', editX + 14, ly);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('  name: ', editX + 46, ly);
+  let p1W = ctx.measureText('  name: ').width;
+  ctx.fillStyle = '#4ade80';
+  ctx.fillText('"Bishal Saha"', editX + 46 + p1W, ly);
+  let s1W = ctx.measureText('"Bishal Saha"').width;
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillText(',', editX + 46 + p1W + s1W, ly);
+  ly += lh;
+
+  // Line 4: craft: ["Next.js 16", "Three.js", "WebGL"],
+  ctx.fillStyle = 'rgba(120, 135, 155, 0.6)';
+  ctx.fillText('4', editX + 14, ly);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('  craft: ', editX + 46, ly);
+  let p2W = ctx.measureText('  craft: ').width;
+  ctx.fillStyle = '#4ade80';
+  ctx.fillText('["Next.js 16", "Three.js", "WebGL"]', editX + 46 + p2W, ly);
+  let s2W = ctx.measureText('["Next.js 16", "Three.js", "WebGL"]').width;
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillText(',', editX + 46 + p2W + s2W, ly);
+  ly += lh;
+
+  // Line 5: focus: "Tactility • Depth • Cinematic Motion",
+  ctx.fillStyle = 'rgba(120, 135, 155, 0.6)';
+  ctx.fillText('5', editX + 14, ly);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('  focus: ', editX + 46, ly);
+  let p3W = ctx.measureText('  focus: ').width;
+  ctx.fillStyle = '#4ade80';
+  ctx.fillText('"Tactility • Depth • Cinematic Motion"', editX + 46 + p3W, ly);
+  let s3W = ctx.measureText('"Tactility • Depth • Cinematic Motion"').width;
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillText(',', editX + 46 + p3W + s3W, ly);
+  ly += lh;
+
+  // Line 6: status: "Building Extraordinary ✨"
+  ctx.fillStyle = 'rgba(120, 135, 155, 0.6)';
+  ctx.fillText('6', editX + 14, ly);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('  status: ', editX + 46, ly);
+  let p4W = ctx.measureText('  status: ').width;
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillText('"Building Extraordinary ✨"', editX + 46 + p4W, ly);
+  ly += lh;
+
+  // Line 7: };
+  ctx.fillStyle = 'rgba(120, 135, 155, 0.6)';
+  ctx.fillText('7', editX + 14, ly);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillText('};', editX + 46, ly);
+
+  // Integrated Terminal Panel (Crisp, High Impact)
+  const termY = editY + 226;
+  const termH = editH - 226;
+  ctx.fillStyle = '#0f1118';
+  ctx.fillRect(editX, termY, editW, termH);
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(editorX, termY);
-  ctx.lineTo(editorX + editorW, termY);
+  ctx.moveTo(editX, termY);
+  ctx.lineTo(editX + editW, termY);
   ctx.stroke();
 
-  // Terminal Tabs
-  ctx.font = '600 9.5px system-ui, -apple-system, sans-serif';
+  // Terminal Header Tabs
+  ctx.font = '700 11.5px system-ui, sans-serif';
   ctx.fillStyle = '#38bdf8';
-  ctx.fillText('TERMINAL', editorX + 16, termY + 12);
-  ctx.fillStyle = 'rgba(150, 165, 185, 0.5)';
-  ctx.fillText('OUTPUT', editorX + 80, termY + 12);
-  ctx.fillText('DEBUG CONSOLE', editorX + 140, termY + 12);
-  ctx.fillText('PORTS', editorX + 235, termY + 12);
-
-  // Terminal Lines
-  ctx.font = '11px "Consolas", "Fira Code", monospace';
+  ctx.fillText('TERMINAL', editX + 16, termY + 14);
+  ctx.fillStyle = 'rgba(140, 155, 175, 0.6)';
+  ctx.fillText('OUTPUT', editX + 110, termY + 14);
+  ctx.fillStyle = 'rgba(140, 155, 175, 0.6)';
+  ctx.fillText('DEBUG CONSOLE', editX + 185, termY + 14);
   ctx.fillStyle = '#fbbf24';
-  ctx.fillText('▲ Next.js 16.4.5 (Turbopack) — Local: http://localhost:3000', editorX + 16, termY + 34);
+  ctx.fillText('PORTS: 3000', editX + 330, termY + 14);
+
+  // Terminal Output Lines (Bold 15px font)
+  ctx.font = '700 15px "Consolas", monospace';
+  let ty = termY + 40;
+  const tlh = 24;
+
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillText('▲ Next.js 16.4.5 (Turbopack) • Ready on http://localhost:3000', editX + 16, ty);
+  ty += tlh;
 
   ctx.fillStyle = '#4ade80';
-  ctx.fillText('✓ Compiled successfully in 140ms (6 static, 2 dynamic routes)', editorX + 16, termY + 52);
-  ctx.fillText('✓ Three.js 3D Studio active • 60 FPS • ACES Filmic Tone Mapping', editorX + 16, termY + 70);
+  ctx.fillText('✓ Compiled in 115ms (6 static routes, 3D WebGL Book Engine)', editX + 16, ty);
+  ty += tlh;
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('✓ Three.js Developer Studio Active • 60 FPS • ACES Filmic', editX + 16, ty);
+  ty += tlh + 4;
 
   ctx.fillStyle = '#f8fafc';
-  ctx.fillText('bishal@macbook:~/portfolio$ ', editorX + 16, termY + 92);
-  const promptW = ctx.measureText('bishal@macbook:~/portfolio$ ').width;
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillRect(editorX + 16 + promptW, termY + 84, 7, 13); // Glowing terminal block cursor
+  ctx.fillText('➜ bishal@macbook:~/portfolio $ ', editX + 16, ty);
+  const promptW = ctx.measureText('➜ bishal@macbook:~/portfolio $ ').width;
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(editX + 16 + promptW + 2, ty - 12, 10, 16); // Blinking amber block cursor
 
-  // 4. macOS Floating Frosted Dock at Bottom
-  const dockW = 280;
-  const dockH = 34;
+  // 4. macOS Floating Dock at Bottom
+  const dockW = 340;
+  const dockH = 42;
   const dockX = (width - dockW) / 2;
-  const dockY = height - 42;
+  const dockY = height - 52;
 
-  ctx.fillStyle = 'rgba(30, 34, 46, 0.72)';
+  ctx.fillStyle = 'rgba(26, 30, 42, 0.82)';
   ctx.beginPath();
-  ctx.roundRect(dockX, dockY, dockW, dockH, 10);
+  ctx.roundRect(dockX, dockY, dockW, dockH, 12);
   ctx.fill();
-
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Dock App Icons
-  const dockIcons = ['💻', '📁', '⚛', '🌐', '🎨', '🐙', '🎵', '⚙'];
-  const iconSpacing = dockW / dockIcons.length;
-  ctx.font = '14px system-ui, sans-serif';
+  ctx.font = '18px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  dockIcons.forEach((icon, idx) => {
-    ctx.fillText(icon, dockX + iconSpacing * idx + iconSpacing / 2, dockY + dockH / 2);
-  });
+  ctx.fillText('💻   📁   ⚛   🌐   🎨   🐙   🎵   ⚙', width / 2, dockY + 22);
+}
+
+// ============================================================================
+// Procedural Apple MacBook Pro Precision Keyboard Deck Texture
+// ============================================================================
+export function createMacBookKeyboardTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 680;
+  const ctx = canvas.getContext('2d')!;
+
+  // 1. Unibody Space Gray Anodized Aluminum Top Case
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, 680);
+  bgGrad.addColorStop(0, '#363942');
+  bgGrad.addColorStop(0.5, '#2e3037');
+  bgGrad.addColorStop(1, '#22242a');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, 1024, 680);
+
+  // Subtle perimeter metallic edge chamfer
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 2, 1020, 676);
+
+  // 2. Dual Stereo Speaker Grilles (Left & Right)
+  ctx.fillStyle = '#16181d';
+  for (let y = 65; y < 390; y += 6) {
+    for (let x = 44; x < 106; x += 5.5) {
+      ctx.fillRect(x, y, 1.8, 1.8);
+    }
+    for (let x = 918; x < 980; x += 5.5) {
+      ctx.fillRect(x, y, 1.8, 1.8);
+    }
+  }
+
+  // 3. Recessed Matte Keyboard Well
+  ctx.fillStyle = '#131418';
+  ctx.beginPath();
+  ctx.roundRect(118, 40, 788, 376, 8);
+  ctx.fill();
+  ctx.strokeStyle = '#0d0e11';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Helper function to draw keys with backlight & crisp legends
+  const drawKey = (x: number, y: number, w: number, h: number, label: string, isSmall = false) => {
+    // Backlight leakage glow
+    ctx.strokeStyle = 'rgba(255, 248, 235, 0.18)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 4);
+    ctx.stroke();
+
+    // Keycap body
+    const keyGrad = ctx.createLinearGradient(x, y, x, y + h);
+    keyGrad.addColorStop(0, '#24262d');
+    keyGrad.addColorStop(1, '#18191e');
+    ctx.fillStyle = keyGrad;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 4);
+    ctx.fill();
+
+    // Keycap perimeter outline
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Laser-etched legend
+    if (label) {
+      ctx.fillStyle = 'rgba(242, 246, 255, 0.9)';
+      ctx.font = isSmall ? '700 11px system-ui, -apple-system, sans-serif' : '700 14px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, x + w / 2, y + h / 2);
+    }
+  };
+
+  // Row 0: Function Keys (y = 50, h = 28)
+  const fKeys = ['esc', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '⏻'];
+  const fKeyW = (764 - (fKeys.length - 1) * 6) / fKeys.length;
+  let fx = 130;
+  for (const k of fKeys) {
+    drawKey(fx, 50, fKeyW, 28, k, true);
+    fx += fKeyW + 6;
+  }
+
+  // Row 1: Numbers (y = 86, h = 50)
+  const r1 = ['~', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '+', 'delete'];
+  let r1x = 130;
+  for (let i = 0; i < r1.length; i++) {
+    const kw = i === r1.length - 1 ? 80 : 47;
+    drawKey(r1x, 86, kw, 50, r1[i]);
+    r1x += kw + 6;
+  }
+
+  // Row 2: QWERTY (y = 144, h = 50)
+  const r2 = ['tab', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\\'];
+  let r2x = 130;
+  for (let i = 0; i < r2.length; i++) {
+    const kw = i === 0 ? 68 : i === r2.length - 1 ? 59 : 47;
+    drawKey(r2x, 144, kw, 50, r2[i], i === 0);
+    r2x += kw + 6;
+  }
+
+  // Row 3: ASDF (y = 202, h = 50)
+  const r3 = ['caps', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'", 'return'];
+  let r3x = 130;
+  for (let i = 0; i < r3.length; i++) {
+    const kw = i === 0 ? 79 : i === r3.length - 1 ? 78 : 47;
+    drawKey(r3x, 202, kw, 50, r3[i], i === 0 || i === r3.length - 1);
+    r3x += kw + 6;
+  }
+
+  // Row 4: ZXCV (y = 260, h = 50)
+  const r4 = ['shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 'shift'];
+  let r4x = 130;
+  for (let i = 0; i < r4.length; i++) {
+    const kw = i === 0 || i === r4.length - 1 ? 99 : 47;
+    drawKey(r4x, 260, kw, 50, r4[i], i === 0 || i === r4.length - 1);
+    r4x += kw + 6;
+  }
+
+  // Row 5: Modifiers + Spacebar + Arrows (y = 318, h = 50)
+  drawKey(130, 318, 52, 50, 'fn', true);
+  drawKey(188, 318, 52, 50, 'control', true);
+  drawKey(246, 318, 52, 50, 'option', true);
+  drawKey(304, 318, 68, 50, '⌘ cmd', true);
+  // Spacebar
+  drawKey(378, 318, 266, 50, '');
+  drawKey(650, 318, 68, 50, '⌘ cmd', true);
+  drawKey(724, 318, 52, 50, 'option', true);
+  // Arrow keys
+  drawKey(782, 344, 34, 24, '◀', true);
+  drawKey(822, 318, 34, 24, '▲', true);
+  drawKey(822, 344, 34, 24, '▼', true);
+  drawKey(862, 344, 34, 24, '▶', true);
+
+  // 4. Large Glass Force Touch Trackpad
+  ctx.fillStyle = '#2c2e36';
+  ctx.beginPath();
+  ctx.roundRect(340, 442, 344, 210, 10);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // 5. Front Display Opening Notch
+  ctx.fillStyle = '#141518';
+  ctx.beginPath();
+  ctx.arc(512, 680, 42, Math.PI, 0);
+  ctx.fill();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
 }
 
 export function createLaptopWallpaperTexture(): THREE.CanvasTexture {
@@ -439,6 +671,42 @@ export function createLaptopWallpaperTexture(): THREE.CanvasTexture {
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = true;
+
+  if (typeof window !== 'undefined') {
+    const candidatePaths = [
+      '/laptop-wallpaper.png',
+      '/laptop-wallpaper.jpg',
+      '/laptop-screen.png',
+      '/laptop-screen.jpg',
+      '/laptop.png',
+      '/laptop.jpg'
+    ];
+
+    let candidateIdx = 0;
+    const tryNext = () => {
+      if (candidateIdx >= candidatePaths.length) return;
+      const src = candidatePaths[candidateIdx++];
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.clearRect(0, 0, 1024, 656);
+        drawImageAspectFill(ctx, img, 1024, 656);
+        applyThemeColorGrading(ctx, 1024, 656);
+        tex.needsUpdate = true;
+      };
+      img.onerror = () => {
+        tryNext();
+      };
+      img.src = src;
+    };
+
+    tryNext();
+  }
+
   return tex;
 }
 
@@ -697,6 +965,7 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   const oakTex = createNaturalOakTexture();
   const screenTex = createMonitorWallpaperTexture();
   const laptopTex = createLaptopWallpaperTexture();
+  const macbookKbTex = createMacBookKeyboardTexture();
   const poster369Tex = createPoster369Texture();
   const dieterTex = createDieterRamsArtTexture();
   const circleTex = createCircleArtTexture();
@@ -730,6 +999,21 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
     metalness: 0.88
   });
 
+  const spaceGrayMat = new THREE.MeshStandardMaterial({
+    color: 0x2e3037,
+    roughness: 0.36,
+    metalness: 0.65
+  });
+
+  const macbookDeckMat = new THREE.MeshStandardMaterial({
+    map: macbookKbTex,
+    roughness: 0.35,
+    metalness: 0.28,
+    emissive: 0xffffff,
+    emissiveMap: macbookKbTex,
+    emissiveIntensity: 0.22
+  });
+
   const chromeMat = new THREE.MeshStandardMaterial({
     color: 0xeeeeee,
     roughness: 0.12,
@@ -740,18 +1024,18 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
     map: screenTex,
     roughness: 0.24,
     metalness: 0.04,
-    emissive: 0xffffff,
+    emissive: 0xffdfa8,
     emissiveMap: screenTex,
-    emissiveIntensity: 0.22
+    emissiveIntensity: 0.25
   });
 
   const laptopScreenMat = new THREE.MeshStandardMaterial({
     map: laptopTex,
-    roughness: 0.22,
+    roughness: 0.20,
     metalness: 0.04,
     emissive: 0xffffff,
     emissiveMap: laptopTex,
-    emissiveIntensity: 0.22
+    emissiveIntensity: 0.38
   });
 
   const feltMat = new THREE.MeshStandardMaterial({
@@ -1569,62 +1853,121 @@ export function createDeskWorkspaceScene(): DeskWorkspaceResult {
   });
 
   // =========================================================================
-  // 8. Elevated Laptop Stand with MacBook Pro ("KEEP BUILDING" Display)
+  // 8. Elevated Aluminum Laptop Stand with Apple MacBook Pro 16"
   // =========================================================================
   const laptopGroup = new THREE.Group();
   laptopGroup.position.set(-0.54, deskTopY + 0.002, -0.30);
-  laptopGroup.rotation.y = 0.25; // Angled inward toward user
+  laptopGroup.rotation.y = 0.28; // Angled inward toward user
 
-  // Aluminum Stand (elevated angled tray)
+  // Stand Base (flat plate on desk)
   const standBase = new THREE.Mesh(
-    new THREE.BoxGeometry(0.20, 0.006, 0.18),
+    new THREE.BoxGeometry(0.19, 0.006, 0.17),
     aluminumMat
   );
   standBase.position.y = 0.003;
   laptopGroup.add(standBase);
 
+  // Stand Support Riser (curved/angled cantilever column)
   const standArm = new THREE.Mesh(
-    new THREE.BoxGeometry(0.04, 0.14, 0.012),
+    new THREE.BoxGeometry(0.05, 0.13, 0.012),
     aluminumMat
   );
-  standArm.position.set(0, 0.07, -0.04);
+  standArm.position.set(0, 0.065, -0.04);
+  standArm.rotation.x = -0.08;
   laptopGroup.add(standArm);
 
+  // Stand Tray (angled platform)
+  const trayAngle = 0.20; // ~11.5 deg tilt
   const standTray = new THREE.Mesh(
-    new THREE.BoxGeometry(0.24, 0.006, 0.18),
+    new THREE.BoxGeometry(0.24, 0.006, 0.17),
     aluminumMat
   );
-  standTray.position.set(0, 0.13, 0.02);
-  standTray.rotation.x = 0.22;
+  standTray.position.set(0, 0.125, 0.015);
+  standTray.rotation.x = trayAngle;
   laptopGroup.add(standTray);
 
-  // MacBook Pro Body on tray
+  // Stand Front Retention Lip Hooks (holds MacBook from sliding)
+  [-0.08, 0.08].forEach((lx) => {
+    const lip = new THREE.Mesh(
+      new THREE.BoxGeometry(0.024, 0.014, 0.008),
+      aluminumMat
+    );
+    lip.position.set(lx, 0.125 - Math.sin(trayAngle) * 0.085 + 0.007, 0.015 + Math.cos(trayAngle) * 0.085);
+    lip.rotation.x = trayAngle;
+    laptopGroup.add(lip);
+  });
+
+  // MacBook Pro 16" Assembly (mounted securely on tray)
+  const macbookPro = new THREE.Group();
+  macbookPro.position.set(0, 0.131, 0.015);
+  macbookPro.rotation.x = trayAngle;
+
+  // 1. MacBook Unibody Base Chassis
   const mbBase = new THREE.Mesh(
-    new THREE.BoxGeometry(0.26, 0.008, 0.18),
-    aluminumMat
+    new THREE.BoxGeometry(0.26, 0.008, 0.176),
+    spaceGrayMat
   );
-  mbBase.position.set(0, 0.136, 0.02);
-  mbBase.rotation.x = 0.22;
-  laptopGroup.add(mbBase);
+  macbookPro.add(mbBase);
 
-  // MacBook Display Lid (open angled)
-  const mbLid = new THREE.Mesh(
-    new THREE.BoxGeometry(0.26, 0.17, 0.006),
-    aluminumMat
+  // 2. MacBook Keyboard Deck & Trackpad (High-detail texture)
+  const mbDeck = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.258, 0.174),
+    macbookDeckMat
   );
-  mbLid.position.set(0, 0.22, -0.05);
-  mbLid.rotation.x = -0.08;
-  laptopGroup.add(mbLid);
+  mbDeck.position.set(0, 0.0042, 0);
+  mbDeck.rotation.x = -Math.PI / 2;
+  macbookPro.add(mbDeck);
 
-  // Screen Face with "KEEP BUILDING" Wallpaper
+  // 3. Display Hinge (Black anodized hinge cylinder)
+  const hingeZ = -0.088;
+  const mbHinge = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.0045, 0.0045, 0.23, 16),
+    matteBlackMat
+  );
+  mbHinge.rotation.z = Math.PI / 2;
+  mbHinge.position.set(0, 0.0042, hingeZ);
+  macbookPro.add(mbHinge);
+
+  // 4. MacBook Display Lid (opens from hinge at ~115 degrees relative to base)
+  const lidGroup = new THREE.Group();
+  lidGroup.position.set(0, 0.0042, hingeZ);
+  lidGroup.rotation.x = -0.36; // Open angle
+
+  // Lid Aluminum Backplate
+  const lidH = 0.168;
+  const mbLidBack = new THREE.Mesh(
+    new THREE.BoxGeometry(0.26, lidH, 0.005),
+    spaceGrayMat
+  );
+  mbLidBack.position.set(0, lidH / 2, -0.0026);
+  lidGroup.add(mbLidBack);
+
+  // Front Display Glass Bezel
+  const mbBezel = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.258, lidH - 0.002),
+    matteBlackMat
+  );
+  mbBezel.position.set(0, lidH / 2, 0.0001);
+  lidGroup.add(mbBezel);
+
+  // Apple Camera Notch at top of bezel
+  const mbNotch = new THREE.Mesh(
+    new THREE.BoxGeometry(0.022, 0.005, 0.0006),
+    matteBlackMat
+  );
+  mbNotch.position.set(0, lidH - 0.0035, 0.0004);
+  lidGroup.add(mbNotch);
+
+  // Active Glowing Retina Display Screen (High-Visibility IDE / Turbopack)
   const mbScreen = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.25, 0.16),
+    new THREE.PlaneGeometry(0.250, 0.158),
     laptopScreenMat
   );
-  mbScreen.position.set(0, 0.22, -0.046);
-  mbScreen.rotation.x = -0.08;
-  laptopGroup.add(mbScreen);
+  mbScreen.position.set(0, lidH / 2 - 0.002, 0.0003);
+  lidGroup.add(mbScreen);
 
+  macbookPro.add(lidGroup);
+  laptopGroup.add(macbookPro);
   group.add(laptopGroup);
 
   // Digital LED Desk Clock ("10:30") beside laptop

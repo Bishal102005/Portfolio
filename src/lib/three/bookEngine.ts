@@ -264,17 +264,29 @@ export class BookEngine {
     this.readingFillLight.position.set(0, 0.3, 3.6);
     this.scene.add(this.readingFillLight);
 
-    // Canvas textures for book pages
+    // Canvas textures for book pages (Ultra High-DPI 2.5x Vector Quality: 1750 x 2475 px)
+    const PAGE_SCALE = 2.5;
+    const canvasWidth = Math.round(TW * PAGE_SCALE);
+    const canvasHeight = Math.round(TH * PAGE_SCALE);
     const maxAniso = this.renderer.capabilities.getMaxAnisotropy();
+
     this.textures = FACES.map((drawerFn, i) => {
       const c = document.createElement('canvas');
-      c.width = TW;
-      c.height = TH;
+      c.width = canvasWidth;
+      c.height = canvasHeight;
       const ctx = c.getContext('2d');
-      if (ctx) drawerFn(ctx, i);
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.setTransform(PAGE_SCALE, 0, 0, PAGE_SCALE, 0, 0);
+        drawerFn(ctx, i);
+      }
       const t = new THREE.CanvasTexture(c);
       t.colorSpace = THREE.SRGBColorSpace;
       t.anisotropy = maxAniso;
+      t.minFilter = THREE.LinearMipmapLinearFilter;
+      t.magFilter = THREE.LinearFilter;
+      t.generateMipmaps = true;
       if (i === 1) {
         registerForewordTexture(t, c);
       }
@@ -290,8 +302,11 @@ export class BookEngine {
       new THREE.MeshStandardMaterial({
         map: m,
         side,
-        roughness: 0.88,
-        metalness: 0.0
+        roughness: 0.82,
+        metalness: 0.0,
+        emissive: 0xffffff,
+        emissiveMap: m,
+        emissiveIntensity: 0.06
       });
 
     // Build sheets

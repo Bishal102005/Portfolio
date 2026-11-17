@@ -141,13 +141,13 @@ export function drawForeword(g: CanvasRenderingContext2D, f: number): void {
   wrap(g, aboutData.intro[0].slice(1), m + 82, 198, 480, 33);
 
   // 3. Body Paragraphs (compact, elegant, high legibility, ends well above card)
-  g.font = '400 17.5px ' + SANS;
-  g.fillStyle = '#1c1220';
+  g.font = '500 18px ' + SANS;
+  g.fillStyle = '#0a050e';
   const y = wrap(g, aboutData.intro[1], m, 296, 560, 27) + 12;
 
-  g.font = 'italic 400 16.5px ' + SERIF;
-  g.fillStyle = '#4c3546';
-  wrap(g, aboutData.instructions, m, y, 560, 25);
+  g.font = 'italic 500 17px ' + SERIF;
+  g.fillStyle = '#1c0c24';
+  wrap(g, aboutData.instructions, m, y, 560, 26);
 
   // =========================================================================
   // Lower Editorial Section: Author Portrait & Credentials (Clear Separation)
